@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>cs152 Project Phase 1: Lexical Analyzer Generation</title>
+</head>
+
+<body>
+
+<h2><u>cs152 Project Phase 1: Lexical Analyzer Generation Using <i>flex</i></u></h2>
+
+<b><i><font size="+1">Start Date: </font></i>01/10/20</b><br>
+<b><i><font size="+1">Due Date: </font></i>01/31/20</b><br>
+<b><i><font size="+1">Grade Weight: </font></i>10% of total course grade</b><br>
+<b>This project can be completed either individually or in pairs (with at most 1 other person)</b>
+<br>
+
+<h3>Overview</h3>
+
+<p>
+For this first part of the class project, you will use the <i>flex</i> tool to generate
+a lexical analyzer for a high-level source code language called "MINI-L".  The lexical analyzer
+should take as input a MINI-L program, parse it, and output the sequence of lexical tokens
+associated with the program.
+</p>
+
+<p>
+[<i>The MINI-L language is described in detail <a href="https://www.cs.ucr.edu/~cxu009/teaching/CS152-winter20/webpages1/mini_l.html">here</a>.</i>] <br>
+[<i>The required output format for your lexical analyzer is described <a href="https://www.cs.ucr.edu/~cxu009/teaching/CS152-winter20/webpages1/token_list_format.html">here</a>.</i>]
+</p>
+
+<hr>
+
+<h3>Flex</h3>
+
+<p>
+<i>Flex</i> is a tool for generating lexical analyzers.  Lexical analyzers scan text
+(a sequence of characters) and look for lexical patterns in the text.
+<i>Flex</i> requires an input file specifying a description for a lexical analyzer to
+generate.  From this description, <i>flex</i> will automatically create a C program
+for you (called <code>lex.yy.c</code>) that will perform the lexical analysis.
+</p>
+
+<p>
+In our department, <i>flex</i> is installed and can be used on "<i>bolt</i>".
+</p>
+<p>
+[<i>A brief introduction to <i>flex</i> can be found <a href="http://www.cs.ucr.edu/~lgao/teaching/flex.html">here</a>.</i>]<br>
+[<i>For detailed information on <i>flex</i> <a href="http://poincare.matf.bg.ac.rs/~aspasic/ppj/literatura/flex.pdf">here</a>.</i>]<br>
+</p>
+<p>
+For the complete <i>flex</i> documentation, run the command <code>info flex</code> from <i>bolt</i>.
+</p>
+
+<hr>
+
+
+<h3>Detailed Requirements</h3>
+
+The following tasks will need to be performed to complete this phase of the project.
+
+<ol>
+<li> Write the specification for a <i>flex</i> lexical analyzer for the MINI-L language.
+For this phase of the project, your lexical analyzer need only output the list of tokens
+identified from an inputted MINI-L program.<br>
+Example: write the <i>flex</i> specification in a file named <code>mini_l.lex</code>.
+</li><li> Run <i>flex</i> to generate the lexical analyzer for MINI-L using your specification.<br>
+Example: execute the command <code>flex mini_l.lex</code>.  This will
+create a file called <code>lex.yy.c</code> in the current directory.
+</li><li> Compile your MINI-L lexical analyzer.  This will require the <code>-lfl</code> flag for <i>gcc</i>.<br>
+Example: compile your lexical analyzer into the executable <code>lexer</code>
+with the following command: <code>gcc -o lexer lex.yy.c -lfl</code>.  The program
+<code>lexer</code> should now be able to convert an inputted MINI-L program into the
+corresponding list of tokens. 
+</li></ol>
+
+<hr>
+
+
+<h3>Example Usage</h3>
+
+<p>
+Suppose your lexical analyzer is in the executable named <code>lexer</code>.  Then for
+the MINI-L program <a href="https://www.cs.ucr.edu/~cxu009/teaching/CS152-winter20/webpages1/fibonacci.min">fibonacci.min</a>, your lexical analyzer should be
+invoked as follows:
+</p>
+
+<p>
+<code>cat fibonacci.min  | lexer</code>
+</p>
+
+<p>
+The list of tokens outputted by your lexical analyzer should then appear as they do
+<a href="https://www.cs.ucr.edu/~cxu009/teaching/CS152-winter20/webpages1/fibonacci.tokens">here</a>.  The tokens can be printed to the screen (standard out).
+</p>
+
+<p>
+Another example: for program <a href="https://www.cs.ucr.edu/~cxu009/teaching/CS152-winter20/webpages1/mytest.min">mytest.min</a>, the outputted tokens
+should look like <a href="https://www.cs.ucr.edu/~cxu009/teaching/CS152-winter20/webpages1/mytest.tokens">this</a>.
+<br>
+For program <a href="https://www.cs.ucr.edu/~cxu009/teaching/CS152-winter20/webpages1/primes.min">primes.min</a>, the outputted tokens
+should look like <a href="https://www.cs.ucr.edu/~cxu009/teaching/CS152-winter20/webpages1/primes.tokens">this</a>.
+</p>
+
+<hr>
+
+
+
+
+
+
+
+</body></html>
