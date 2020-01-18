@@ -1,5 +1,4 @@
-/* 
- * Sample Scanner1: 
+/* * Sample Scanner1: 
  * Description: Replace the string "username" from standard input 
  *              with the user's login name (e.g. lgao)
  * Usage: (1) $ flex sample1.lex
@@ -12,16 +11,22 @@
  */
 
 %{
+/*VALID_IDENT ^{NOT_DIGS}{IDENT}[^_]*/
+/*{IDENT_UNDERSCORE}		fprintf(stderr, "ERROR\n"); exit(EXIT_FAILURE);*/
 /* need this for the call to getlogin() below */
 #include <stdio.h>
 %}
 
 CHAR [a-zA-Z]
 DIGIT [0-9]
-IDENT {CHAR}+({CHAR}|{DIGIT})*
+DIGITS {DIGIT}+
+NOT_DIGS [^0-9]+
+IDENT {CHAR}({CHAR}|{DIGIT})*(_({CHAR}|{DIGIT})+)*
+VALID_IDENT ^[^0-9]+{IDENT}([^_]+)$
 DIG_CHAR {DIGIT}+{CHAR}+
-WHITESPACE [\ ]
+WHITESPACE [\ \t\r\n]
 NOT_IN_ALPH [^+-*/{CHAR}{DIGIT}\ ]
+IDENT_UNDERSCORE [{IDENT}_]
 
 %%
 function 			fprintf(stdout, "FUNCTION\n");
@@ -72,10 +77,11 @@ return 				fprintf(stdout, "RETURN\n");
 "]" 				fprintf(stdout, "R_SQUARE_BRACKET\n");
 ":=" 				fprintf(stdout, "ASSIGN\n");
 {IDENT}				fprintf(stdout, "IDENT %s\n", yytext);
-{DIGIT}+			fprintf(stdout, "NUMBER %s\n", yytext);
+{DIGITS}			fprintf(stdout, "NUMBER %s\n", yytext);
 {WHITESPACE}*
-{DIG_CHAR}			fprintf(stderr, "ERROR: Identifier cannot start with a number.\n"); exit(EXIT_FAILURE);
-.				fprintf(stderr, "ERROR\n"); exit(EXIT_FAILURE);
+{DIGITS}{IDENT}			fprintf(stderr, "ERROR: Identifier cannot start with a number.\n"); exit(EXIT_FAILURE);
+{IDENT}[_]+			fprintf(stderr, "ERROR: UNDERSCORE.\n"); exit(EXIT_FAILURE);
+.				fprintf(stderr, "ERROR: Unrecognized symbol \"%s\"\n", yytext); exit(EXIT_FAILURE);
 %%
 
 main(int argc, char **argv)
