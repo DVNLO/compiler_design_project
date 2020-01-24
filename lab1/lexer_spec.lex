@@ -20,13 +20,9 @@
 CHAR [a-zA-Z]
 DIGIT [0-9]
 DIGITS {DIGIT}+
-NOT_DIGS [^0-9]+
 IDENT {CHAR}({CHAR}|{DIGIT})*(_({CHAR}|{DIGIT})+)*
-VALID_IDENT ^[^0-9]+{IDENT}([^_]+)$
-DIG_CHAR {DIGIT}+{CHAR}+
 WHITESPACE [\ \t\r\n]
-NOT_IN_ALPH [^+-*/{CHAR}{DIGIT}\ ]
-IDENT_UNDERSCORE [{IDENT}_]
+COMMENT ##.*$
 
 %%
 function 			fprintf(stdout, "FUNCTION\n");
@@ -78,6 +74,7 @@ return 				fprintf(stdout, "RETURN\n");
 ":=" 				fprintf(stdout, "ASSIGN\n");
 {IDENT}				fprintf(stdout, "IDENT %s\n", yytext);
 {DIGITS}			fprintf(stdout, "NUMBER %s\n", yytext);
+{COMMENT}			;
 {WHITESPACE}*
 {DIGITS}{IDENT}			fprintf(stderr, "ERROR: Identifier cannot start with a number.\n"); exit(EXIT_FAILURE);
 {IDENT}[_]+			fprintf(stderr, "ERROR: UNDERSCORE.\n"); exit(EXIT_FAILURE);
