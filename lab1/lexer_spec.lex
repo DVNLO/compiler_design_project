@@ -11,74 +11,74 @@
  */
 
 %{
-/*VALID_IDENT ^{NOT_DIGS}{IDENT}[^_]*/
-/*{IDENT_UNDERSCORE}		fprintf(stderr, "ERROR\n"); exit(EXIT_FAILURE);*/
 /* need this for the call to getlogin() below */
 #include <stdio.h>
+int pos = 0;
 %}
 
 CHAR [a-zA-Z]
 DIGIT [0-9]
 DIGITS {DIGIT}+
 IDENT {CHAR}({CHAR}|{DIGIT})*(_({CHAR}|{DIGIT})+)*
-WHITESPACE [\ \t\r\n]
+WHITESPACE [\ \t\r]
 COMMENT ##.*$
 
 %%
-function 			fprintf(stdout, "FUNCTION\n");
-beginparams 			fprintf(stdout, "BEGIN_PARAMS\n");
-endparams 			fprintf(stdout, "END_PARAMS\n");
-beginlocals 			fprintf(stdout, "BEGIN_LOCALS\n");
-endlocals 			fprintf(stdout, "END_LOCALS\n");
-beginbody 			fprintf(stdout, "BEGIN_BODY\n");
-endbody 			fprintf(stdout, "END_BODY\n");
-integer 			fprintf(stdout, "INTEGER\n");
-array 				fprintf(stdout, "ARRAY\n");
-of 				fprintf(stdout, "OF\n");
-if 				fprintf(stdout, "IF\n");
-then 				fprintf(stdout, "THEN\n");
-endif 				fprintf(stdout, "ENDIF\n");
-else 				fprintf(stdout, "ELSE\n");
-while 				fprintf(stdout, "WHILE\n");
-do 				fprintf(stdout, "DO\n");
-for 				fprintf(stdout, "FOR\n");
-beginloop 			fprintf(stdout, "BEGINLOOP\n");
-endloop 			fprintf(stdout, "ENDLOOP\n");
-continue 			fprintf(stdout, "CONTINUE\n");
-read 				fprintf(stdout, "READ\n");
-write 				fprintf(stdout, "WRITE\n");
-and 				fprintf(stdout, "AND\n");
-or 				fprintf(stdout, "OR\n");
-not 				fprintf(stdout, "NOT\n");
-true 				fprintf(stdout, "TRUE\n");
-false 				fprintf(stdout, "FALSE\n");
-return 				fprintf(stdout, "RETURN\n");
-"-" 				fprintf(stdout, "SUB\n");
-"+" 				fprintf(stdout, "ADD\n");
-"*" 				fprintf(stdout, "MULT\n");
-"/" 				fprintf(stdout, "DIV\n");
-"%" 				fprintf(stdout, "MOD\n");
-"==" 				fprintf(stdout, "EQ\n");
-"<>" 				fprintf(stdout, "NEQ\n");
-"<"				fprintf(stdout, "LT\n");
-">"				fprintf(stdout, "GT\n");
-"<=" 				fprintf(stdout, "LTE\n");
-">=" 				fprintf(stdout, "GTE\n");
-";"			 	fprintf(stdout, "SEMICOLON\n");
-":" 				fprintf(stdout, "COLON\n");
-"," 				fprintf(stdout, "COMMA\n");
-"(" 				fprintf(stdout, "L_PAREN\n");
-")" 				fprintf(stdout, "R_PAREN\n");
-"[" 				fprintf(stdout, "L_SQUARE_BRACKET\n");
-"]" 				fprintf(stdout, "R_SQUARE_BRACKET\n");
-":=" 				fprintf(stdout, "ASSIGN\n");
-{IDENT}				fprintf(stdout, "IDENT %s\n", yytext);
-{DIGITS}			fprintf(stdout, "NUMBER %s\n", yytext);
+function 			fprintf(stdout, "FUNCTION\n"); pos += strlen(yytext);
+beginparams 		fprintf(stdout, "BEGIN_PARAMS\n");pos += strlen(yytext);
+endparams 			fprintf(stdout, "END_PARAMS\n");pos += strlen(yytext);
+beginlocals 		fprintf(stdout, "BEGIN_LOCALS\n");pos += strlen(yytext);
+endlocals 			fprintf(stdout, "END_LOCALS\n");pos += strlen(yytext);
+beginbody 			fprintf(stdout, "BEGIN_BODY\n");pos += strlen(yytext);
+endbody 			fprintf(stdout, "END_BODY\n");pos += strlen(yytext);
+integer 			fprintf(stdout, "INTEGER\n");pos += strlen(yytext);
+array 				fprintf(stdout, "ARRAY\n");pos += strlen(yytext);
+of 					fprintf(stdout, "OF\n");pos += strlen(yytext);
+if 					fprintf(stdout, "IF\n");pos += strlen(yytext);
+then 				fprintf(stdout, "THEN\n");pos += strlen(yytext);
+endif 				fprintf(stdout, "ENDIF\n");pos += strlen(yytext);
+else 				fprintf(stdout, "ELSE\n");pos += strlen(yytext);
+while 				fprintf(stdout, "WHILE\n");pos += strlen(yytext);
+do 					fprintf(stdout, "DO\n");pos += strlen(yytext);
+for 				fprintf(stdout, "FOR\n");pos += strlen(yytext);
+beginloop 			fprintf(stdout, "BEGINLOOP\n");pos += strlen(yytext);
+endloop 			fprintf(stdout, "ENDLOOP\n");pos += strlen(yytext);
+continue 			fprintf(stdout, "CONTINUE\n");pos += strlen(yytext);
+read 				fprintf(stdout, "READ\n");pos += strlen(yytext);
+write 				fprintf(stdout, "WRITE\n");pos += strlen(yytext);
+and 				fprintf(stdout, "AND\n");pos += strlen(yytext);
+or 					fprintf(stdout, "OR\n");pos += strlen(yytext);
+not 				fprintf(stdout, "NOT\n");pos += strlen(yytext);
+true 				fprintf(stdout, "TRUE\n");pos += strlen(yytext);
+false 				fprintf(stdout, "FALSE\n");pos += strlen(yytext);
+return 				fprintf(stdout, "RETURN\n");pos += strlen(yytext);
+"-" 				fprintf(stdout, "SUB\n");pos += strlen(yytext);
+"+" 				fprintf(stdout, "ADD\n");pos += strlen(yytext);
+"*" 				fprintf(stdout, "MULT\n");pos += strlen(yytext);
+"/" 				fprintf(stdout, "DIV\n");pos += strlen(yytext);
+"%" 				fprintf(stdout, "MOD\n");pos += strlen(yytext);
+"==" 				fprintf(stdout, "EQ\n");pos += strlen(yytext);
+"<>" 				fprintf(stdout, "NEQ\n");pos += strlen(yytext);
+"<"					fprintf(stdout, "LT\n");pos += strlen(yytext);
+">"					fprintf(stdout, "GT\n");pos += strlen(yytext);
+"<=" 				fprintf(stdout, "LTE\n");pos += strlen(yytext);
+">=" 				fprintf(stdout, "GTE\n");pos += strlen(yytext);
+";"			 		fprintf(stdout, "SEMICOLON\n");pos += strlen(yytext);
+":" 				fprintf(stdout, "COLON\n");pos += strlen(yytext);
+"," 				fprintf(stdout, "COMMA\n");pos += strlen(yytext);
+"(" 				fprintf(stdout, "L_PAREN\n");pos += strlen(yytext);
+")" 				fprintf(stdout, "R_PAREN\n");pos += strlen(yytext);
+"[" 				fprintf(stdout, "L_SQUARE_BRACKET\n");pos += strlen(yytext);
+"]" 				fprintf(stdout, "R_SQUARE_BRACKET\n");pos += strlen(yytext);
+":=" 				fprintf(stdout, "ASSIGN\n");pos += strlen(yytext);
+{IDENT}				fprintf(stdout, "IDENT %s\n", yytext);pos += strlen(yytext);
+{DIGITS}			fprintf(stdout, "NUMBER %s\n", yytext);pos += strlen(yytext);
 {COMMENT}			;
-{WHITESPACE}*
-{DIGITS}{IDENT}			fprintf(stderr, "ERROR: Identifier cannot start with a number.\n"); exit(EXIT_FAILURE);
+{WHITESPACE}*		pos += strlen(yytext);
+\n					printf("line(%d), width(%d)\n", yylineno, pos); yylineno++; pos = 0;
+{DIGITS}{IDENT}		fprintf(stderr, "ERROR: line(%d), col(%d): Identifier cannot start with a number.\n", yylineno, pos); exit(EXIT_FAILURE);
 {IDENT}[_]+			fprintf(stderr, "ERROR: UNDERSCORE.\n"); exit(EXIT_FAILURE);
-.				fprintf(stderr, "ERROR: Unrecognized symbol \"%s\"\n", yytext); exit(EXIT_FAILURE);
+.					fprintf(stderr, "ERROR: Unrecognized symbol \"%s\"\n", yytext); exit(EXIT_FAILURE);
 %%
 
 main(int argc, char **argv)

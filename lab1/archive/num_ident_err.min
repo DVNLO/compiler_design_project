@@ -1,0 +1,6 @@
+function
+beginparams
+endparams
+main
+	9ff := 20;
+end

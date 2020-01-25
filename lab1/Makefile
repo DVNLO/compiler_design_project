@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -lfl
+CFLAGS= -lfl 
 EXEC= a.out
 
 cc: flex
