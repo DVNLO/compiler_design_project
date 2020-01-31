@@ -1,2 +1,2 @@
 #! /bin/bash
-cat $1 | ./a.out | diff -s $2 - ;
+cat $1 | ./a.out | diff -y --suppress-common-lines $2 - ;

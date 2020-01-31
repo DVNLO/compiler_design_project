@@ -77,12 +77,12 @@ return            fprintf(stdout, "RETURN\n");pos += strlen(yytext);
 {WHITESPACE}*     pos += strlen(yytext);
 \n                yylineno++; pos = 0;
 {DIGITS}{IDENT} {
-                  fprintf(stderr, "Error at line %d, column %d: identifier \"%s\" must begin with a letter", yylineno, pos, yytext);
+                  fprintf(stderr, "Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", yylineno, pos, yytext);
                   exit(EXIT_FAILURE);
                 }
 
 {IDENT}[_]+     {
-                  fprintf(stderr, "Error at line %d , column %d: identifier \"%s\" cannot end with an underscore", yylineno, pos, yytext);
+                  fprintf(stderr, "Error at line %d , column %d: identifier \"%s\" cannot end with an underscore\n", yylineno, pos, yytext);
                   exit(EXIT_FAILURE);
                 }
 .               {
