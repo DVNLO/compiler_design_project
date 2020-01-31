@@ -1,7 +1,7 @@
+Error at line 5 , column 0: identifier "n_" cannot end with an underscore
 FUNCTION
 IDENT test2
 SEMICOLON
 BEGIN_PARAMS
 END_PARAMS
 BEGIN_LOCALS
-Error at line 5 , column 0: identifier "n_" cannot end with an underscore
