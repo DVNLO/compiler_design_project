@@ -19,7 +19,7 @@ int pos = 0;
 CHAR [a-zA-Z]
 DIGIT [0-9]
 DIGITS {DIGIT}+
-IDENT {CHAR}({CHAR}|{DIGIT})*(_({CHAR}|{DIGIT})+)*
+IDENT {CHAR}|({CHAR}({CHAR}|{DIGIT}|_)*({CHAR}|{DIGIT}))
 WHITESPACE [\ \t\r]
 COMMENT ##.*$
 
@@ -76,12 +76,12 @@ return            fprintf(stdout, "RETURN\n");pos += strlen(yytext);
 {COMMENT}         ;
 {WHITESPACE}*     pos += strlen(yytext);
 \n                yylineno++; pos = 0;
-{DIGITS}{IDENT} {
+({DIGIT}|_)+({IDENT})? {
                   fprintf(stderr, "Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", yylineno, pos, yytext);
                   exit(EXIT_FAILURE);
                 }
 
-{IDENT}[_]+     {
+{IDENT}(_)+     {
                   fprintf(stderr, "Error at line %d , column %d: identifier \"%s\" cannot end with an underscore\n", yylineno, pos, yytext);
                   exit(EXIT_FAILURE);
                 }
