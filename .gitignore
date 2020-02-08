@@ -1,0 +1,11 @@
+*
+!.gitignore
+!*/
+!*.cc
+!*.c
+*/lex.yy.c
+!*.h
+!*.lex
+!*.min
+!*.sh
+!*.tokens
