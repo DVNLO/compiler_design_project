@@ -1,5 +1,4 @@
 %{
-/* need this for the call to getlogin() below */
 #include <stdio.h>
 int pos = 0;
 %}
@@ -7,7 +6,7 @@ int pos = 0;
 CHAR [a-zA-Z]
 DIGIT [0-9]
 DIGITS {DIGIT}+
-IDENT {CHAR}|({CHAR}({CHAR}|{DIGIT}|_)*({CHAR}|{DIGIT}))
+IDENT {CHAR}(({CHAR}|{DIGIT}|_)*({CHAR}|{DIGIT}))*
 WHITESPACE [\ \t\r]
 COMMENT ##.*$
 
