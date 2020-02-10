@@ -9,6 +9,7 @@ DIGITS {DIGIT}+
 IDENT {CHAR}(({CHAR}|{DIGIT}|_)*({CHAR}|{DIGIT}))*
 WHITESPACE [ \t]
 COMMENT ##.*$
+NEWLINE \n
 
 %%
 function          fprintf(stdout, "FUNCTION\n"); pos += strlen(yytext);
@@ -62,18 +63,30 @@ return            fprintf(stdout, "RETURN\n");pos += strlen(yytext);
 {DIGITS}          fprintf(stdout, "NUMBER %s\n", yytext);pos += strlen(yytext);
 {COMMENT}         ;
 {WHITESPACE}*     pos += strlen(yytext);
-\n                yylineno++; pos = 0;
-({DIGIT}|_)+({IDENT})? {
-                  fprintf(stderr, "Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", yylineno, pos, yytext);
+{NEWLINE}         yylineno++; pos = 0;
+({DIGIT}|_)+({IDENT})?(_)* {
+                  fprintf(stderr, 
+                          "Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", 
+                          yylineno, 
+                          pos, 
+                          yytext);
                   exit(EXIT_FAILURE);
                 }
 
 {IDENT}(_)+     {
-                  fprintf(stderr, "Error at line %d , column %d: identifier \"%s\" cannot end with an underscore\n", yylineno, pos, yytext);
+                  fprintf(stderr, 
+                          "Error at line %d , column %d: identifier \"%s\" cannot end with an underscore\n", 
+                          yylineno,
+                          pos,
+                          yytext);
                   exit(EXIT_FAILURE);
                 }
 .               {
-                  fprintf(stderr, "Error at line %d, column %d: unrecognized symbol \"%s\"\n", yylineno, pos + 1, yytext);
+                  fprintf(stderr,
+                          "Error at line %d, column %d: unrecognized symbol \"%s\"\n",
+			  yylineno,
+                          pos + 1,
+                          yytext);
                   exit(EXIT_FAILURE);
                 }
 %%
