@@ -7,7 +7,7 @@ CHAR [a-zA-Z]
 DIGIT [0-9]
 DIGITS {DIGIT}+
 IDENT {CHAR}(({CHAR}|{DIGIT}|_)*({CHAR}|{DIGIT}))*
-WHITESPACE [\ \t\r]
+WHITESPACE [ \t]
 COMMENT ##.*$
 
 %%
