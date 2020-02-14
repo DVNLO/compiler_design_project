@@ -9,6 +9,7 @@
 !*.sh
 !*.tokens
 !*.y
+!*.txt
 !Makefile
 */lex.yy.c
 */bison.c
