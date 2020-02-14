@@ -14,3 +14,4 @@
 */lex.yy.c
 */bison.c
 *.tab.*
+*/tok.h
