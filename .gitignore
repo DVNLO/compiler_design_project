@@ -3,9 +3,13 @@
 !*/
 !*.cc
 !*.c
-*/lex.yy.c
 !*.h
 !*.lex
 !*.min
 !*.sh
 !*.tokens
+!*.y
+
+*/lex.yy.c
+*/bison.c
+*.tab.*
