@@ -1,7 +1,0 @@
-Error at line 5, column 0: identifier "2n" must begin with a letter
-FUNCTION
-IDENT test1
-SEMICOLON
-BEGIN_PARAMS
-END_PARAMS
-BEGIN_LOCALS
