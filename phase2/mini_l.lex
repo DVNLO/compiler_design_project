@@ -1,5 +1,5 @@
 %{
-#include <stdio.h>
+#include "heading.h"
 int pos = 0;
 %}
 
@@ -91,9 +91,11 @@ return            fprintf(stdout, "RETURN\n");pos += strlen(yytext);
                 }
 %%
 
+int
 main(int argc, char **argv)
 {
   if (argc > 1)
     yyin = fopen(argv[1], "r");
   yylex();
+  return 0;
 }

@@ -19,13 +19,13 @@
 Expression 
   : Expression '+' Multiplicative_Expr  { printf("PLUS\n"); }
   | Expression '-' Multiplicative_Expr  { printf("MINUS\n"); }
-  | Multiplicative-Expr
+  | Multiplicative_Expr
   ;
 
 Multiplicative_Expr
   : Multiplicative_Expr '*' Term  { printf("MULT\n"); }
   | Multiplicative_Expr '/' Term  { printf("DIV\n"); }
-  | Multiplicative_Expr '%' Term  { printf("MOD\n"): }
+  | Multiplicative_Expr '%' Term  { printf("MOD\n"); }
   | Term
   ;
 
