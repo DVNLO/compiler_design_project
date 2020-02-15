@@ -9,13 +9,50 @@ int yylex(void);
   string* op_val;
 }
 
-%token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY OF IF THEN ENDIF ELSE WHILE DO FOR BEGINLOOP ENDLOOP CONTINUE READ WRITE NOT TRUE FALSE RETURN SEMICOLON COLON COMMA L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET
+%token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY 
+%token END_BODY INTEGER ARRAY OF IF THEN ENDIF ELSE WHILE DO FOR BEGINLOOP
+%token ENDLOOP CONTINUE READ WRITE NOT TRUE FALSE RETURN SEMICOLON COLON COMMA 
+%token L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET
+
 %token <op_val> IDENT
 %token <int_val> NUMBER 
+
 %left MULT DIV MOD ADD SUB LT LTE GT GTE EQ NEQ AND OR
+
 %right NOT ASSIGN
 
 %%
+
+Bool_Expr
+  : Bool_Expr OR Relation_And_Expr
+  | Relation_And_Expr
+  ;
+
+Relation_And_Expr
+  : Relation_And_Expr AND Relation_Expr
+  | Relation_Expr
+  ;
+
+Relation_Expr
+  : NOT Relation_Expr1
+  | Relation_Expr1
+  ;
+
+Relation_Expr1
+  : Expression Comp Expression
+  | TRUE
+  | FALSE
+  | L_PAREN Bool_Expr R_PAREN
+  ;
+ 
+Comp
+  : EQ
+  | NEQ
+  | LT
+  | GT
+  | LTE
+  | GTE 
+  ;
 
 Expression 
   : Expression ADD Multiplicative_Expr  { printf("PLUS\n"); }
