@@ -1,6 +1,3 @@
-/* Mini Calculator */
-/* calc.y */
-
 %{
 #include "heading.h"
 int yyerror(char const * s);
@@ -23,7 +20,7 @@ int yylex(void);
 Expression 
   : Expression ADD Multiplicative_Expr  { printf("PLUS\n"); }
   | Expression SUB Multiplicative_Expr  { printf("SUB\n"); }
-  | Multiplicative_Expr
+  | Multiplicative_Expr 
   ;
 
 Multiplicative_Expr
@@ -39,9 +36,9 @@ Var
   ;
 
 Term
-  : '-' Term1 { printf("- TERM\n"); }
+  : SUB Term1 { printf("SUB TERM\n"); }
   | Term1 { printf("TERM1\n"); }
-  | Term2 L_PAREN Expression R_PAREN  { printf("TERM2\n"); }
+  | IDENT L_PAREN Term2 R_PAREN  { printf("TERM2\n"); }
   ;
 
 Term1
