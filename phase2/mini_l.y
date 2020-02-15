@@ -33,14 +33,9 @@ functions
   | function { puts("functions -> function"); }
   ;
 
-identifiers
-  : identifiers COMMA IDENT { puts("identifiers -> identifiers COMMA IDENT"); }
-  | IDENT { puts("identifiers -> IDENT"); }
-  ;
-
 function
-  : FUNCTION IDENT SEMICOLON params locals body {
-      puts("function -> FUNCTION IDENT SEMICOLON params locals body"); 
+  : FUNCTION identifier SEMICOLON params locals body {
+      puts("function -> FUNCTION identifier SEMICOLON params locals body"); 
     }
   ;
 
@@ -74,9 +69,9 @@ declaration
   : identifiers COLON INTEGER { 
       puts("declaration -> identifiers COLON INTEGER"); 
     }
-  | identifiers COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER { 
+  | identifiers COLON ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER { 
       puts("declaration -> identifiers COLON ARRAY L_SQUARE_BRACKET "
-           "NUMBER R_SQUARE_BRACKET OF INTEGER"); 
+           "number R_SQUARE_BRACKET OF INTEGER"); 
     }
   ;
 
@@ -127,11 +122,11 @@ statement_do_while
   ;
 
 statement_for
-  : FOR variable ASSIGN NUMBER SEMICOLON 
+  : FOR variable ASSIGN number SEMICOLON 
         bool_exp SEMICOLON 
         statement_assign 
         BEGINLOOP statements ENDLOOP {
-      puts("statement_for -> FOR variable ASSIGN NUMBER SEMICOLON bool_exp "
+      puts("statement_for -> FOR variable ASSIGN number SEMICOLON bool_exp "
            "SEMICOLON statement_assign BEGINLOOP statements ENDLOOP");
     }
   ;
@@ -220,21 +215,21 @@ variables
   ; 
 
 variable
-  : IDENT  { puts("variable -> IDENT"); }
-  | IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET { 
-      puts("variable -> IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET"); 
+  : identifier  { puts("variable -> identifier"); }
+  | identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET { 
+      puts("variable -> identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET"); 
     }
   ;
 
 term
   : SUB term1 { puts("term -> SUB term1"); }
   | term1 { puts("term -> term1"); }
-  | IDENT L_PAREN term2 R_PAREN  { puts("term -> IDENT L_PAREN term2 R_PAREN"); }
+  | identifier L_PAREN term2 R_PAREN  { puts("term -> identifier L_PAREN term2 R_PAREN"); }
   ;
 
 term1
   : variable { puts("term1 -> variable"); }
-  | NUMBER  { puts("term1 -> NUMBER"); }
+  | number  { puts("term1 -> number"); }
   | L_PAREN expression R_PAREN { puts("term1 -> L_PAREN expression R_PAREN"); }
   ;
 
@@ -242,6 +237,20 @@ term2
   : term2 COMMA expression { puts("term2 -> term2 COMMA expression"); }
   | expression { puts("term2 -> expression"); }
   ;
+
+identifiers
+  : identifiers COMMA identifier { puts("identifiers -> identifiers COMMA identifier"); }
+  | identifier { puts("identifiers -> identifier"); }
+  ;
+
+identifier
+  : IDENT { printf("identifier -> IDENT %s\n", yylval.op_val->c_str()); }
+  ;
+
+number
+  : NUMBER { printf("number -> NUMBER %d\n", yylval.int_val); }
+  ;
+
 
 %%
 
