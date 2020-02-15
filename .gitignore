@@ -2,6 +2,7 @@
 !.gitignore
 !*/
 !*.cc
+!*.cpp
 !*.c
 !*.h
 !*.lex
