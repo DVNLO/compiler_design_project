@@ -16,3 +16,4 @@
 */bison.c
 *.tab.*
 *lex.c
+*/tok.h
