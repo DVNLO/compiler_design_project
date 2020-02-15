@@ -23,29 +23,123 @@ int yylex(void);
 
 %%
 
-Bool_Expr
-  : Bool_Expr OR Relation_And_Expr
-  | Relation_And_Expr
+
+program 
+  : functions
   ;
 
-Relation_And_Expr
-  : Relation_And_Expr AND Relation_Expr
-  | Relation_Expr
+functions 
+  : functions function
+  | function
   ;
 
-Relation_Expr
-  : NOT Relation_Expr1
-  | Relation_Expr1
+identifiers
+  : identifiers COMMA IDENT
+  | IDENT
   ;
 
-Relation_Expr1
-  : Expression Comp Expression
+function
+  : FUNCTION IDENT SEMICOLON params locals body
+  ;
+
+params
+  : BEGIN_PARAMS declarations END_PARAMS
+  ;
+
+locals
+  : BEGIN_LOCALS declarations END_LOCALS
+  ;
+
+body
+  : BEGIN_BODY statements END_BODY
+
+declarations
+  : declarations declaration SEMICOLON
+  | declaration
+  ;
+
+declaration
+  : identifiers SEMICOLON INTEGER
+  | identifiers SEMICOLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
+  ;
+
+statements
+  : statements statement SEMICOLON
+  | statement SEMICOLON
+  ;
+
+statement
+  : statement_assign
+  | statement_if
+  | statement_while
+  | statement_do_while
+  | statement_for
+  | statement_read
+  | statement_write
+  | statement_continue
+  | statement_return
+  ;
+
+statement_assign
+  : variable ASSIGN expression
+  ;
+
+statement_if
+  : IF bool_exp THEN statements ENDIF
+  | IF bool_exp THEN statements ELSE statements ENDIF
+  ;
+
+statement_while
+  : WHILE bool_exp BEGINLOOP statements ENDLOOP
+  ;
+
+statement_do_while
+  : DO BEGINLOOP statements ENDLOOP WHILE bool_exp
+  ;
+
+statement_for
+  : FOR variable ASSIGN NUMBER SEMICOLON bool_exp SEMICOLON statement_assign BEGINLOOP statements ENDLOOP
+  ;
+
+statement_read
+  : READ variables
+  ;
+
+statement_write
+  : WRITE variables
+  ;
+
+statement_continue
+  : CONTINUE
+  ;
+
+statement_return
+  : RETURN expression
+  ;
+
+bool_exp
+  : bool_exp OR relation_and_exp
+  | relation_and_exp
+  ;
+
+relation_and_exp
+  : relation_and_exp AND relation_exp
+  | relation_exp
+  ;
+
+relation_exp
+  : NOT relation_exp1
+  | relation_exp1
+  ;
+
+relation_exp1
+  : expression comp expression
   | TRUE
   | FALSE
-  | L_PAREN Bool_Expr R_PAREN
+  | L_PAREN bool_exp R_PAREN
   ;
  
-Comp
+comp
   : EQ
   | NEQ
   | LT
@@ -54,39 +148,44 @@ Comp
   | GTE 
   ;
 
-Expression 
-  : Expression ADD Multiplicative_Expr  { printf("PLUS\n"); }
-  | Expression SUB Multiplicative_Expr  { printf("SUB\n"); }
-  | Multiplicative_Expr 
+expression 
+  : expression ADD multiplicative_exp  { printf("PLUS\n"); }
+  | expression SUB multiplicative_exp  { printf("SUB\n"); }
+  | multiplicative_exp 
   ;
 
-Multiplicative_Expr
-  : Multiplicative_Expr MULT Term  { printf("MULT\n"); }
-  | Multiplicative_Expr DIV Term  { printf("DIV\n"); }
-  | Multiplicative_Expr MOD Term  { printf("MOD\n"); }
-  | Term
+multiplicative_exp
+  : multiplicative_exp MULT term  { printf("MULT\n"); }
+  | multiplicative_exp DIV term  { printf("DIV\n"); }
+  | multiplicative_exp MOD term  { printf("MOD\n"); }
+  | term
   ;
 
-Var
+variables
+  : variables COMMA variable
+  | variable
+  ; 
+
+variable
   : IDENT  { printf("IDENT\n"); }
-  | IDENT L_SQUARE_BRACKET Expression R_SQUARE_BRACKET
+  | IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET
   ;
 
-Term
-  : SUB Term1 { printf("SUB TERM\n"); }
-  | Term1 { printf("TERM1\n"); }
-  | IDENT L_PAREN Term2 R_PAREN  { printf("TERM2\n"); }
+term
+  : SUB term1 { printf("SUB TERM\n"); }
+  | term1 { printf("TERM1\n"); }
+  | IDENT L_PAREN term2 R_PAREN  { printf("TERM2\n"); }
   ;
 
-Term1
-  : Var { printf("VAR\n"); }
+term1
+  : variable { printf("VAR\n"); }
   | NUMBER  { printf("NUMBER\n"); }
-  | L_PAREN Expression R_PAREN
+  | L_PAREN expression R_PAREN
   ;
 
-Term2
-  : Term2 COMMA Expression
-  | Expression
+term2
+  : term2 COMMA expression
+  | expression
   ;
 
 %%
