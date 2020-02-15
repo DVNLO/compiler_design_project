@@ -11,6 +11,8 @@
 !*.y
 !*.txt
 !Makefile
+
 */lex.yy.c
 */bison.c
 *.tab.*
+*lex.c

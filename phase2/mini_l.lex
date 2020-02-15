@@ -90,7 +90,7 @@ return            fprintf(stdout, "RETURN\n");pos += strlen(yytext);
                   exit(EXIT_FAILURE);
                 }
 %%
-
+/*
 int
 main(int argc, char **argv)
 {
@@ -99,3 +99,4 @@ main(int argc, char **argv)
   yylex();
   return 0;
 }
+*/
