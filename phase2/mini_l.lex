@@ -1,69 +1,78 @@
 %{
 #include "heading.h"
-int pos = 0;
+#include "tok.h"
+int pos = 1;
 %}
 
 CHAR [a-zA-Z]
 DIGIT [0-9]
 DIGITS {DIGIT}+
 IDENT {CHAR}(({CHAR}|{DIGIT}|_)*({CHAR}|{DIGIT}))*
-WHITESPACE [ \t]
+WHITESPACE [ \t\r]
 COMMENT ##.*$
 NEWLINE \n
 
 %%
-function          fprintf(stdout, "FUNCTION\n"); pos += strlen(yytext);
-beginparams       fprintf(stdout, "BEGIN_PARAMS\n");pos += strlen(yytext);
-endparams         fprintf(stdout, "END_PARAMS\n");pos += strlen(yytext);
-beginlocals       fprintf(stdout, "BEGIN_LOCALS\n");pos += strlen(yytext);
-endlocals         fprintf(stdout, "END_LOCALS\n");pos += strlen(yytext);
-beginbody         fprintf(stdout, "BEGIN_BODY\n");pos += strlen(yytext);
-endbody           fprintf(stdout, "END_BODY\n");pos += strlen(yytext);
-integer           fprintf(stdout, "INTEGER\n");pos += strlen(yytext);
-array             fprintf(stdout, "ARRAY\n");pos += strlen(yytext);
-of                fprintf(stdout, "OF\n");pos += strlen(yytext);
-if                fprintf(stdout, "IF\n");pos += strlen(yytext);
-then              fprintf(stdout, "THEN\n");pos += strlen(yytext);
-endif             fprintf(stdout, "ENDIF\n");pos += strlen(yytext);
-else              fprintf(stdout, "ELSE\n");pos += strlen(yytext);
-while             fprintf(stdout, "WHILE\n");pos += strlen(yytext);
-do                fprintf(stdout, "DO\n");pos += strlen(yytext);
-for               fprintf(stdout, "FOR\n");pos += strlen(yytext);
-beginloop         fprintf(stdout, "BEGINLOOP\n");pos += strlen(yytext);
-endloop           fprintf(stdout, "ENDLOOP\n");pos += strlen(yytext);
-continue          fprintf(stdout, "CONTINUE\n");pos += strlen(yytext);
-read              fprintf(stdout, "READ\n");pos += strlen(yytext);
-write             fprintf(stdout, "WRITE\n");pos += strlen(yytext);
-and               fprintf(stdout, "AND\n");pos += strlen(yytext);
-or                fprintf(stdout, "OR\n");pos += strlen(yytext);
-not               fprintf(stdout, "NOT\n");pos += strlen(yytext);
-true              fprintf(stdout, "TRUE\n");pos += strlen(yytext);
-false             fprintf(stdout, "FALSE\n");pos += strlen(yytext);
-return            fprintf(stdout, "RETURN\n");pos += strlen(yytext);
-"-"               fprintf(stdout, "SUB\n");pos += strlen(yytext);
-"+"               fprintf(stdout, "ADD\n");pos += strlen(yytext);
-"*"               fprintf(stdout, "MULT\n");pos += strlen(yytext);
-"/"               fprintf(stdout, "DIV\n");pos += strlen(yytext);
-"%"               fprintf(stdout, "MOD\n");pos += strlen(yytext);
-"=="              fprintf(stdout, "EQ\n");pos += strlen(yytext);
-"<>"              fprintf(stdout, "NEQ\n");pos += strlen(yytext);
-"<"               fprintf(stdout, "LT\n");pos += strlen(yytext);
-">"               fprintf(stdout, "GT\n");pos += strlen(yytext);
-"<="              fprintf(stdout, "LTE\n");pos += strlen(yytext);
-">="              fprintf(stdout, "GTE\n");pos += strlen(yytext);
-";"               fprintf(stdout, "SEMICOLON\n");pos += strlen(yytext);
-":"               fprintf(stdout, "COLON\n");pos += strlen(yytext);
-","               fprintf(stdout, "COMMA\n");pos += strlen(yytext);
-"("               fprintf(stdout, "L_PAREN\n");pos += strlen(yytext);
-")"               fprintf(stdout, "R_PAREN\n");pos += strlen(yytext);
-"["               fprintf(stdout, "L_SQUARE_BRACKET\n");pos += strlen(yytext);
-"]"               fprintf(stdout, "R_SQUARE_BRACKET\n");pos += strlen(yytext);
-":="              fprintf(stdout, "ASSIGN\n");pos += strlen(yytext);
-{IDENT}           fprintf(stdout, "IDENT %s\n", yytext);pos += strlen(yytext);
-{DIGITS}          fprintf(stdout, "NUMBER %s\n", yytext);pos += strlen(yytext);
-{COMMENT}         ;
-{WHITESPACE}*     pos += strlen(yytext);
-{NEWLINE}         yylineno++; pos = 0;
+function          { pos += strlen(yytext); return FUNCTION; }
+beginparams       { pos += strlen(yytext); return BEGIN_PARAMS; }
+endparams         { pos += strlen(yytext); return END_PARAMS; }
+beginlocals       { pos += strlen(yytext); return BEGIN_LOCALS; }
+endlocals         { pos += strlen(yytext); return END_LOCALS; }
+beginbody         { pos += strlen(yytext); return BEGIN_BODY; }
+endbody           { pos += strlen(yytext); return END_BODY; }
+integer           { pos += strlen(yytext); return INTEGER; }
+array             { pos += strlen(yytext); return ARRAY; }
+of                { pos += strlen(yytext); return OF; }
+if                { pos += strlen(yytext); return IF; }
+then              { pos += strlen(yytext); return THEN; }
+endif             { pos += strlen(yytext); return ENDIF; }
+else              { pos += strlen(yytext); return ELSE; }
+while             { pos += strlen(yytext); return WHILE; }
+do                { pos += strlen(yytext); return DO; }
+for               { pos += strlen(yytext); return FOR; }
+beginloop         { pos += strlen(yytext); return BEGINLOOP; }
+endloop           { pos += strlen(yytext); return ENDLOOP; }
+continue          { pos += strlen(yytext); return CONTINUE; }
+read              { pos += strlen(yytext); return READ; }
+write             { pos += strlen(yytext); return WRITE; }
+and               { pos += strlen(yytext); return AND; }
+or                { pos += strlen(yytext); return OR; }
+not               { pos += strlen(yytext); return NOT; }
+true              { pos += strlen(yytext); return TRUE; }
+false             { pos += strlen(yytext); return FALSE; }
+return            { pos += strlen(yytext); return RETURN; }
+"-"               { pos += strlen(yytext); return SUB; }
+"+"               { pos += strlen(yytext); return ADD; }
+"*"               { pos += strlen(yytext); return MULT; }
+"/"               { pos += strlen(yytext); return DIV; }
+"%"               { pos += strlen(yytext); return MOD; }
+"=="              { pos += strlen(yytext); return EQ; }
+"<>"              { pos += strlen(yytext); return NEQ; }
+"<"               { pos += strlen(yytext); return LT; }
+">"               { pos += strlen(yytext); return GT; }
+"<="              { pos += strlen(yytext); return LTE; }
+">="              { pos += strlen(yytext); return GTE; }
+";"               { pos += strlen(yytext); return SEMICOLON; }
+":"               { pos += strlen(yytext); return COLON; }
+","               { pos += strlen(yytext); return COMMA; }
+"("               { pos += strlen(yytext); return L_PAREN; }
+")"               { pos += strlen(yytext); return R_PAREN; }
+"["               { pos += strlen(yytext); return L_SQUARE_BRACKET; }
+"]"               { pos += strlen(yytext); return R_SQUARE_BRACKET; }
+":="              { pos += strlen(yytext); return ASSIGN; }
+{IDENT}           { 
+                    pos += strlen(yytext); 
+                    yylval.op_val = new string(yytext); 
+                    return IDENT;
+                  }
+{DIGITS}          { 
+                    pos += strlen(yytext); 
+                    yylval.int_val = atoi(yytext); 
+                    return NUMBER;
+                  }
+{COMMENT}         { pos += strlen(yytext); }
+{WHITESPACE}*     { pos += strlen(yytext); }
+{NEWLINE}         { yylineno++; pos = 1; }
 ({DIGIT}|_)+({IDENT})?(_)* {
                   fprintf(stderr, 
                           "Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", 
@@ -85,18 +94,8 @@ return            fprintf(stdout, "RETURN\n");pos += strlen(yytext);
                   fprintf(stderr,
                           "Error at line %d, column %d: unrecognized symbol \"%s\"\n",
 			  yylineno,
-                          pos + 1,
+                          pos,
                           yytext);
                   exit(EXIT_FAILURE);
                 }
 %%
-/*
-int
-main(int argc, char **argv)
-{
-  if (argc > 1)
-    yyin = fopen(argv[1], "r");
-  yylex();
-  return 0;
-}
-*/
