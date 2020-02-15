@@ -6,7 +6,7 @@ int yylex(void);
 
 %union{
   int   int_val;
-  string* op_val;
+  string * op_val;
 }
 
 %token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY 
@@ -23,7 +23,6 @@ int yylex(void);
 
 %start program
 %%
-
 
 program 
   : functions { puts("program -> functions"); }
@@ -49,12 +48,14 @@ params
   : BEGIN_PARAMS declarations END_PARAMS { 
       puts("params -> BEGIN_PARAMS declarations END_PARAMS"); 
     }
+  | BEGIN_PARAMS END_PARAMS { puts("params -> BEGIN_PARAMS END_PARAMS"); }
   ;
 
 locals
   : BEGIN_LOCALS declarations END_LOCALS { 
       puts("locals -> BEGIN_LOCALS declarations END_LOCALS"); 
     }
+  | BEGIN_LOCALS END_LOCALS { puts("locals -> BEGIN_LOCALS END_LOCALS"); }
   ;
 
 body
@@ -66,15 +67,15 @@ declarations
   : declarations declaration SEMICOLON { 
       puts("declarations -> declarations declaration SEMICOLON"); 
     }
-  | declaration { puts("declarations -> declaration"); }
+  | declaration SEMICOLON { puts("declarations -> declaration SEMICOLON"); }
   ;
 
 declaration
-  : identifiers SEMICOLON INTEGER { 
-      puts("declaration -> identifiers SEMICOLON INTEGER"); 
+  : identifiers COLON INTEGER { 
+      puts("declaration -> identifiers COLON INTEGER"); 
     }
-  | identifiers SEMICOLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER { 
-      puts("declaration -> identifiers SEMICOLON ARRAY L_SQUARE_BRACKET "
+  | identifiers COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER { 
+      puts("declaration -> identifiers COLON ARRAY L_SQUARE_BRACKET "
            "NUMBER R_SQUARE_BRACKET OF INTEGER"); 
     }
   ;
