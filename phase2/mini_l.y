@@ -3,14 +3,14 @@
 
 %{
 #include "heading.h"
-  int yyerror(char *s);
-  int yylex(void);
-  %}
+int yyerror(char const * s);
+int yylex(void);
+%}
 
-  %union{
-    int   int_val;
-    string* op_val;
-  }
+%union{
+  int   int_val;
+  string* op_val;
+}
 
 %token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY OF IF THEN ENDIF ELSE WHILE DO FOR BEGINLOOP ENDLOOP CONTINUE READ WRITE NOT TRUE FALSE RETURN SEMICOLON COLON COMMA L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET
 %token <op_val> IDENT
@@ -57,17 +57,17 @@ Term2
 
 %%
 
-int yyerror(string s)
+int yyerror(string const s)
 {
   extern int yylineno;  // defined and maintained in lex.c
   extern char *yytext;  // defined and maintained in lex.c
         
   cerr << "ERROR: " << s << " at symbol \"" << yytext;
   cerr << "\" on line " << yylineno << endl;
-  exit(1);
+  exit(EXIT_FAILURE);
 }
 
-int yyerror(char *s)
+int yyerror(char const * s)
 {
   return yyerror(string(s));
 }
