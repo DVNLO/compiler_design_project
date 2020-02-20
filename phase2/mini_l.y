@@ -333,5 +333,4 @@ yyerror(char const * s)
 
   free(error_msg);
   free(error_msgs);
-  yyclearin;
 }
