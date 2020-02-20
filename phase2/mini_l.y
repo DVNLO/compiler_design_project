@@ -1,7 +1,11 @@
 %{
 #include "heading.h"
-int yyerror(char const * s);
+
+void yyerror(char const * s);
 int yylex(void);
+
+extern int yylineno; 
+extern char * yytext; 
 %}
 
 %union{
@@ -9,19 +13,22 @@ int yylex(void);
   string * op_val;
 }
 
-%token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY 
-%token END_BODY INTEGER ARRAY OF IF THEN ENDIF ELSE WHILE DO FOR BEGINLOOP
-%token ENDLOOP CONTINUE READ WRITE NOT TRUE FALSE RETURN SEMICOLON COLON COMMA 
-%token L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET
-
+%define parse.error verbose
+%define parse.lac full
+%start program
 %token <op_val> IDENT
 %token <int_val> NUMBER 
+%token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY OF IF THEN ENDIF ELSE WHILE DO FOR BEGINLOOP ENDLOOP CONTINUE READ WRITE TRUE FALSE RETURN SEMICOLON COLON COMMA L_PAREN R_PAREN 
+%left L_SQUARE_BRACKET R_SQUARE_BRACKET
+%left MULT DIV MOD
+%left ADD SUB
 
-%left MULT DIV MOD ADD SUB LT LTE GT GTE EQ NEQ AND OR
+%left LT LTE GT GTE EQ NEQ 
+%right NOT
+%left AND 
+%left OR
+%right ASSIGN
 
-%right NOT ASSIGN
-
-%start program
 %%
 
 program 
@@ -79,7 +86,12 @@ statements
   : statements statement SEMICOLON { 
       puts("statements -> statements statement SEMICOLON"); 
     }
-  | statement SEMICOLON
+  | statement SEMICOLON {
+      puts("statements -> statement SEMICOLON");
+    }
+  | statements error SEMICOLON {
+      puts("statements -> statements error SEMICOLON");
+    }
   ;
 
 statement
@@ -254,6 +266,7 @@ number
 
 %%
 
+/*
 int yyerror(string const s)
 {
   extern int yylineno;  // defined and maintained in lex.c
@@ -263,8 +276,62 @@ int yyerror(string const s)
   cerr << "\" on line " << yylineno << endl;
   exit(EXIT_FAILURE);
 }
+*/
 
-int yyerror(char const * s)
+// partitions error_msg on delimiter into error_msgs
+// assuming sufficient space in error_msgs.
+void partition(char * error_msg, 
+               char const delimiter, 
+               char * * error_msgs)
 {
-  return yyerror(string(s));
+  if(!error_msg || !error_msgs)
+    return;
+  size_t i = 0;
+  char * lead = error_msg;
+  char * follow = error_msg;
+  while(true)
+  {
+    while(*lead != 0 
+          && *lead != delimiter) 
+      ++lead;
+    error_msgs[i] = follow;
+    ++i;
+    if(*lead == 0)
+      break;
+    else
+      *lead = 0;  // replace ','
+    lead += 2;  // advance over ", " to first char of next word
+    follow = lead;
+  }
+}
+
+// returns a count of delimiter found in str
+size_t count_delimiter(char const * str, 
+                       char const delimiter)
+{
+  size_t delimiter_count = 0;
+  while(*str != 0)
+  {
+    if(*str == delimiter)
+      ++delimiter_count;
+    ++str;
+  }
+  return delimiter_count;
+}
+
+void
+yyerror(char const * s)
+{
+  size_t const S_SIZE = strlen(s);
+  size_t const COL_COUNT = count_delimiter(s, ',') + 1;
+  char * error_msg = (char *)(malloc((S_SIZE + 1) * sizeof(char)));
+  char * * error_msgs = (char * *)(malloc(COL_COUNT * sizeof(char * *)));
+
+  strcpy(error_msg, s);
+  partition(error_msg, ',', error_msgs);
+  fprintf(stderr, "Syntax error at line %d: %s %s\n", yylineno, error_msgs[1], error_msgs[2]);
+
+  free(error_msg);
+  free(error_msgs);
+  yyclearin;
 }

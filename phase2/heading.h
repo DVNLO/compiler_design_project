@@ -5,6 +5,7 @@
 using namespace std;
 
 #include <iostream>
+#include <cstring>
 #include <cstdio>
 #include <cstdlib>
 #include <string>

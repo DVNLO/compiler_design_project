@@ -12,6 +12,7 @@
 !*.y
 !*.txt
 !Makefile
+!*.zip
 
 */lex.yy.c
 */bison.c
