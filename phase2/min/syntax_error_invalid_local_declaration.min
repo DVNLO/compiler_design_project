@@ -1,7 +1,9 @@
-## function missing beginparams
+## function missing improper local declaration
 function a;
+beginparams
 endparams
 beginlocals
+f
 endlocals
 beginbody
 	continue;
@@ -15,4 +17,5 @@ endlocals
 beginbody
 	continue;
 endbody
+
 

@@ -4,6 +4,7 @@ beginparams
 endparams
 endlocals
 beginbody
+	continue;
 endbody
 
 function main;
@@ -12,5 +13,6 @@ endparams
 beginlocals
 endlocals
 beginbody
+	continue;
 endbody
 

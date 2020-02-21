@@ -1,11 +1,11 @@
-## function missing beginparams
+## function missing endbody
 function a;
+beginparams
 endparams
 beginlocals
 endlocals
 beginbody
 	continue;
-endbody
 
 function main;
 beginparams

@@ -31,7 +31,7 @@ extern char * yytext;
 
 %%
 
-program
+program 
   : { puts("program -> epsilon"); }
   | functions { puts("program -> functions"); }
   ;
@@ -62,7 +62,7 @@ params
   : begin_params declarations end_params {
       puts("params -> begin_params declarations end_params");
     }
-  | begin_params end_params {
+  | begin_params end_params { 
       puts("params -> begin_params end_params");
     }
   ;
@@ -113,28 +113,57 @@ end_body
   ;
 
 declarations
-  : declarations declaration SEMICOLON { 
-      puts("declarations -> declarations declaration SEMICOLON"); 
+  : declarations declaration semicolon { 
+      puts("declarations -> declarations declaration semicolon"); 
     }
-  | declaration SEMICOLON { puts("declarations -> declaration SEMICOLON"); }
+  | declaration semicolon { puts("declarations -> declaration semicolon"); }
   ;
 
 declaration
-  : identifiers COLON INTEGER { 
-      puts("declaration -> identifiers COLON INTEGER"); 
+  : identifiers colon integer { 
+      puts("declaration -> identifiers colon INTEGER"); 
     }
-  | identifiers COLON ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER { 
-      puts("declaration -> identifiers COLON ARRAY L_SQUARE_BRACKET "
+  | identifiers colon array l_square_bracket number r_square_bracket of INTEGER { 
+      puts("declaration -> identifiers colon ARRAY L_SQUARE_BRACKET "
            "number R_SQUARE_BRACKET OF INTEGER"); 
     }
-  | error { puts("declaration -> error"); }
+  ;
+
+colon
+  : COLON { puts("colon -> COLON"); }
+  | error { puts("colon -> error"); }
+  ;
+
+integer
+  : INTEGER { puts("integer -> INTEGER"); }
+  | error { puts("integer -> error"); }
+  ;
+
+array
+  : ARRAY { puts("array -> ARRAY"); }
+  | error { puts("array -> error"); }
+  ;
+
+l_square_bracket
+  : L_SQUARE_BRACKET { puts("l_square_bracket -> L_SQUARE_BRACKET"); }
+  | error { puts("l_square_bracket -> error"); }
+  ;
+
+r_square_bracket
+  : R_SQUARE_BRACKET { puts("r_square_bracket -> R_SQUARE_BRACKET"); }
+  | error { puts("r_square_bracket -> error"); }
+  ;
+
+of
+  : OF { puts("of -> OF"); }
+  | error { puts("of -> error"); }
   ;
 
 statements
-  : statements statement SEMICOLON { 
+  : statements statement semicolon { 
       puts("statements -> statements statement SEMICOLON"); 
     }
-  | statement SEMICOLON {
+  | statement semicolon {
       puts("statements -> statement SEMICOLON");
     }
   ;
@@ -149,7 +178,6 @@ statement
   | statement_write { puts("statement -> statement_write"); }
   | statement_continue { puts("statement -> statement_continue"); }
   | statement_return { puts("statement -> statement_return"); }
-  | error { puts("statement -> error"); }
   ;
 
 statement_assign

@@ -7,4 +7,5 @@ endparams
 beginlocals
 endlocals
 beginbody
+	continue;
 endbody

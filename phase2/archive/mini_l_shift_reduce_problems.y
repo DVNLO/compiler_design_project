@@ -32,18 +32,18 @@ extern char * yytext;
 %%
 
 program
-  : { puts("program -> epsilon"); }
+  : { puts("program -> epsilon"); } 
   | functions { puts("program -> functions"); }
   ;
 
-functions
+functions 
   : functions function { puts("functions -> functions function"); }
   | function { puts("functions -> function"); }
   ;
 
 function
   : function1 identifier semicolon params locals body {
-      puts("function -> function1 identifier semicolon params locals body");
+      puts("function -> function1 identifier semicolon params locals body"); 
     }
   | error { puts("function -> error"); }
   ;
@@ -59,11 +59,8 @@ semicolon
   ;
 
 params
-  : begin_params declarations end_params {
-      puts("params -> begin_params declarations end_params");
-    }
-  | begin_params end_params {
-      puts("params -> begin_params end_params");
+  : begin_params declarations end_params { 
+      puts("params -> begin_params declarations end_params"); 
     }
   ;
 
@@ -78,11 +75,8 @@ end_params
   ;
 
 locals
-  : begin_locals declarations end_locals {
-      puts("locals -> begin_locals declarations end_locals");
-    }
-  | begin_locals end_locals {
-      puts("locals -> begin_locals end_locals");
+  : begin_locals declarations end_locals { 
+      puts("locals -> begin_locals declarations end_locals"); 
     }
   ;
 
@@ -97,8 +91,8 @@ end_locals
   ;
 
 body
-  : begin_body statements end_body {
-      puts("body -> begin_body statements end_body");
+  : begin_body statements end_body { 
+      puts("body -> begin_body statements end_body"); 
     }
   ;
 
@@ -113,10 +107,10 @@ end_body
   ;
 
 declarations
-  : declarations declaration SEMICOLON { 
-      puts("declarations -> declarations declaration SEMICOLON"); 
+  : { puts("declarations -> epsilon"); } 
+  | declaration semicolon { 
+      puts("declarations -> declaration semicolon"); 
     }
-  | declaration SEMICOLON { puts("declarations -> declaration SEMICOLON"); }
   ;
 
 declaration
@@ -131,11 +125,11 @@ declaration
   ;
 
 statements
-  : statements statement SEMICOLON { 
-      puts("statements -> statements statement SEMICOLON"); 
+  : statements statement semicolon { 
+      puts("statements -> statements statement semicolon"); 
     }
-  | statement SEMICOLON {
-      puts("statements -> statement SEMICOLON");
+  | statement semicolon { 
+      puts("statements -> statement semicolon"); 
     }
   ;
 
@@ -180,12 +174,12 @@ statement_do_while
   ;
 
 statement_for
-  : FOR variable ASSIGN number SEMICOLON 
-        bool_exp SEMICOLON 
+  : FOR variable ASSIGN number semicolon 
+        bool_exp semicolon 
         statement_assign 
         BEGINLOOP statements ENDLOOP {
-      puts("statement_for -> FOR variable ASSIGN number SEMICOLON bool_exp "
-           "SEMICOLON statement_assign BEGINLOOP statements ENDLOOP");
+      puts("statement_for -> FOR variable ASSIGN number semicolon bool_exp "
+           "semicolon statement_assign BEGINLOOP statements ENDLOOP");
     }
   ;
 

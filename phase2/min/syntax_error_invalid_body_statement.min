@@ -1,10 +1,11 @@
-## function missing beginparams
+## function improper statement
 function a;
+beginparams
 endparams
 beginlocals
 endlocals
 beginbody
-	continue;
+f;
 endbody
 
 function main;
@@ -15,4 +16,3 @@ endlocals
 beginbody
 	continue;
 endbody
-
