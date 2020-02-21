@@ -67,7 +67,6 @@ body
   : BEGIN_BODY statements END_BODY { 
       puts("body -> BEGIN_BODY statements END_BODY"); 
     }
-  | BEGIN_BODY END_BODY
   | error { puts("body -> error"); }
   ;
 
