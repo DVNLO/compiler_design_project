@@ -1,11 +1,12 @@
 function fibonacci;
 beginparams
-	k : integer;
+	k integer; ## expecting : between k and integer
 endparams
 beginlocals
+	f : ;	## expecting integer after :
 endlocals
 beginbody
-	if (k <= 1) then return 1; endif;
+	if (k 1) then return 1; endif;  ## expecting boolean expression
 	return fibonacci(k - 1) + fibonacci(k - 2);
 endbody
 
@@ -18,8 +19,8 @@ beginlocals
 endlocals
 beginbody
 	read n;
-        a integer;
+        a integer;  ## expecting : between a and integer
 	fib_n := fibonacci(n);
-        b integer;
+        b integer;  ## expecting colon between a and integer
 	write fib_n;
 endbody

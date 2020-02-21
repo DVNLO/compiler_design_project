@@ -52,6 +52,7 @@ params
       puts("params -> BEGIN_PARAMS declarations END_PARAMS"); 
     }
   | BEGIN_PARAMS END_PARAMS { puts("params -> BEGIN_PARAMS END_PARAMS"); }
+  | error { puts("params -> error"); }
   ;
 
 locals
@@ -59,18 +60,23 @@ locals
       puts("locals -> BEGIN_LOCALS declarations END_LOCALS"); 
     }
   | BEGIN_LOCALS END_LOCALS { puts("locals -> BEGIN_LOCALS END_LOCALS"); }
+  | error{ puts("locals -> error"); }
   ;
 
 body
   : BEGIN_BODY statements END_BODY { 
       puts("body -> BEGIN_BODY statements END_BODY"); 
     }
+  | BEGIN_BODY END_BODY
+  | error { puts("body -> error"); }
+  ;
 
 declarations
   : declarations declaration SEMICOLON { 
       puts("declarations -> declarations declaration SEMICOLON"); 
     }
   | declaration SEMICOLON { puts("declarations -> declaration SEMICOLON"); }
+  | error { puts("declarations -> error"); }
   ;
 
 declaration
@@ -90,7 +96,8 @@ statements
     }
   | statement SEMICOLON {
       puts("statements -> statement SEMICOLON");
-    } 
+    }
+  | error { puts("statements -> error"); } 
   ;
 
 statement
@@ -324,8 +331,8 @@ yyerror(char const * s)
 {
   size_t const S_SIZE = strlen(s);
   size_t const COL_COUNT = count_delimiter(s, ',') + 1;
-  char * error_msg = (char *)(malloc((S_SIZE + 1) * sizeof(char)));
-  char * * error_msgs = (char * *)(malloc(COL_COUNT * sizeof(char * *)));
+  char * error_msg = (char *)(calloc(S_SIZE + 1, sizeof(char)));
+  char * * error_msgs = (char * *)(calloc(COL_COUNT, sizeof(char * *)));
 
   strcpy(error_msg, s);
   partition(error_msg, ',', error_msgs);

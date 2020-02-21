@@ -1,0 +1,17 @@
+## function missing trailing semicolon
+function a
+beginparams
+endparams
+beginlocals
+endlocals
+beginbody
+endbody
+
+function main;
+beginparams
+endparams
+beginlocals
+endlocals
+beginbody
+endbody
+

@@ -1,0 +1,17 @@
+## incorrect function keyword
+f a;
+beginparams
+endparams
+beginlocals
+endlocals
+beginbody
+endbody
+
+function main;
+beginparams
+endparams
+beginlocals
+endlocals
+beginbody
+endbody
+

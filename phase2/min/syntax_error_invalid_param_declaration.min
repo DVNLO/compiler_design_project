@@ -1,0 +1,18 @@
+## function improper param declaration
+function a;
+beginparams
+f
+endparams
+beginlocals
+endlocals
+beginbody
+endbody
+
+function main;
+beginparams
+endparams
+beginlocals
+endlocals
+beginbody
+endbody
+

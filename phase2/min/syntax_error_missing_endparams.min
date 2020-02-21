@@ -1,0 +1,16 @@
+## function missing endparams
+function a;
+beginparams
+beginlocals
+endlocals
+beginbody
+endbody
+
+function main;
+beginparams
+endparams
+beginlocals
+endlocals
+beginbody
+endbody
+
