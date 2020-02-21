@@ -1,0 +1,10 @@
+## random char outside function definition
+f
+
+function main;
+beginparams
+endparams
+beginlocals
+endlocals
+beginbody
+endbody
