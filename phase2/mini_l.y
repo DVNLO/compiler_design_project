@@ -44,6 +44,7 @@ function
   : FUNCTION identifier SEMICOLON params locals body {
       puts("function -> FUNCTION identifier SEMICOLON params locals body"); 
     }
+  | error { puts("function -> error"); }
   ;
 
 params
@@ -80,6 +81,7 @@ declaration
       puts("declaration -> identifiers COLON ARRAY L_SQUARE_BRACKET "
            "number R_SQUARE_BRACKET OF INTEGER"); 
     }
+  | error { puts("declaration -> error"); }
   ;
 
 statements
@@ -88,10 +90,7 @@ statements
     }
   | statement SEMICOLON {
       puts("statements -> statement SEMICOLON");
-    }
-  | statements error SEMICOLON {
-      puts("statements -> statements error SEMICOLON");
-    }
+    } 
   ;
 
 statement
@@ -104,6 +103,7 @@ statement
   | statement_write { puts("statement -> statement_write"); }
   | statement_continue { puts("statement -> statement_continue"); }
   | statement_return { puts("statement -> statement_return"); }
+  | error { puts("statement -> error"); }
   ;
 
 statement_assign
