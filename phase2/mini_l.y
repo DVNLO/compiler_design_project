@@ -292,7 +292,8 @@ term1
   ;
 
 term2
-  : term2 COMMA expression { puts("term2 -> term2 COMMA expression"); }
+  : { puts("term2 -> epsilon"); }
+  | term2 COMMA expression { puts("term2 -> term2 COMMA expression"); }
   | expression { puts("term2 -> expression"); }
   ;
 
