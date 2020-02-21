@@ -329,7 +329,11 @@ yyerror(char const * s)
 
   strcpy(error_msg, s);
   partition(error_msg, ',', error_msgs);
-  fprintf(stderr, "Syntax error at line %d: %s %s\n", yylineno, error_msgs[1], error_msgs[2]);
+  fprintf(stderr, 
+          "Syntax error at line %d: %s %s\n", 
+          yylineno, 
+          error_msgs[1] ? error_msgs[1] : "", 
+          error_msgs[2] ? error_msgs[2] : "");
 
   free(error_msg);
   free(error_msgs);
