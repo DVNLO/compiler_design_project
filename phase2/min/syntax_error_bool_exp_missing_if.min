@@ -1,0 +1,21 @@
+function f;
+beginparams
+endparams
+beginlocals
+  n : integer;
+endlocals
+beginbody
+  n > 0 then ## missing if
+    write n;
+  endif;
+endbody
+
+function main;
+beginparams
+endparams
+beginlocals
+endlocals
+beginbody
+  continue;
+endbody
+
