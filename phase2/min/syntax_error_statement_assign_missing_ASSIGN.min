@@ -1,0 +1,19 @@
+function a;
+beginparams
+endparams
+beginlocals
+  n : integer;
+endlocals
+beginbody
+  n 3;  ## missing ":="
+endbody
+
+function main;
+beginparams
+endparams
+beginlocals
+endlocals
+beginbody
+  continue;
+endbody
+
