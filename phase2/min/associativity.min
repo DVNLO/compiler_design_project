@@ -1,0 +1,23 @@
+function main;
+beginparams
+endparams
+
+beginlocals
+  n : integer;
+endlocals
+
+beginbody	## main program
+  n := 1 + 3 * 2;
+  n := 1 + 3 / 2;
+  n := 1 + 3 % 2;
+  n := 1 - 3 * 2;
+  n := 1 - 3 / 2;
+  n := 1 - 3 % 2;
+  n := 3 * 2 + 1;
+  n := 3 / 2 + 1;
+  n := 3 % 2 + 1;
+  n := 3 * 2 - 1;
+  n := 3 / 2 - 1;
+  n := 3 % 2 - 1;
+endbody
+
