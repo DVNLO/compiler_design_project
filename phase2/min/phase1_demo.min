@@ -1,0 +1,9 @@
+function main;
+beginparams
+endparams
+beginlocals
+  n___2 : integer;
+endlocals
+beginbody
+endbody
+

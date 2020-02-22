@@ -143,16 +143,16 @@ statements
   ;
 
 statement
-  : statement_assign { puts("statement -> statement_assign"); }
-  | statement_if { puts("statement -> statement_if"); }
-  | statement_while { puts("statement -> statement_while"); }
+  : statement_assign   { puts("statement -> statement_assign"); }
+  | statement_if       { puts("statement -> statement_if"); }
+  | statement_while    { puts("statement -> statement_while"); }
   | statement_do_while { puts("statement -> statement_do_while"); }
-  | statement_for { puts("statement -> statement_for"); }
-  | statement_read { puts("statement -> statement_read"); }
-  | statement_write { puts("statement -> statement_write"); }
+  | statement_for      { puts("statement -> statement_for"); }
+  | statement_read     { puts("statement -> statement_read"); }
+  | statement_write    { puts("statement -> statement_write"); }
   | statement_continue { puts("statement -> statement_continue"); }
-  | statement_return { puts("statement -> statement_return"); }
-  | error { puts("statement -> error"); }
+  | statement_return   { puts("statement -> statement_return"); }
+  | error              { puts("statement -> error"); }
   ;
 
 statement_assign
@@ -295,9 +295,9 @@ term1
   ;
 
 term2
-  : { puts("term2 -> epsilon"); }
-  | term2 COMMA expression { puts("term2 -> term2 COMMA expression"); }
+  : expression COMMA term2 { puts("term2 -> term2 COMMA expression"); }
   | expression { puts("term2 -> expression"); }
+  | { puts("term2 -> epsilon"); }
   ;
 
 identifiers
