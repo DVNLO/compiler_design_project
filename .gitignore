@@ -14,6 +14,7 @@
 !Makefile
 !*.zip
 !mil_run
+!*.mil
 
 */lex.yy.c
 */bison.c
