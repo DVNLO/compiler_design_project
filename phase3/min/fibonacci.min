@@ -1,0 +1,23 @@
+function fibonacci;
+beginparams
+	k : integer;
+endparams
+beginlocals
+endlocals
+beginbody
+	if (k <= 1) then return 1; endif;
+	return fibonacci(k - 1) + fibonacci(k - 2);
+endbody
+
+function main;
+beginparams
+endparams
+beginlocals
+	n : integer;
+	fib_n : integer;
+endlocals
+beginbody
+	read n;
+	fib_n := fibonacci(n);
+	write fib_n;
+endbody
