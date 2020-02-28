@@ -13,6 +13,7 @@
 !*.txt
 !Makefile
 !*.zip
+!mil_run
 
 */lex.yy.c
 */bison.c
