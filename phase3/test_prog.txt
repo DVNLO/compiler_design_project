@@ -1,0 +1,23 @@
+function f;
+beginparams
+endparams
+beginlocals
+  x,y,z : integer;
+endlocals
+beginbody
+  x := 10;
+  y := x;
+  z := -y;
+endbody
+
+function main;
+beginparams
+  x, y : integer;
+endparams
+beginlocals
+  n, m : integer;
+endlocals
+beginbody
+  n := x;
+  m := y;
+endbody
