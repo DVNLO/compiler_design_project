@@ -1,4 +1,5 @@
 #include "heading.h"
+#include "types.h"
 
 // prototype of bison-generated parser function
 int yyparse();

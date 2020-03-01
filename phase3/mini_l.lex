@@ -1,5 +1,6 @@
 %{
 #include "heading.h"
+#include "types.h"
 #include "tok.h"
 int pos = 1;
 %}
