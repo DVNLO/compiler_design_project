@@ -2,7 +2,7 @@
 #include "heading.h"
 #include "types.h"
 
-#define DEBUG
+//#define DEBUG
 
 void yyerror(char const * s);
 int yylex(void);
@@ -199,7 +199,9 @@ declarations
       oss << $$->code;
       oss << $2->code;
       $$->code = oss.str();
+#ifdef DEBUG
       printf("-- declarations -> declarations declaration ;\n%s\n", $$->code.c_str());
+#endif
     }
   | declaration SEMICOLON { 
       $$ = $1;
@@ -219,7 +221,9 @@ declaration
         oss << ". " << $1->ids[i]->name.c_str() << endl;
       }
       $$->code = oss.str();
+#ifdef DEBUG
       printf("-- declaration -> identifiers : integer\n%s\n", $$->code.c_str());
+#endif
     }
   | identifiers COLON ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER { 
       $$ = new code_t();
@@ -230,7 +234,9 @@ declaration
         oss << ".[] " << $1->ids[i]->name.c_str() << ", " << $5->val << endl;
       }
       $$->code = oss.str();
+#ifdef DEBUG
       printf("-- declaration -> identifiers : array [ number ] of integer\n%s\n", $$->code.c_str());
+#endif
     }
   | error {}
   ;
@@ -413,16 +419,47 @@ expression
 
 multiplicative_exp
   : multiplicative_exp MULT term  {
-      // term->code
-      // * __tmp__i, multiplicative_exp->name, term->name
+      $$ = new term_t();
+      $$->id = create_identifier();
+
+      ostringstream oss;
+      oss << $1->code;
+      oss << $3->code;
+      oss << ". " << $$->id->name << endl; // Declare new identifier
+      oss << "* " << $$->id->name << ", " << $1->id->name << ", " << $3->id->name << endl; // * dst, src1, src2
+      $$->code = oss.str();
+#ifdef DEBUG
+      printf("-- multiplicative_exp -> multiplicative_exp * term\n%s\n", $$->code.c_str());
+#endif
     }
   | multiplicative_exp DIV term  {
-      // term->code
-      // / __tmp__i, multiplicative_exp->name, term->name
+      $$ = new term_t();
+      $$->id = create_identifier();
+
+      ostringstream oss;
+      oss << $1->code;
+      oss << $3->code;
+      oss << ". " << $$->id->name << endl; // Declare new identifier
+      oss << "/ " << $$->id->name << ", " << $1->id->name << ", " << $3->id->name << endl; // / dst, src1, src2
+      $$->code = oss.str();
+#ifdef DEBUG
+      printf("-- multiplicative_exp -> multiplicative_exp / term\n%s\n", $$->code.c_str());
+#endif
+
     }
   | multiplicative_exp MOD term  {
-      // term->code
-      // / __tmp__i, multiplicative_exp->name, term->name
+      $$ = new term_t();
+      $$->id = create_identifier();
+
+      ostringstream oss;
+      oss << $1->code;
+      oss << $3->code;
+      oss << ". " << $$->id->name << endl; // Declare new identifier
+      oss << "% " << $$->id->name << ", " << $1->id->name << ", " << $3->id->name << endl; // % dst, src1, src2
+      $$->code = oss.str();
+#ifdef DEBUG
+      printf("-- multiplicative_exp -> multiplicative_exp % term\n%s\n", $$->code.c_str());
+#endif
     }
   | term {
       $$ = $1;
@@ -465,14 +502,14 @@ variable
   ;
 
 term
-  : SUB term1 { // * dst, src1, src2
+  : SUB term1 { 
       $$ = new term_t();
       $$->id = create_identifier();
 
       ostringstream oss;
       oss << $2->code;
       oss << ". " << $$->id->name << endl; // Declare new identifier
-      oss << "* " << $$->id->name << ", " << $2->id->name << ", " << "-1" << endl;
+      oss << "* " << $$->id->name << ", " << $2->id->name << ", " << "-1" << endl; // * dst, src1, src2
       $$->code = oss.str();
 #ifdef DEBUG
       printf("-- term -> - term1\n%s\n\n", $2->id->name.c_str());
@@ -487,7 +524,7 @@ term
   | identifier L_PAREN term2 R_PAREN  {
       // function call
 #ifdef DEBUG
-      printf("-- term -> function call\n");
+      printf("-- term -> identifier ( term2 )\n");
 #endif
     }
   ;
@@ -503,12 +540,11 @@ term1
       if ($1->is_array) {
         $$->id = create_identifier();
         oss << ". " << $$->id->name << endl; // Declare new id
-        oss << "=[] "  << $$->id->name << ", " << $1->id->name << ", " << $1->idx << endl;
+        oss << "=[] "  << $$->id->name << ", " << $1->id->name << ", " << $1->idx << endl; // =[] dst, src, index
       }
       else {
         $$->id = $1->id;
         oss << "";
-        //oss << "= " << $$->id->name << ", " << $1->id->name << endl;
       }
       $$->code = oss.str();
 
@@ -524,12 +560,6 @@ term1
       oss << $1->val;
       $$->id->name = oss.str();
       $$->code = "";
-      /** creates new identifier unnecessarily
-      $$->id = create_identifier();
-      oss << ". " << $$->id->name << endl; // Declare new id
-      oss << "= " << $$->id->name << ", " << $1->val << endl; // Assign number -> id
-      $$->code = oss.str();
-      */
 #ifdef DEBUG
       printf("-- term1 -> number\n");
 #endif
@@ -537,13 +567,8 @@ term1
   | L_PAREN expression R_PAREN {
       $$ = $2;
 #ifdef DEBUG
-      printf("-- term1 -> ( expression )\n");
+      printf("-- term1 -> ( expression )\n%s\n", $$->code.c_str());
 #endif
-      /*
-      $$ = new term_t();
-      $$->id = $2;
-      $$->code = "";
-      */
     }
   ;
 
