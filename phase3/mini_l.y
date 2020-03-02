@@ -584,7 +584,7 @@ term1
       }
       else {
         $$->id = $1->id;
-        oss << "";
+        oss << $1->code;
       }
       $$->code = oss.str();
 

@@ -28,5 +28,5 @@ beginbody
   n := x;
   m := y;
   q := arr[40];
-  l := arr[q+3-n/5];
+  l := m * arr[q+3-n/5] + 8 * x / q;
 endbody
