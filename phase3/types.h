@@ -22,6 +22,7 @@ typedef struct {
 
 typedef struct {
   identifier_t * id;
+  string code;
   string idx;
   bool is_array;
 } variable_t;

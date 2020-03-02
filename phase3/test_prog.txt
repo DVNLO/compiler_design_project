@@ -11,7 +11,7 @@ beginbody
   y := x * 11;
   z := -y;
   a := z * y;
-  b := x * x + 10;
+  b := x * x + 10 - 4 + 2;
   c := -1 / 10;
 endbody
 
@@ -21,8 +21,12 @@ beginparams
 endparams
 beginlocals
   n, m : integer;
+  q, l : integer;
+  arr : array [100] of integer;
 endlocals
 beginbody
   n := x;
   m := y;
+  q := arr[40];
+  l := arr[q+3-n/5];
 endbody

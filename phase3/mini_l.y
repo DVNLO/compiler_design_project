@@ -2,7 +2,7 @@
 #include "heading.h"
 #include "types.h"
 
-//#define DEBUG
+// #define DEBUG
 
 void yyerror(char const * s);
 int yylex(void);
@@ -91,15 +91,17 @@ program
 functions
   : functions function {
       ostringstream oss;
-      oss << $$->code;
+      oss << $1->code;
       oss << $2->code;
+      $$ = new code_t();
       $$->code = oss.str();
 #ifdef DEBUG
       printf("-- functions -> functions function\n%s\n", $$->code.c_str());
 #endif
     }
   | function {
-      $$ = $1;
+      $$ = new code_t();
+      $$->code = $1->code;
 #ifdef DEBUG
       printf("-- functions -> function\n%s\n", $$->code.c_str());
 #endif
@@ -289,12 +291,14 @@ statement
 statement_assign
   : variable ASSIGN expression { 
       ostringstream oss;
+      oss << $1->code;
       oss << $3->code;
       if ($1->is_array) {
         oss << "[]= " << $1->id->name << ", " << $1->idx << ", " << $3->id->name << endl;
       } else {
         oss << "= " << $1->id->name << ", " << $3->id->name << endl;
       }
+      $$ = new code_t();
       $$->code = oss.str();
 #ifdef DEBUG
       printf("-- statement_assign\n%s\n", $$->code.c_str());
@@ -404,10 +408,32 @@ comp
 
 expression 
   : expression ADD multiplicative_exp  { 
-      // + __tmp__i, expression->name, multiplicative_exp->name
+      $$ = new term_t();
+      $$->id = create_identifier();
+
+      ostringstream oss;
+      oss << $1->code;
+      oss << $3->code;
+      oss << ". " << $$->id->name << endl; // Declare new identifier
+      oss << "+ " << $$->id->name << ", " << $1->id->name << ", " << $3->id->name << endl; // + dst, src1, src2
+      $$->code = oss.str();
+#ifdef DEBUG
+      printf("-- expression -> expression + multiplicative_exp\n%s\n", $$->code.c_str());
+#endif
     }
   | expression SUB multiplicative_exp  {
-      // - __tmp__i, expression->name, multiplicative_exp->name
+      $$ = new term_t();
+      $$->id = create_identifier();
+
+      ostringstream oss;
+      oss << $1->code;
+      oss << $3->code;
+      oss << ". " << $$->id->name << endl; // Declare new identifier
+      oss << "- " << $$->id->name << ", " << $1->id->name << ", " << $3->id->name << endl; // - dst, src1, src2
+      $$->code = oss.str();
+#ifdef DEBUG
+      printf("-- expression -> expression - multiplicative_exp\n%s\n", $$->code.c_str());
+#endif
     }
   | multiplicative_exp {
       $$ = $1;
@@ -458,7 +484,7 @@ multiplicative_exp
       oss << "% " << $$->id->name << ", " << $1->id->name << ", " << $3->id->name << endl; // % dst, src1, src2
       $$->code = oss.str();
 #ifdef DEBUG
-      printf("-- multiplicative_exp -> multiplicative_exp % term\n%s\n", $$->code.c_str());
+      printf("-- multiplicative_exp -> multiplicative_exp %% term\n%s\n", $$->code.c_str());
 #endif
     }
   | term {
@@ -472,7 +498,7 @@ multiplicative_exp
 variables
   : variables COMMA variable {
       // Only used for reading/writing from/to stdin/stdout
-      $$->vars.push_back($3);
+      $$->vars.push_back($3); // TODO: May need to allocate mem for $$ (could cause probs.)
     }
   | variable {
       // Only used for reading/writing from/to stdin/stdout
@@ -486,15 +512,28 @@ variable
       $$ = new variable_t();
       $$->id = $1;
       $$->is_array = false;
+      $$->code = "";
 #ifdef DEBUG
       printf("-- variable -> identifier\n%s\n\n", $$->id->name.c_str());
 #endif
     }
   | identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET {
+      // variable_t may need to contain a code field
+      // since term_t (used by expression) does
       $$ = new variable_t();
       $$->id = $1;
       $$->idx = $3->id->name;
       $$->is_array = true;
+      $$->code = $3->code;
+      /*
+      $$ = new variable_t();
+      $$->id = create_identifier();
+      ostringstream oss;
+      oss << $3->code;
+      oss << ". " << $$->id->name << endl; // Declare new identifier
+      oss << "=[] " << $$->id->name << ", " << $1->name << ", " << $3->id->name << endl; // =[] dst, src, index
+      $$->code = oss.str();
+      */
 #ifdef DEBUG
       printf("-- variable -> array\n%s[%s]\n\n",$$->id->name.c_str(), $$->idx.c_str());
 #endif
@@ -539,6 +578,7 @@ term1
       // to tmp variable
       if ($1->is_array) {
         $$->id = create_identifier();
+        oss << $1->code;
         oss << ". " << $$->id->name << endl; // Declare new id
         oss << "=[] "  << $$->id->name << ", " << $1->id->name << ", " << $1->idx << endl; // =[] dst, src, index
       }
