@@ -27,6 +27,10 @@ typedef struct {
 } variable_t;
 
 typedef struct {
+  vector<variable_t *> vars;
+} variables_t;
+
+typedef struct {
   identifier_t * id;
   string code;
 } term_t;

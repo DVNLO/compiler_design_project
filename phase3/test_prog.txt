@@ -3,6 +3,7 @@ beginparams
 endparams
 beginlocals
   x,y,z : integer;
+  arr : array [7] of integer;
 endlocals
 beginbody
   x := 10;

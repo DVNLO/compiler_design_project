@@ -27,15 +27,21 @@ create_identifier(void)
 
 %union{
   int int_val;
+
   string * op_val;
 
   code_t * code_semval;
   
   identifier_t * id_semval;
   identifiers_t * ids_semval;
+
   number_t * num_semval;
+
   variable_t * var_semval;
+  variables_t * vars_semval;
+
   term_t * term_semval;
+
   expression_t * exp_semval;
 }
 
@@ -57,6 +63,7 @@ create_identifier(void)
 %nterm <ids_semval> identifiers
 %nterm <num_semval> number
 %nterm <var_semval> variable
+%nterm <vars_semval> variables
 %nterm <term_semval> expression multiplicative_exp term term1
 
 %token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY OF IF THEN ENDIF ELSE WHILE DO FOR BEGINLOOP ENDLOOP CONTINUE READ WRITE TRUE FALSE RETURN SEMICOLON COLON COMMA L_PAREN R_PAREN 
@@ -107,6 +114,7 @@ function
       oss << $5->code;
       oss << $6->code;
       oss << "endfunc" << endl;
+      oss << endl;
       $$ = new code_t();
       $$->code = oss.str();
     }
@@ -125,17 +133,13 @@ semicolon
 
 params
   : begin_params declarations end_params {
-      /*
-      $$ = new code_t();
-      $$->code = $2->code;
-      */
       $$ = $2;
 #ifdef DEBUG
       printf("-- params -> beginparams declarations endparams\n%s\n", $$->code.c_str());
 #endif
     }
   | begin_params end_params {
-      $$->code = ""; // Fixes issue where code = function id
+      $$->code = ""; // Fixes issue where params->code = function id
     }
   ;
 
@@ -151,10 +155,6 @@ end_params
 
 locals
   : begin_locals declarations end_locals {
-      /*
-      $$ = new code_t();
-      $$->code = $2->code;
-      */
       $$ = $2;
 #ifdef DEBUG
       printf("-- locals -> beginlocals declarations endlocals\n%s\n", $$->code.c_str());
@@ -177,8 +177,6 @@ end_locals
 body
   : begin_body statements end_body {
       $$ = $2;
-      //$$ = new code_t();
-      //$$->code = $2->code;
 #ifdef DEBUG
       printf("-- body\n%s\n", $$->code.c_str());
 #endif
@@ -197,16 +195,16 @@ end_body
 
 declarations
   : declarations declaration SEMICOLON { 
-      /* get declarations code */
-      /* get declaration code */
       ostringstream oss;
       oss << $$->code;
       oss << $2->code;
+      $$->code = oss.str();
+      printf("-- declarations -> declarations declaration ;\n%s\n", $$->code.c_str());
     }
   | declaration SEMICOLON { 
       $$ = $1;
 #ifdef DEBUG
-      printf("-- declarations\n%s\n", $$->code.c_str());
+      printf("-- declarations -> declaration ;\n%s\n", $$->code.c_str());
 #endif
     }
   ;
@@ -221,6 +219,7 @@ declaration
         oss << ". " << $1->ids[i]->name.c_str() << endl;
       }
       $$->code = oss.str();
+      printf("-- declaration -> identifiers : integer\n%s\n", $$->code.c_str());
     }
   | identifiers COLON ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER { 
       $$ = new code_t();
@@ -231,6 +230,7 @@ declaration
         oss << ".[] " << $1->ids[i]->name.c_str() << ", " << $5->val << endl;
       }
       $$->code = oss.str();
+      printf("-- declaration -> identifiers : array [ number ] of integer\n%s\n", $$->code.c_str());
     }
   | error {}
   ;
@@ -435,9 +435,12 @@ multiplicative_exp
 variables
   : variables COMMA variable {
       // Only used for reading/writing from/to stdin/stdout
+      $$->vars.push_back($3);
     }
   | variable {
       // Only used for reading/writing from/to stdin/stdout
+      $$ = new variables_t();
+      $$->vars.push_back($1);
     }
   ; 
 
