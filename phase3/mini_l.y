@@ -2,7 +2,7 @@
 #include "heading.h"
 #include "types.h"
 
-// #define DEBUG
+#define DEBUG
 
 void yyerror(char const * s);
 int yylex(void);

@@ -13,6 +13,7 @@ beginbody
   a := z * y;
   b := x * x + 10 - 4 + 2;
   c := -1 / 10;
+  arr[x-5/y] := -z*5;
 endbody
 
 function main;
