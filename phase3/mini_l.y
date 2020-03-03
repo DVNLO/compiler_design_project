@@ -135,6 +135,17 @@ semicolon
 
 params
   : begin_params declarations end_params {
+      /**
+       * May need to change the type of declarations
+       * to a struct which holds an array of type 
+       * declaration.
+       * ---
+       * example a param declarations:
+       * . param0
+       * = param0, $0
+       * . param1
+       * = param1, $1
+       */
       $$ = $2;
 #ifdef DEBUG
       printf("-- params -> beginparams declarations endparams\n%s\n", $$->code.c_str());
@@ -197,16 +208,22 @@ end_body
 
 declarations
   : declarations declaration SEMICOLON { 
+      /*
+      $$ = $1;
       ostringstream oss;
       oss << $$->code;
       oss << $2->code;
       $$->code = oss.str();
+      */
+      
 #ifdef DEBUG
       printf("-- declarations -> declarations declaration ;\n%s\n", $$->code.c_str());
 #endif
     }
   | declaration SEMICOLON { 
       $$ = $1;
+      //$$ = new declarations_t();
+      //$$->decls.push_back($1);
 #ifdef DEBUG
       printf("-- declarations -> declaration ;\n%s\n", $$->code.c_str());
 #endif
@@ -216,12 +233,14 @@ declarations
 declaration
   : identifiers COLON INTEGER { 
       $$ = new code_t();
+      //$$ = new declaration_t();
 
       ostringstream oss;
       for (int i = 0; i < $1->ids.size(); i++) {
         // need to check if identifier already exists
         oss << ". " << $1->ids[i]->name.c_str() << endl;
       }
+      //$$->ids = $1->ids;
       $$->code = oss.str();
 #ifdef DEBUG
       printf("-- declaration -> identifiers : integer\n%s\n", $$->code.c_str());
@@ -245,6 +264,7 @@ declaration
 
 statements
   : statements statement SEMICOLON { 
+      $$ = $1;
       ostringstream oss;
       oss << $$->code;
       oss << $2->code;

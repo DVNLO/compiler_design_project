@@ -4,6 +4,10 @@
 const string tmp_id_name = "__tmp__";
 
 typedef struct {
+  string code;
+} code_t;
+
+typedef struct {
   string name;
 } identifier_t;
 
@@ -21,6 +25,15 @@ typedef struct {
 } expression_t;
 
 typedef struct {
+  vector<identifier_t *> ids;
+  string code;
+} declaration_t;
+
+typedef struct {
+  vector<declaration_t *> decls;
+} declarations_t;
+
+typedef struct {
   identifier_t * id;
   string code;
   string idx;
@@ -35,10 +48,6 @@ typedef struct {
   identifier_t * id;
   string code;
 } term_t;
-
-typedef struct {
-  string code;
-} code_t;
 
 
 #endif
