@@ -1,5 +1,7 @@
 %{
-#include "heading.h"
+#include <cstdio>
+#include <cstring>
+#include <string>
 #include "tok.h"
 int pos = 1;
 %}
@@ -62,12 +64,12 @@ return            { pos += strlen(yytext); return RETURN; }
 ":="              { pos += strlen(yytext); return ASSIGN; }
 {IDENT}           { 
                     pos += strlen(yytext); 
-                    yylval.op_val = new string(yytext); 
+                    yylval.op_val = new std::string(yytext); 
                     return IDENT;
                   }
 {DIGITS}          { 
                     pos += strlen(yytext); 
-                    yylval.int_val = atoi(yytext); 
+                    yylval.int_val = std::atoi(yytext); 
                     return NUMBER;
                   }
 {COMMENT}         { pos += strlen(yytext); }

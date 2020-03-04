@@ -1,0 +1,55 @@
+function main;
+beginparams
+endparams
+
+beginlocals
+
+  n : integer;
+  i, j, k: integer;
+  t : array [20] of integer;
+
+endlocals
+
+beginbody	## main program
+  n := 0;
+  
+  if n > 0 then
+    continue;
+  endif;
+  
+  if n < 0 then
+    continue;
+  else
+    continue;
+  endif;
+  
+  while n >= 0 and not true
+    beginloop
+      continue;
+    endloop;
+
+  do
+    beginloop
+      continue;
+    endloop
+  while n <= 0 or n == 1 or false;
+  
+  for n := 0; n <> 10; n := n + 1
+    beginloop
+      continue;
+    endloop;
+	
+  read n, i, j, k;
+  write n, i, j, k;
+  
+  n := fux(); 
+  n := 1 + fux(1, );
+  n := 2 + fux(1, 2, 3, );
+  i := -j;
+  i := i + -3;
+  i := i + (i + j);
+  
+  t[1 + 2] := n;
+
+endbody
+

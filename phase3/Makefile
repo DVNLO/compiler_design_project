@@ -32,7 +32,7 @@ errors.o:	errors.cpp
 main.o:		main.cc
 		$(CC) $(CFLAGS) -c main.cc -o main.o
 
-lex.o yac.o main.o	: heading.h
+lex.o yac.o main.o	: 
 lex.o main.o		: tok.h
 semantics.o		: semantics.h types.h
 errors.o		: errors.h

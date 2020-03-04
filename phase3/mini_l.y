@@ -1,49 +1,40 @@
 %{
-#include "heading.h"
-
-void yyerror(char const * s);
 int yylex(void);
-
-extern int yylineno; 
 extern char * yytext; 
 %}
 
 %code requires 
 {
-  struct identifier_t 
-  {
-    string name;
-  };
-  
-  struct identifiers_t
-  {
-    vector<identifier_t> identifiers;
-  };
-
-  struct number_t
-  {
-    int val;
-  };
+#include "types.h"
+#include "semantics.h"
+#include "errors.h"
 }
 
 %union
 {
   int int_val;
-  string * op_val;
+  std::string * op_val;
   identifier_t * id_nt_val;
   identifiers_t * ids_nt_val;
   number_t * num_nt_val;
+  variable_t * var_nt_val;
+  expression_t * exp_nt_val; 
 }
 
 %define parse.error verbose
 %define parse.lac full
 %start program
-%nterm<id_nt_val> identifier
-%nterm<ids_nt_val> identifiers
-%nterm<num_nt_val> number
 
 %token <op_val> IDENT
 %token <int_val> NUMBER 
+
+%nterm<id_nt_val> identifier
+%nterm<ids_nt_val> identifiers
+%nterm<num_nt_val> number
+%nterm<var_nt_val> variable
+%nterm<exp_nt_val> expression
+%nterm<exp_nt_val> multiplicative_exp
+%nterm<exp_nt_val> term
 
 %right ASSIGN
 %left OR
@@ -272,26 +263,53 @@ comp
   ;
 
 expression 
-  : expression ADD multiplicative_exp  { 
-      puts("expression -> expression ADD multiplicative_exp"); 
+  : expression ADD multiplicative_exp  
+    { 
+      // + dst, src1, src2
+      $$ = synthesize_expression('+', $1, $3);
+      delete $1;
+      delete $3;
     }
-  | expression SUB multiplicative_exp  { 
-      puts("expression -> expression SUB multiplicative_exp"); 
+  | expression SUB multiplicative_exp  
+    { 
+      // - dst, src1, src2
+      $$ = synthesize_expression('-', $1, $3);
+      delete $1;
+      delete $3;
     }
-  | multiplicative_exp { puts("expression -> multiplicative_exp"); }
+  | multiplicative_exp 
+    { 
+      // $$ = $1, assign the 
+      puts("expression -> multiplicative_exp"); 
+    }
   ;
 
 multiplicative_exp
-  : multiplicative_exp MULT term  { 
-      puts("multiplicative_exp -> multiplicative_exp MULT term"); 
+  : multiplicative_exp MULT term  
+    { 
+      // * dst, src1, src2
+      $$ = synthesize_expression('*', $1, $3);
+      delete $1;
+      delete $3;
     }
-  | multiplicative_exp DIV term  { 
-      puts("multiplicative_exp -> multiplicative_exp DIV term"); 
+  | multiplicative_exp DIV term  
+    { 
+      // / dst, src1, src2
+      $$ = synthesize_expression('/', $1, $3);
+      delete $1;
+      delete $3;
     }
-  | multiplicative_exp MOD term  { 
-      puts("multiplicative_exp -> multiplicative_exp MOD term"); 
+  | multiplicative_exp MOD term  
+    {
+      // % dst, src1, src2
+      $$ = synthesize_expression('%', $1, $3);
+      delete $1;
+      delete $3;
     }
   | term
+    {
+      
+    }
   ;
 
 variables
@@ -300,9 +318,19 @@ variables
   ; 
 
 variable
-  : identifier  { puts("variable -> identifier"); }
-  | identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET { 
-      puts("variable -> identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET"); 
+  : identifier  
+    { 
+      $$ = new variable_t;
+      $$->name = $1->name;
+      delete $1;
+    }
+  | identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET 
+    { 
+      $$ = new variable_t;
+      $$->name = $1->name;
+      $$->expression = *$3;
+      delete $1;
+      delete $3; 
     }
   ;
 
@@ -326,98 +354,40 @@ term2
 
 // captures identifier information from an identifier list
 identifiers
-  : identifiers COMMA identifier {
+  : identifiers COMMA identifier 
+    {
       $$ = new identifiers_t; 
       $1->identifiers.push_back(*$3);
-      $$->identifiers = $1->identifiers;
-      
+      $$->identifiers = $1->identifiers; 
       delete $3;
       delete $1;
     }
-  | identifier {
+  | identifier 
+    {
       $$ = new identifiers_t;
-      $$->identifiers.push_back(*$1);
-      
+      $$->identifiers.push_back(*$1); 
       delete $1;
     }
   ;
 
 // captures identifer information from IDENT token 
 identifier
-  : IDENT {
+  : IDENT 
+    {
       $$ = new identifier_t;
-      $$->name = *yylval.op_val;
-      
+      $$->name = *yylval.op_val; 
       delete yylval.op_val;
     }
   ;
 
+// capture number information from NUMBER token
 number
-  : NUMBER { 
+  : NUMBER 
+    { 
       $$ = new number_t;
       $$->val = yylval.int_val;
-  }
+    }
   ;
 
 %%
 
-// partitions error_msg on delimiter into error_msgs
-// assuming sufficient space in error_msgs.
-void partition(char * error_msg, 
-               char const delimiter, 
-               char * * error_msgs)
-{
-  if(!error_msg || !error_msgs)
-    return;
-  size_t i = 0;
-  char * lead = error_msg;
-  char * follow = error_msg;
-  while(true)
-  {
-    while(*lead != 0 
-          && *lead != delimiter) 
-      ++lead;
-    error_msgs[i] = follow;
-    ++i;
-    if(*lead == 0)
-      break;
-    else
-      *lead = 0;  // replace ','
-    lead += 2;  // advance over ", " to first char of next word
-    follow = lead;
-  }
-}
-
-// returns a count of delimiter found in str
-size_t count_delimiter(char const * str, 
-                       char const delimiter)
-{
-  size_t delimiter_count = 0;
-  while(*str != 0)
-  {
-    if(*str == delimiter)
-      ++delimiter_count;
-    ++str;
-  }
-  return delimiter_count;
-}
-
-void
-yyerror(char const * s)
-{
-  size_t const S_SIZE = strlen(s);
-  size_t const COL_COUNT = count_delimiter(s, ',') + 1;
-  char * error_msg = (char *)(calloc(S_SIZE + 1, sizeof(char)));
-  char * * error_msgs = (char * *)(calloc(COL_COUNT, sizeof(char * *)));
-
-  strcpy(error_msg, s);
-  partition(error_msg, ',', error_msgs);
-  fprintf(stderr, 
-          "Syntax error at line %d: %s %s\n", 
-          yylineno, 
-          error_msgs[1] ? error_msgs[1] : "", 
-          error_msgs[2] ? error_msgs[2] : "");
-
-  free(error_msg);
-  free(error_msgs);
-}
