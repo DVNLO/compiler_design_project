@@ -3,7 +3,7 @@ OBJS	= bison.o lex.o main.o
 
 CC	= g++
 # https://stackoverflow.com/questions/925179/selectively-remove-warning-message-gcc
-CFLAGS	= -g -Wno-write-strings -ansi -pedantic
+CFLAGS	= --std=c++11 -g -Wno-write-strings -ansi -pedantic
 
 mini_l:		$(OBJS)
 		$(CC) $(CFLAGS) $(OBJS) -o mini_l -lfl
