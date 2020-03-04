@@ -8,17 +8,43 @@ extern int yylineno;
 extern char * yytext; 
 %}
 
-%union{
-  int   int_val;
+%code requires 
+{
+  struct identifier_t 
+  {
+    string name;
+  };
+  
+  struct identifiers_t
+  {
+    vector<identifier_t> identifiers;
+  };
+
+  struct number_t
+  {
+    int val;
+  };
+}
+
+%union
+{
+  int int_val;
   string * op_val;
+  identifier_t * id_nt_val;
+  identifiers_t * ids_nt_val;
+  number_t * num_nt_val;
 }
 
 %define parse.error verbose
 %define parse.lac full
 %start program
+%nterm<id_nt_val> identifier
+%nterm<ids_nt_val> identifiers
+%nterm<num_nt_val> number
 
 %token <op_val> IDENT
 %token <int_val> NUMBER 
+
 %right ASSIGN
 %left OR
 %left AND 
@@ -298,33 +324,42 @@ term2
   | { puts("term2 -> epsilon"); }
   ;
 
+// captures identifier information from an identifier list
 identifiers
-  : identifiers COMMA identifier { puts("identifiers -> identifiers COMMA identifier"); }
-  | identifier { puts("identifiers -> identifier"); }
+  : identifiers COMMA identifier {
+      $$ = new identifiers_t; 
+      $1->identifiers.push_back(*$3);
+      $$->identifiers = $1->identifiers;
+      
+      delete $3;
+      delete $1;
+    }
+  | identifier {
+      $$ = new identifiers_t;
+      $$->identifiers.push_back(*$1);
+      
+      delete $1;
+    }
   ;
 
+// captures identifer information from IDENT token 
 identifier
-  : IDENT { printf("identifier -> IDENT %s\n", yylval.op_val->c_str()); }
+  : IDENT {
+      $$ = new identifier_t;
+      $$->name = *yylval.op_val;
+      
+      delete yylval.op_val;
+    }
   ;
 
 number
-  : NUMBER { printf("number -> NUMBER %d\n", yylval.int_val); }
+  : NUMBER { 
+      $$ = new number_t;
+      $$->val = yylval.int_val;
+  }
   ;
 
-
 %%
-
-/*
-int yyerror(string const s)
-{
-  extern int yylineno;  // defined and maintained in lex.c
-  extern char *yytext;  // defined and maintained in lex.c
-        
-  cerr << "ERROR: " << s << " at symbol \"" << yytext;
-  cerr << "\" on line " << yylineno << endl;
-  exit(EXIT_FAILURE);
-}
-*/
 
 // partitions error_msg on delimiter into error_msgs
 // assuming sufficient space in error_msgs.
