@@ -1,9 +1,9 @@
 #Makefile
-OBJS	= bison.o lex.o main.o
+OBJS	= bison.o lex.o main.o errors.o semantics.o
 
 CC	= g++
 # https://stackoverflow.com/questions/925179/selectively-remove-warning-message-gcc
-CFLAGS	= --std=c++11 -g -Wno-write-strings -ansi -pedantic
+CFLAGS	= -std=c++11 -g -Wno-write-strings -Wall -pedantic
 
 mini_l:		$(OBJS)
 		$(CC) $(CFLAGS) $(OBJS) -o mini_l -lfl
@@ -23,11 +23,19 @@ bison.c:	mini_l.y
 		cp mini_l.tab.c bison.c
 		cmp -s mini_l.tab.h tok.h || cp mini_l.tab.h tok.h
 
+semantics.o:	semantics.cpp
+		$(CC) $(CFLAGS) -c semantics.cpp -o semantics.o
+
+errors.o:	errors.cpp
+		$(CC) $(CFLAGS) -c errors.cpp -o errors.o
+
 main.o:		main.cc
 		$(CC) $(CFLAGS) -c main.cc -o main.o
 
 lex.o yac.o main.o	: heading.h
 lex.o main.o		: tok.h
+semantics.o		: semantics.h types.h
+errors.o		: errors.h
 
 clean:
 	rm -f *.o *~ lex.c lex.yy.c bison.c tok.h mini_l.tab.c mini_l.tab.h mini_l.output mini_l
