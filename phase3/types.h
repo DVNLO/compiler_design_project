@@ -11,24 +11,24 @@ enum class variable_type_t
   ARRAY
 };
 
-// TODO : Function has name, paramaters, statements
-struct function_t
-{
-  std::string name;
-  paramaters_t paramaters;
-  unordered_map<std::string, variable_type_t> symbols;
-  statements_t statements;
-};
-
-struct paramater_t
+struct parameter_t
 {
   variable_type_t variable_type;
 };
 
 struct paramaters_t
 {
-  std::vector<paramater_t> parameters;
+  std::vector<parameter_t> parameters;
 };
+
+// TODO : Function has name, paramaters, statements
+struct function_t
+{
+  std::string name;
+  paramaters_t paramaters;
+  std::unordered_map<std::string, variable_type_t> symbols;
+};
+
 
 struct statement_t
 {
