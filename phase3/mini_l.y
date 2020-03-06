@@ -321,8 +321,20 @@ multiplicative_exp
   ;
 
 variables
-  : variables COMMA variable { puts("variables -> variables COMMA variable"); }
-  | variable { puts("variables -> variable"); }
+  : variables COMMA variable 
+    { 
+      $$ = new variables_t;
+      $1->variables.push_back(*$3);
+      $$->variables = $1->variables;
+      delete $3;
+      delete $1;
+    }
+  | variable 
+    {
+      $$ = new variables_t;
+      $$->variables.push_back(*$1);
+      delete $1;
+    }
   ; 
 
 variable
@@ -417,16 +429,26 @@ term2
   : expression COMMA term2 
     { 
       // generates a paramater list
+      // TODO : This requires determining our data structure for a
+      // function, something we have not done yet. After reviewing some
+      // of the intermediate mil code, we will need to declare the 
+      // final result of the expression evaluations here as a parameter
+      // for the next function call. Additionally, we will need
+      // to populate these paramaters in the callee's data structure 
+      // (caller -> callee).
       puts("term2 -> term2 COMMA expression"); 
     }
   | expression 
-    { 
+    {
+      // TODO : This or the epsilon terminal below are the final 
+      // terminals constructing the paramater list. So by this block,
+      // the code for the paramater list must be generated and the 
+      // function ready to be called in the parent terminal.
       puts("term2 -> expression"); 
     }
   | { puts("term2 -> epsilon"); }
   ;
 
-// captures identifier information from an identifier list
 identifiers
   : identifiers COMMA identifier 
     {
@@ -444,7 +466,6 @@ identifiers
     }
   ;
 
-// captures identifer information from IDENT token 
 identifier
   : IDENT 
     {

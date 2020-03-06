@@ -19,6 +19,11 @@ struct variable_t
   expression_t expression;
 };
 
+struct variables_t
+{
+  std::vector<variable_t> variables; 
+};
+
 struct identifier_t
 {
   std::string name;
