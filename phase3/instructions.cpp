@@ -210,11 +210,11 @@ gen_ins_tac(std::string const & op_code,
   ret += op_code;
   ret += ' ';
   ret += dst;
-  ret += ' ';
   ret += ',';
+  ret += ' ';
   ret += src1;
-  ret += ' ';
   ret += ',';
+  ret += ' ';
   ret += src2;
   ret += '\n';
   return ret;
