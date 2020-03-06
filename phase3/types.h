@@ -1,53 +1,83 @@
-#ifndef __TYPES_H__
-#define __TYPES_H__
+#ifndef MINI_L_TYPES_H
+#define MINI_L_TYPES_H
 
-const string tmp_id_name = "__tmp__";
+#include <string>
+#include <vector>
+#include <unordered_map>
 
-typedef struct {
-  string code;
-} code_t;
+enum class variable_type_t
+{
+  INTEGER,
+  ARRAY
+};
 
-typedef struct {
-  string name;
-} identifier_t;
+// TODO : Function has name, paramaters, statements
+struct function_t
+{
+  std::string name;
+  paramaters_t paramaters;
+  unordered_map<std::string, variable_type_t> symbols;
+  statements_t statements;
+};
 
-typedef struct {
-  vector<identifier_t *> ids;
-} identifiers_t;
+struct paramater_t
+{
+  variable_type_t variable_type;
+};
 
-typedef struct {
-  int val;
-} number_t;
+struct paramaters_t
+{
+  std::vector<paramater_t> parameters;
+};
 
-typedef struct {
-  identifier_t * id;
-  string code;
-} expression_t;
+struct statement_t
+{
+  std::string op_code;
+  std::string dst;
+  std::string src1;
+  std::string src2;
+  std::string code;
+};
 
-typedef struct {
-  vector<identifier_t *> ids;
-  string code;
-} declaration_t;
+struct expression_t
+{
+  std::string op_code;
+  std::string dst;
+  std::string src1;
+  std::string src2;
+  std::string code;
+};
 
-typedef struct {
-  vector<declaration_t *> decls;
-} declarations_t;
+struct variable_t
+{
+  std::string name;
+  expression_t expression;
+  variable_type_t type; 
+};
 
-typedef struct {
-  identifier_t * id;
-  string code;
-  string idx;
-  bool is_array;
-} variable_t;
+struct variables_t
+{
+  std::vector<variable_t> variables; 
+};
 
-typedef struct {
-  vector<variable_t *> vars;
-} variables_t;
+struct comparison_t
+{
+  std::string op_code;
+};
 
-typedef struct {
-  identifier_t * id;
-  string code;
-} term_t;
+struct identifier_t
+{
+  std::string name;
+};
 
+struct identifiers_t
+{
+  std::vector<identifier_t> identifiers;
+};
 
-#endif
+struct number_t
+{
+  std::string val;
+};
+
+#endif  // MINI_L_TYPES_H

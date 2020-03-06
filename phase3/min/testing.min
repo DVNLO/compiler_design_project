@@ -1,0 +1,11 @@
+function f;
+beginparams
+endparams
+beginlocals
+ a, b, c, d : integer;
+endlocals
+beginbody
+  a := 5;
+  b := a + c * d;
+continue;
+endbody

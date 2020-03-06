@@ -1,70 +1,51 @@
 %{
-#include "heading.h"
-#include "types.h"
-
-#define DEBUG
-
-void yyerror(char const * s);
 int yylex(void);
-
-extern int yylineno; 
 extern char * yytext; 
-
-identifier_t *
-create_identifier(void)
-{
-  static int num = 0;
-
-  ostringstream oss;
-  oss << tmp_id_name << num++;
-
-  identifier_t * id = new identifier_t();
-  id->name = oss.str();
-
-  return id;
-}
 %}
 
-%union{
-  int int_val;
+%code requires 
+{
+#include "errors.h"
+#include "instructions.h"
+#include "semantics.h"
+#include "types.h"
+#include <iostream>
+}
 
-  string * op_val;
-
-  code_t * code_semval;
-  
-  identifier_t * id_semval;
-  identifiers_t * ids_semval;
-
-  number_t * num_semval;
-
-  variable_t * var_semval;
-  variables_t * vars_semval;
-
-  term_t * term_semval;
-
-  expression_t * exp_semval;
+%union
+{
+  std::string * op_val;
+  identifier_t * id_nt_val;
+  identifiers_t * ids_nt_val;
+  number_t * num_nt_val;
+  variable_t * var_nt_val;
+  variables_t * vars_nt_val;
+  expression_t * exp_nt_val;
+  comparison_t * comp_nt_val; 
 }
 
 %define parse.error verbose
 %define parse.lac full
-
 %start program
 
 %token <op_val> IDENT
-%token <int_val> NUMBER 
+%token <op_val> NUMBER 
 
-%nterm <code_semval> program
-%nterm <code_semval> functions function params locals body
-%nterm <code_semval> declarations declaration
-%nterm <code_semval> statements statement
-%nterm <code_semval> statement_assign
-
-%nterm <id_semval> identifier 
-%nterm <ids_semval> identifiers
-%nterm <num_semval> number
-%nterm <var_semval> variable
-%nterm <vars_semval> variables
-%nterm <term_semval> expression multiplicative_exp term term1
+%nterm<id_nt_val> identifier
+%nterm<ids_nt_val> identifiers
+%nterm<num_nt_val> number
+%nterm<var_nt_val> variable
+%nterm<vars_nt_val> variables
+%nterm<exp_nt_val> expression
+%nterm<exp_nt_val> multiplicative_exp
+%nterm<exp_nt_val> term2
+%nterm<exp_nt_val> term1
+%nterm<exp_nt_val> term
+%nterm<comp_nt_val> comp
+%nterm<exp_nt_val> bool_exp
+%nterm<exp_nt_val> relation_and_exp
+%nterm<exp_nt_val> relation_exp
+%nterm<exp_nt_val> relation_exp1
 
 %right ASSIGN
 %left OR
@@ -77,284 +58,154 @@ create_identifier(void)
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET
 
 %token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY OF IF THEN ENDIF ELSE WHILE DO FOR BEGINLOOP ENDLOOP CONTINUE READ WRITE TRUE FALSE RETURN SEMICOLON COLON COMMA L_PAREN R_PAREN 
-
 %%
 
 program
-  : {}
-  | functions {
-      $$->code = $1->code;
-      printf("%s", $$->code.c_str());
-    }
+  : { puts("program -> epsilon"); }
+  | functions { puts("program -> functions"); }
   ;
 
 functions
-  : functions function {
-      ostringstream oss;
-      oss << $1->code;
-      oss << $2->code;
-      $$ = new code_t();
-      $$->code = oss.str();
-#ifdef DEBUG
-      printf("-- functions -> functions function\n%s\n", $$->code.c_str());
-#endif
-    }
-  | function {
-      $$ = new code_t();
-      $$->code = $1->code;
-#ifdef DEBUG
-      printf("-- functions -> function\n%s\n", $$->code.c_str());
-#endif
-    }
+  : functions function { puts("functions -> functions function"); }
+  | function { puts("functions -> function"); }
   ;
 
 function
-  : function1 identifier semicolon params locals body {
-      ostringstream oss;
-      oss << "func " << $2->name << endl;
-      oss << $4->code;
-      oss << $5->code;
-      oss << $6->code;
-      oss << "endfunc" << endl;
-      oss << endl;
-      $$ = new code_t();
-      $$->code = oss.str();
+  : function1 identifier { /* TODO: Push function identifier onto stack */ } semicolon params locals { /* TODO : setup the function data structure */} body {
+      // TODO : Pop function identifer from the function stack
+      puts("function -> function1 identifier semicolon params locals body");
     }
-  | error {}
+  | error { puts("function -> error"); }
   ;
 
 function1
-  : FUNCTION {}
-  | error {}
+  : FUNCTION { puts("function1 -> FUNCTION"); }
+  | error { puts("function1 -> error"); }
   ;
 
 semicolon
-  : SEMICOLON {}
-  | error {}
+  : SEMICOLON { puts("semicolon -> SEMICOLON"); }
+  | error { puts("semicolon -> error"); }
   ;
 
 params
   : begin_params declarations end_params {
-      /**
-       * May need to change the type of declarations
-       * to a struct which holds an array of type 
-       * declaration.
-       * ---
-       * example a param declarations:
-       * . param0
-       * = param0, $0
-       * . param1
-       * = param1, $1
-       */
-      $$ = $2;
-#ifdef DEBUG
-      printf("-- params -> beginparams declarations endparams\n%s\n", $$->code.c_str());
-#endif
+      puts("params -> begin_params declarations end_params");
     }
   | begin_params end_params {
-      $$->code = ""; // Fixes issue where params->code = function id
+      puts("params -> begin_params end_params");
     }
   ;
 
 begin_params
-  : BEGIN_PARAMS {}
-  | error {}
+  : BEGIN_PARAMS { puts("begin_params -> BEGIN_PARAMS"); }
+  | error { puts("begin_params -> error"); }
   ;
 
 end_params
-  : END_PARAMS {}
-  | error {}
+  : END_PARAMS { puts("end_params -> END_PARAMS"); }
+  | error { puts("end_params -> error"); }
   ;
 
 locals
   : begin_locals declarations end_locals {
-      $$ = $2;
-#ifdef DEBUG
-      printf("-- locals -> beginlocals declarations endlocals\n%s\n", $$->code.c_str());
-#endif
+      puts("locals -> begin_locals declarations end_locals");
     }
   | begin_locals end_locals {
+      puts("locals -> begin_locals end_locals");
     }
   ;
 
 begin_locals
-  : BEGIN_LOCALS {}
-  | error {}
+  : BEGIN_LOCALS { puts("begin_locals -> BEGIN_LOCALS"); }
+  | error { puts("begin_locals -> error"); }
   ;
 
 end_locals
-  : END_LOCALS {}
-  | error {}
+  : END_LOCALS { puts("end_locals -> END_LOCALS"); }
+  | error { puts("end_locals -> error"); }
   ;
 
 body
   : begin_body statements end_body {
-      $$ = $2;
-#ifdef DEBUG
-      printf("-- body\n%s\n", $$->code.c_str());
-#endif
+      puts("body -> begin_body statements end_body");
     }
   ;
 
 begin_body
-  : BEGIN_BODY {}
-  | error {}
+  : BEGIN_BODY { puts("begin_body -> BEGIN_BODY"); }
+  | error { puts("begin_body -> error"); }
   ;
 
 end_body
-  : END_BODY {}
-  | error {}
+  : END_BODY { puts("end_body -> END_BODY"); }
+  | error { puts("end_body -> error"); }
   ;
 
 declarations
   : declarations declaration SEMICOLON { 
-      /*
-      $$ = $1;
-      ostringstream oss;
-      oss << $$->code;
-      oss << $2->code;
-      $$->code = oss.str();
-      */
-      
-#ifdef DEBUG
-      printf("-- declarations -> declarations declaration ;\n%s\n", $$->code.c_str());
-#endif
+      puts("declarations -> declarations declaration SEMICOLON"); 
     }
-  | declaration SEMICOLON { 
-      $$ = $1;
-      //$$ = new declarations_t();
-      //$$->decls.push_back($1);
-#ifdef DEBUG
-      printf("-- declarations -> declaration ;\n%s\n", $$->code.c_str());
-#endif
-    }
+  | declaration SEMICOLON { puts("declarations -> declaration SEMICOLON"); }
   ;
 
 declaration
   : identifiers COLON INTEGER { 
-      $$ = new code_t();
-      //$$ = new declaration_t();
-
-      ostringstream oss;
-      for (int i = 0; i < $1->ids.size(); i++) {
-        // need to check if identifier already exists
-        oss << ". " << $1->ids[i]->name.c_str() << endl;
-      }
-      //$$->ids = $1->ids;
-      $$->code = oss.str();
-#ifdef DEBUG
-      printf("-- declaration -> identifiers : integer\n%s\n", $$->code.c_str());
-#endif
+      puts("declaration -> identifiers COLON INTEGER"); 
     }
   | identifiers COLON ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER { 
-      $$ = new code_t();
-
-      ostringstream oss;
-      for (int i = 0; i < $1->ids.size(); i++) {
-        // need to check if identifier already exists
-        oss << ".[] " << $1->ids[i]->name.c_str() << ", " << $5->val << endl;
-      }
-      $$->code = oss.str();
-#ifdef DEBUG
-      printf("-- declaration -> identifiers : array [ number ] of integer\n%s\n", $$->code.c_str());
-#endif
+      puts("declaration -> identifiers COLON ARRAY L_SQUARE_BRACKET "
+           "number R_SQUARE_BRACKET OF INTEGER"); 
     }
-  | error {}
+  | error { puts("declaration -> error"); }
   ;
 
 statements
   : statements statement SEMICOLON { 
-      $$ = $1;
-      ostringstream oss;
-      oss << $$->code;
-      oss << $2->code;
-      $$->code = oss.str();
-#ifdef DEBUG
-      printf("-- statements -> statements statement ;\n%s\n", $$->code.c_str());
-#endif
+      puts("statements -> statements statement SEMICOLON"); 
     }
   | statement SEMICOLON {
-      $$ = new code_t();
-      $$->code = $1->code;
-#ifdef DEBUG
-      printf("-- statements -> statement ;\n%s\n", $1->code.c_str());
-#endif
+      puts("statements -> statement SEMICOLON");
     }
   ;
 
 statement
-  : statement_assign {
-      $$ = $1;
-#ifdef DEBUG
-      printf("-- statement -> statement_assign\n%s\n", $$->code.c_str());
-#endif
-    }
-  | statement_if       {
-    }
-  | statement_while    {
-    }
-  | statement_do_while {
-    }
-  | statement_for      {
-    }
-  | statement_read     {
-    }
-  | statement_write    {
-    }
-  | statement_continue {
-    }
-  | statement_return   {
-    }
-  | error              {}
+  : statement_assign   { puts("statement -> statement_assign"); }
+  | statement_if       { puts("statement -> statement_if"); }
+  | statement_while    { puts("statement -> statement_while"); }
+  | statement_do_while { puts("statement -> statement_do_while"); }
+  | statement_for      { puts("statement -> statement_for"); }
+  | statement_read     { puts("statement -> statement_read"); }
+  | statement_write    { puts("statement -> statement_write"); }
+  | statement_continue { puts("statement -> statement_continue"); }
+  | statement_return   { puts("statement -> statement_return"); }
+  | error              { puts("statement -> error"); }
   ;
 
 statement_assign
   : variable ASSIGN expression { 
-      ostringstream oss;
-      oss << $1->code;
-      oss << $3->code;
-      if ($1->is_array) {
-        oss << "[]= " << $1->id->name << ", " << $1->idx << ", " << $3->id->name << endl;
-      } else {
-        oss << "= " << $1->id->name << ", " << $3->id->name << endl;
-      }
-      $$ = new code_t();
-      $$->code = oss.str();
-#ifdef DEBUG
-      printf("-- statement_assign\n%s\n", $$->code.c_str());
-#endif
+      puts("statement_assign -> variable ASSIGN expression"); 
     }
   ;
 
 statement_if
   : IF bool_exp THEN statements ENDIF { 
-      /* get bool_exp code */
-      /* get statements code */
-      /* set up conditional branching code */
+      puts("statement_if -> IF bool_exp THEN statements ENDIF"); 
     }
   | IF bool_exp THEN statements ELSE statements ENDIF {
-      /* get bool_exp code */
-      /* get then statements code */
-      /* get else statements code */
-      /* set up 2 conditional branches code */
+      puts("statement_if -> IF bool_exp THEN statements ELSE statements ENDIF");
     }
   ;
 
 statement_while
   : WHILE bool_exp BEGINLOOP statements ENDLOOP { 
-      /* get bool_exp code */
-      /* set labels */
-      /* get statements code */
-      /* set branching */
+      puts("statement_while -> WHILE bool_exp BEGINLOOP statements ENDLOOP"); 
     }
   ;
 
 statement_do_while
   : DO BEGINLOOP statements ENDLOOP WHILE bool_exp {
-      /* set labels */
-      /* get statements code */
-      /* get bool_exp code */
-      /* set branching */
+      puts("statement_do_while -> DO BEGINLOOP statements ENDLOOP WHILE bool_exp");
     }
   ;
 
@@ -363,381 +214,380 @@ statement_for
         bool_exp SEMICOLON 
         statement_assign 
         BEGINLOOP statements ENDLOOP {
-      /* set assignment */
-      /* get bool_exp code */
-      /* get statement_assign code */
-      /* set labels */
-      /* get statements code */
-      /* set branching */
+      puts("statement_for -> FOR variable ASSIGN number SEMICOLON bool_exp "
+           "SEMICOLON statement_assign BEGINLOOP statements ENDLOOP");
     }
   ;
 
 statement_read
-  : READ variables {}
+  : READ variables 
+    { 
+      size_t const SIZE_VARIABLES = $2->variables.size();
+      for(size_t i = 0; i < SIZE_VARIABLES; ++i)
+      {
+        //if(is_array($2->variables[i]))
+        {
+          // TODO : generate a statement to read into an array
+          // Define a statement type, what data does it need?
+          // code. 
+        }
+        //else
+        {
+          // generate statement to read into a INTEGER
+        }
+      } 
+    }
   ;
 
 statement_write
-  : WRITE variables {}
+  : WRITE variables { puts("statement_write -> WRITE variables"); }
   ;
 
 statement_continue
-  : CONTINUE {}
+  : CONTINUE { puts("statement_continue -> CONTINUE"); }
   ;
 
 statement_return
-  : RETURN expression {}
+  : RETURN expression { puts("statement_return -> RETURN expression"); }
   ;
 
 bool_exp
-  : bool_exp OR relation_and_exp { // || dst, bool_exp.id, relation_and_exp.id
-      /* get bool_exp code */
-      /* get relation_and_exp code */
-      
+  : bool_exp OR relation_and_exp 
+    { 
+      $$ = synthesize_comparison_expression("||", $1, $3);
+      // TODO : add generated and declared name to symbol table  
+      delete $3;
+      delete $1;
     }
-  | relation_and_exp {}
+  | relation_and_exp 
+    { 
+      $$ = copy_expression($1);
+      delete $1;
+    }
   ;
 
 relation_and_exp
-  : relation_and_exp AND relation_exp {
+  : relation_and_exp AND relation_exp 
+    { 
+      $$ = synthesize_comparison_expression("&&", $1, $3);
+      // TODO : add generated and declared name to symbol table  
+      delete $3;
+      delete $1;
     }
-  | relation_exp {}
+  | relation_exp 
+    {
+      $$ = copy_expression($1);
+      delete $1; 
+    }
   ;
 
 relation_exp
-  : NOT relation_exp1 {}
-  | relation_exp1 {}
+  : NOT relation_exp1 
+    { 
+      $$ = new expression_t;
+      $$->op_code = "!";
+      $$->dst = generate_name();
+      $$->src1 = $2->dst;
+      $$->code += gen_ins_declare_variable($$->dst);
+      // TODO : add generated and declared name to symbol table
+      $$->code += gen_ins_logical_not($$->dst, $$->src1);
+      delete $2;
+    }
+  | relation_exp1 
+    {
+      $$ = copy_expression($1);
+      delete $1; 
+    }
   ;
 
 relation_exp1
-  : expression comp expression {
+  : expression comp expression 
+    { 
+      $$ = synthesize_comparison_expression($2->op_code, $1, $3);
+      delete $3;
+      delete $1;
     }
-  | TRUE {}
-  | FALSE {}
-  | L_PAREN bool_exp R_PAREN {
+  | TRUE 
+    {
+      $$ = new expression_t;
+      $$->dst = generate_name();
+      $$->src1 = "1";
+      $$->code += gen_ins_declare_variable($$->dst);
+      // TODO : add generated and declared name to symbol table 
+      $$->code += gen_ins_copy($$->dst, $$->src1);
+    }
+  | FALSE 
+    { 
+      $$ = new expression_t;
+      $$->dst = generate_name();
+      $$->src1 = "0";
+      $$->code += gen_ins_declare_variable($$->dst);
+      // TODO : add generated and declared name to symbol table 
+      $$->code += gen_ins_copy($$->dst, $$->src1);
+    }
+  | L_PAREN bool_exp R_PAREN 
+    {
+      $$ = copy_expression($2);
+      delete $2; 
     }
   ;
  
 comp
-  : EQ {}
-  | NEQ {}
-  | LT {}
-  | GT {}
-  | LTE {}
-  | GTE {}
+  : EQ 
+    { 
+      $$ = new comparison_t;
+      $$->op_code = "=="; 
+    }
+  | NEQ 
+    {
+      $$ = new comparison_t;
+      $$->op_code = "!="; 
+    }
+  | LT 
+    { 
+      $$ = new comparison_t;
+      $$->op_code = "<";
+    }
+  | GT 
+    { 
+      $$ = new comparison_t;
+      $$->op_code = ">"; 
+    }
+  | LTE 
+    {
+      $$ = new comparison_t;
+      $$->op_code = "<="; 
+    }
+  | GTE 
+    { 
+      $$ = new comparison_t;
+      $$->op_code = ">=";
+    }
   ;
 
 expression 
-  : expression ADD multiplicative_exp  { 
-      $$ = new term_t();
-      $$->id = create_identifier();
-
-      ostringstream oss;
-      oss << $1->code;
-      oss << $3->code;
-      oss << ". " << $$->id->name << endl; // Declare new identifier
-      oss << "+ " << $$->id->name << ", " << $1->id->name << ", " << $3->id->name << endl; // + dst, src1, src2
-      $$->code = oss.str();
-#ifdef DEBUG
-      printf("-- expression -> expression + multiplicative_exp\n%s\n", $$->code.c_str());
-#endif
+  : expression ADD multiplicative_exp  
+    { 
+      // + dst, src1, src2
+      $$ = synthesize_arithmetic_expression("+", $1, $3);
+      std::cout << $$->code << std::endl;
+      // TODO : add generated and declared name to symbol table 
+      delete $1;
+      delete $3;
     }
-  | expression SUB multiplicative_exp  {
-      $$ = new term_t();
-      $$->id = create_identifier();
-
-      ostringstream oss;
-      oss << $1->code;
-      oss << $3->code;
-      oss << ". " << $$->id->name << endl; // Declare new identifier
-      oss << "- " << $$->id->name << ", " << $1->id->name << ", " << $3->id->name << endl; // - dst, src1, src2
-      $$->code = oss.str();
-#ifdef DEBUG
-      printf("-- expression -> expression - multiplicative_exp\n%s\n", $$->code.c_str());
-#endif
+  | expression SUB multiplicative_exp  
+    { 
+      // - dst, src1, src2
+      $$ = synthesize_arithmetic_expression("-", $1, $3);
+      // TODO : add generated and declared name to symbol table 
+      delete $1;
+      delete $3;
     }
-  | multiplicative_exp {
-      $$ = $1;
-#ifdef DEBUG
-      printf("-- expression -> multiplicative_exp\n%s\n", $$->code.c_str());
-#endif
+  | multiplicative_exp 
+    { 
+      $$ = copy_expression($1);
+      delete $1;
     }
   ;
 
 multiplicative_exp
-  : multiplicative_exp MULT term  {
-      $$ = new term_t();
-      $$->id = create_identifier();
-
-      ostringstream oss;
-      oss << $1->code;
-      oss << $3->code;
-      oss << ". " << $$->id->name << endl; // Declare new identifier
-      oss << "* " << $$->id->name << ", " << $1->id->name << ", " << $3->id->name << endl; // * dst, src1, src2
-      $$->code = oss.str();
-#ifdef DEBUG
-      printf("-- multiplicative_exp -> multiplicative_exp * term\n%s\n", $$->code.c_str());
-#endif
+  : multiplicative_exp MULT term  
+    { 
+      // * dst, src1, src2
+      $$ = synthesize_arithmetic_expression("*", $1, $3);
+      // TODO : add generated and declared name to symbol table 
+      delete $1;
+      delete $3;
     }
-  | multiplicative_exp DIV term  {
-      $$ = new term_t();
-      $$->id = create_identifier();
-
-      ostringstream oss;
-      oss << $1->code;
-      oss << $3->code;
-      oss << ". " << $$->id->name << endl; // Declare new identifier
-      oss << "/ " << $$->id->name << ", " << $1->id->name << ", " << $3->id->name << endl; // / dst, src1, src2
-      $$->code = oss.str();
-#ifdef DEBUG
-      printf("-- multiplicative_exp -> multiplicative_exp / term\n%s\n", $$->code.c_str());
-#endif
-
+  | multiplicative_exp DIV term  
+    { 
+      // / dst, src1, src2
+      $$ = synthesize_arithmetic_expression("/", $1, $3);
+      // TODO : add generated and declared name to symbol table 
+      delete $1;
+      delete $3;
     }
-  | multiplicative_exp MOD term  {
-      $$ = new term_t();
-      $$->id = create_identifier();
-
-      ostringstream oss;
-      oss << $1->code;
-      oss << $3->code;
-      oss << ". " << $$->id->name << endl; // Declare new identifier
-      oss << "% " << $$->id->name << ", " << $1->id->name << ", " << $3->id->name << endl; // % dst, src1, src2
-      $$->code = oss.str();
-#ifdef DEBUG
-      printf("-- multiplicative_exp -> multiplicative_exp %% term\n%s\n", $$->code.c_str());
-#endif
+  | multiplicative_exp MOD term  
+    {
+      // % dst, src1, src2
+      $$ = synthesize_arithmetic_expression("%", $1, $3);
+      // TODO : add generated and declared name to symbol table 
+      delete $1;
+      delete $3;
     }
-  | term {
-      $$ = $1;
-#ifdef DEBUG
-      printf("-- multiplicative_exp -> term\n%s\n", $$->code.c_str());
-#endif
+  | term
+    {
+      $$ = copy_expression($1);
+      delete $1; 
     }
   ;
 
 variables
-  : variables COMMA variable {
-      // Only used for reading/writing from/to stdin/stdout
-      $$->vars.push_back($3); // TODO: May need to allocate mem for $$ (could cause probs.)
+  : variables COMMA variable 
+    { 
+      $$ = new variables_t;
+      $1->variables.push_back(*$3);
+      $$->variables = $1->variables;
+      delete $3;
+      delete $1;
     }
-  | variable {
-      // Only used for reading/writing from/to stdin/stdout
-      $$ = new variables_t();
-      $$->vars.push_back($1);
+  | variable 
+    {
+      $$ = new variables_t;
+      $$->variables.push_back(*$1);
+      delete $1;
     }
   ; 
 
 variable
-  : identifier  {
-      $$ = new variable_t();
-      $$->id = $1;
-      $$->is_array = false;
-      $$->code = "";
-#ifdef DEBUG
-      printf("-- variable -> identifier\n%s\n\n", $$->id->name.c_str());
-#endif
+  : identifier  
+    { 
+      $$ = new variable_t;
+      $$->name = $1->name;
+      $$->type = variable_type_t::INTEGER;
+      delete $1;
     }
-  | identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET {
-      // variable_t may need to contain a code field
-      // since term_t (used by expression) does
-      $$ = new variable_t();
-      $$->id = $1;
-      $$->idx = $3->id->name;
-      $$->is_array = true;
-      $$->code = $3->code;
-      /*
-      $$ = new variable_t();
-      $$->id = create_identifier();
-      ostringstream oss;
-      oss << $3->code;
-      oss << ". " << $$->id->name << endl; // Declare new identifier
-      oss << "=[] " << $$->id->name << ", " << $1->name << ", " << $3->id->name << endl; // =[] dst, src, index
-      $$->code = oss.str();
-      */
-#ifdef DEBUG
-      printf("-- variable -> array\n%s[%s]\n\n",$$->id->name.c_str(), $$->idx.c_str());
-#endif
+  | identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET 
+    { 
+      $$ = new variable_t;
+      $$->name = $1->name;
+      $$->expression = *$3;
+      $$->type = variable_type_t::ARRAY;
+      // TODO : handle compile time out of range exception
+      delete $1;
+      delete $3; 
     }
   ;
 
 term
-  : SUB term1 { 
-      $$ = new term_t();
-      $$->id = create_identifier();
-
-      ostringstream oss;
-      oss << $2->code;
-      oss << ". " << $$->id->name << endl; // Declare new identifier
-      oss << "* " << $$->id->name << ", " << $2->id->name << ", " << "-1" << endl; // * dst, src1, src2
-      $$->code = oss.str();
-#ifdef DEBUG
-      printf("-- term -> - term1\n%s\n\n", $2->id->name.c_str());
-#endif
+  : SUB term1 
+    {
+      // convert the value of expression received from term1
+      // to a negative value by subtrating it from 0. 
+      $$ = new expression_t;
+      $$->op_code = "-";
+      $$->dst = generate_name();
+      $$->src1 = "0";
+      $$->src2 = $2->dst;
+      $$->code = $2->code;
+      $$->code += gen_ins_declare_variable($$->dst);
+      // TODO : add generated and declared name to symbol table
+      $$->code += gen_ins_arithmetic($$->op_code, $$->dst, $$->src1, $$->src2);
     }
-  | term1 {
-      $$ = $1;
-#ifdef DEBUG
-      printf("-- term -> term1\n%s\n\n", $1->id->name.c_str());
-#endif
+  | term1 
+    { 
+      $$ = copy_expression($1);
+      delete $1;
     }
-  | identifier L_PAREN term2 R_PAREN  {
-      // function call
-#ifdef DEBUG
-      printf("-- term -> identifier ( term2 )\n");
-#endif
+  | identifier L_PAREN term2 R_PAREN  
+    { 
+      // synthesizes a function call. 
+      puts("term -> identifier L_PAREN term2 R_PAREN"); 
     }
   ;
 
 term1
-  : variable {
-      $$ = new term_t();
-      
-      ostringstream oss;
-
-      // If variable is array, assign value 
-      // to tmp variable
-      if ($1->is_array) {
-        $$->id = create_identifier();
-        oss << $1->code;
-        oss << ". " << $$->id->name << endl; // Declare new id
-        oss << "=[] "  << $$->id->name << ", " << $1->id->name << ", " << $1->idx << endl; // =[] dst, src, index
+  : variable 
+    { 
+      // convert a variable into an expression. If the variable
+      // is an array, use an array access instruction to load 
+      // the value into a temporary name. Else, the variable 
+      // is a scalar variable in which case the destination of 
+      // the expression is simply the name of the scalar variable. 
+      $$ = new expression_t;
+      if(is_array($1))
+      {
+        $$->dst = generate_name();
+        $$->src1 = $1->name;
+        $$->src2 = $1->expression.dst;
+        $$->code += gen_ins_declare_variable($$->dst);
+        // TODO : add generated and declared name to symbol table
+        $$->code += gen_ins_array_access_rval($$->dst, $$->src1, $$->src2);
       }
-      else {
-        $$->id = $1->id;
-        oss << $1->code;
+      else // scalar variable
+      {
+        $$->dst = $1->name; 
       }
-      $$->code = oss.str();
-
-#ifdef DEBUG
-      printf("-- term1 -> variable\n%s\n", $$->code.c_str());
-#endif
     }
-  | number  {
-      $$ = new term_t();
-
-      $$->id = new identifier_t();
-      ostringstream oss;
-      oss << $1->val;
-      $$->id->name = oss.str();
-      $$->code = "";
-#ifdef DEBUG
-      printf("-- term1 -> number\n");
-#endif
+  | number  
+    { 
+      // convert a number into an expression. Declare a temporary
+      // name to hold the value of the number. Copy the value into
+      // the temporary name.
+      $$ = new expression_t;
+      $$->dst = generate_name(); 
+      $$->src1 = $1->val; 
+      $$->code += gen_ins_declare_variable($$->dst);
+      // TODO : add generated and declared name to symbol table
+      $$->code += gen_ins_copy($$->dst, $$->src1);
+      delete $1;
     }
-  | L_PAREN expression R_PAREN {
-      $$ = $2;
-#ifdef DEBUG
-      printf("-- term1 -> ( expression )\n%s\n", $$->code.c_str());
-#endif
+  | L_PAREN expression R_PAREN 
+    { 
+      $$ = copy_expression($2);
+      delete $2;
     }
   ;
 
 term2
-  : expression COMMA term2 {
-      // Only used in params of calling function
+  : expression COMMA term2 
+    { 
+      // generates a paramater list
+      // TODO : This requires determining our data structure for a
+      // function, something we have not done yet. After reviewing some
+      // of the intermediate mil code, we will need to declare the 
+      // final result of the expression evaluations here as a parameter
+      // for the next function call. Additionally, we will need
+      // to populate these paramaters in the callee's data structure 
+      // (caller -> callee).
+      puts("term2 -> term2 COMMA expression"); 
     }
-  | expression {
-      // Only used in params of calling function
+  | expression 
+    {
+      // TODO : This or the epsilon terminal below are the final 
+      // terminals constructing the paramater list. So by this block,
+      // the code for the paramater list must be generated and the 
+      // function ready to be called in the parent terminal.
+      puts("term2 -> expression"); 
     }
-  | {}
+  | { puts("term2 -> epsilon"); }
   ;
 
 identifiers
-  : identifiers COMMA identifier {
-      $$->ids.push_back($3);
+  : identifiers COMMA identifier 
+    {
+      $$ = new identifiers_t; 
+      $1->identifiers.push_back(*$3);
+      $$->identifiers = $1->identifiers; 
+      delete $3;
+      delete $1;
     }
-  | identifier { 
-      $$ = new identifiers_t();
-      $$->ids.push_back($1);
+  | identifier 
+    {
+      $$ = new identifiers_t;
+      $$->identifiers.push_back(*$1); 
+      delete $1;
     }
   ;
 
 identifier
-  : IDENT { 
-      $$ = new identifier_t();
-      $$->name = *yylval.op_val;
+  : IDENT 
+    {
+      $$ = new identifier_t;
+      $$->name = *yylval.op_val; 
+      delete yylval.op_val;
     }
   ;
 
+// capture number information from NUMBER token
 number
-  : NUMBER {
-      $$ = new number_t();
-      $$->val = yylval.int_val;
+  : NUMBER 
+    { 
+      $$ = new number_t;
+      $$->val = *yylval.op_val;
+      delete yylval.op_val;
     }
   ;
-
 
 %%
 
-/*
-int yyerror(string const s)
-{
-  extern int yylineno;  // defined and maintained in lex.c
-  extern char *yytext;  // defined and maintained in lex.c
-        
-  cerr << "ERROR: " << s << " at symbol \"" << yytext;
-  cerr << "\" on line " << yylineno << endl;
-  exit(EXIT_FAILURE);
-}
-*/
-
-// partitions error_msg on delimiter into error_msgs
-// assuming sufficient space in error_msgs.
-void partition(char * error_msg, 
-               char const delimiter, 
-               char * * error_msgs)
-{
-  if(!error_msg || !error_msgs)
-    return;
-  size_t i = 0;
-  char * lead = error_msg;
-  char * follow = error_msg;
-  while(true)
-  {
-    while(*lead != 0 
-          && *lead != delimiter) 
-      ++lead;
-    error_msgs[i] = follow;
-    ++i;
-    if(*lead == 0)
-      break;
-    else
-      *lead = 0;  // replace ','
-    lead += 2;  // advance over ", " to first char of next word
-    follow = lead;
-  }
-}
-
-// returns a count of delimiter found in str
-size_t count_delimiter(char const * str, 
-                       char const delimiter)
-{
-  size_t delimiter_count = 0;
-  while(*str != 0)
-  {
-    if(*str == delimiter)
-      ++delimiter_count;
-    ++str;
-  }
-  return delimiter_count;
-}
-
-void
-yyerror(char const * s)
-{
-  size_t const S_SIZE = strlen(s);
-  size_t const COL_COUNT = count_delimiter(s, ',') + 1;
-  char * error_msg = (char *)(calloc(S_SIZE + 1, sizeof(char)));
-  char * * error_msgs = (char * *)(calloc(COL_COUNT, sizeof(char * *)));
-
-  strcpy(error_msg, s);
-  partition(error_msg, ',', error_msgs);
-  fprintf(stderr, 
-          "Syntax error at line %d: %s %s\n", 
-          yylineno, 
-          error_msgs[1] ? error_msgs[1] : "", 
-          error_msgs[2] ? error_msgs[2] : "");
-
-  free(error_msg);
-  free(error_msgs);
-}
