@@ -8,7 +8,7 @@ gen_ins_param(std::string const & src)
   std::string ret;
   ret += INS_PARAM;
   ret += ' ';
-  ret += name;
+  ret += src;
   ret += '\n';
   return ret;
 }
@@ -65,7 +65,7 @@ gen_ins_declare_variable(std::string const & src,
   std::string ret;
   ret += INS_DECLARE_ARR;
   ret += ' ';
-  ret += name;
+  ret += src;
   ret += ',';
   ret += ' ';
   ret += size;
@@ -185,7 +185,7 @@ gen_ins_write_out(std::string const & src,
                   std::string const & idx)
 // returns a string of the form ".[]> src, idx\n"
 {
-  static std::string const INS_WRITE_OUT_ARR = ".[]>"
+  static std::string const INS_WRITE_OUT_ARR = ".[]>";
   std::string ret;
   ret += INS_WRITE_OUT_ARR;
   ret += ' ';
@@ -206,7 +206,7 @@ gen_ins_tac(std::string const & op_code,
 // the form "op_code dst, src1, src2\n". One
 // or both source operands can be immediates.
 {
-  std::string ret 
+  std::string ret; 
   ret += op_code;
   ret += ' ';
   ret += dst;
@@ -244,7 +244,7 @@ gen_ins_logical_or(std::string const & dst,
                    std::string const & src1, 
                    std::string const & src2)
 {
-  return gen_ins_tac(op_code, dst, src1, src2)
+  return gen_ins_tac("||", dst, src1, src2);
 }
 
 
@@ -253,7 +253,7 @@ gen_ins_logical_and(std::string const & dst,
                     std::string const & src1, 
                     std::string const & src2)
 {
-  return gen_ins_tac(op_code, dst, src1, src2);
+  return gen_ins_tac("&&", dst, src1, src2);
 }
 
 std::string 
@@ -316,4 +316,3 @@ gen_ins_branch_conditional(std::string const & lbl,
   return ret;
 }
 
-#endif  // MINI_L_INSTRUCTIONS
