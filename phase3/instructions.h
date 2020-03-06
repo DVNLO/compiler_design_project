@@ -24,6 +24,10 @@ std::string gen_ins_read_in(std::string const & dst,
 std::string gen_ins_write_out(std::string const & src);
 std::string gen_ins_write_out(std::string const & src, 
                               std::string const & idx);
+std::string gen_ins_tac(std::string const & op_code, 
+                        std::string const & dst, 
+                        std::string const & src1, 
+                        std::string const & src2);
 std::string gen_ins_arithmetic(std::string const & op_code, 
                                std::string const & dst, 
                                std::string const & src1, 

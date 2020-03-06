@@ -18,7 +18,9 @@ extern char * yytext;
   identifiers_t * ids_nt_val;
   number_t * num_nt_val;
   variable_t * var_nt_val;
-  expression_t * exp_nt_val; 
+  variables_t * vars_nt_val;
+  expression_t * exp_nt_val;
+  comparison_t * comp_nt_val; 
 }
 
 %define parse.error verbose
@@ -32,11 +34,17 @@ extern char * yytext;
 %nterm<ids_nt_val> identifiers
 %nterm<num_nt_val> number
 %nterm<var_nt_val> variable
+%nterm<vars_nt_val> variables
 %nterm<exp_nt_val> expression
 %nterm<exp_nt_val> multiplicative_exp
 %nterm<exp_nt_val> term2
 %nterm<exp_nt_val> term1
 %nterm<exp_nt_val> term
+%nterm<comp_nt_val> comp
+%nterm<exp_nt_val> bool_exp
+%nterm<exp_nt_val> relation_and_exp
+%nterm<exp_nt_val> relation_exp
+%nterm<exp_nt_val> relation_exp1
 
 %right ASSIGN
 %left OR
@@ -226,42 +234,117 @@ statement_return
   ;
 
 bool_exp
-  : bool_exp OR relation_and_exp { 
-      puts("bool_exp -> bool_exp OR relation_and_exp"); 
+  : bool_exp OR relation_and_exp 
+    { 
+      $$ = synthesize_comparison_expression("||", $1, $3);
+      // TODO : add generated and declared name to symbol table  
+      delete $3;
+      delete $1;
     }
-  | relation_and_exp { puts("bool_exp -> relation_and_exp"); }
+  | relation_and_exp 
+    { 
+      $$ = copy_expression($1);
+      delete $1;
+    }
   ;
 
 relation_and_exp
-  : relation_and_exp AND relation_exp { 
-      puts("relation_and_exp -> relation_and_exp AND relation_exp"); 
+  : relation_and_exp AND relation_exp 
+    { 
+      $$ = synthesize_comparison_expression("&&", $1, $3);
+      // TODO : add generated and declared name to symbol table  
+      delete $3;
+      delete $1;
     }
-  | relation_exp { puts("relation_and_exp -> relation_exp"); }
+  | relation_exp 
+    {
+      $$ = copy_expression($1);
+      delete $1; 
+    }
   ;
 
 relation_exp
-  : NOT relation_exp1 { puts("relation_exp -> NOT relation_exp1"); }
-  | relation_exp1 { puts("relation_exp -> relation_exp1"); }
+  : NOT relation_exp1 
+    { 
+      $$ = new expression_t;
+      $$->op_code = "!";
+      $$->dst = generate_name();
+      $$->src1 = $2->dst;
+      $$->code += gen_ins_declare_variable($$->dst);
+      // TODO : add generated and declared name to symbol table
+      $$->code += gen_ins_logical_not($$->dst, $$->src1);
+      delete $2;
+    }
+  | relation_exp1 
+    {
+      $$ = copy_expression($1);
+      delete $1; 
+    }
   ;
 
 relation_exp1
-  : expression comp expression { 
-      puts("relation_exp1 -> expression comp expression"); 
+  : expression comp expression 
+    { 
+      $$ = synthesize_comparison_expression($2->op_code, $1, $3);
+      delete $3;
+      delete $1;
     }
-  | TRUE { puts("relation_exp1 -> TRUE"); }
-  | FALSE { puts("relation_exp1 -> FALSE"); }
-  | L_PAREN bool_exp R_PAREN { 
-      puts("relation_exp1 -> L_PAREN bool_exp R_PAREN"); 
+  | TRUE 
+    {
+      $$ = new expression_t;
+      $$->dst = generate_name();
+      $$->src1 = "1";
+      $$->code += gen_ins_declare_variable($$->dst);
+      // TODO : add generated and declared name to symbol table 
+      $$->code += gen_ins_copy($$->dst, $$->src1);
+    }
+  | FALSE 
+    { 
+      $$ = new expression_t;
+      $$->dst = generate_name();
+      $$->src1 = "0";
+      $$->code += gen_ins_declare_variable($$->dst);
+      // TODO : add generated and declared name to symbol table 
+      $$->code += gen_ins_copy($$->dst, $$->src1);
+    }
+  | L_PAREN bool_exp R_PAREN 
+    {
+      $$ = copy_expression($2);
+      delete $2; 
     }
   ;
  
 comp
-  : EQ { puts("comp -> EQ"); }
-  | NEQ { puts("comp -> NEQ"); }
-  | LT { puts("comp -> LT"); }
-  | GT { puts("comp -> GT"); }
-  | LTE { puts("comp -> LTE"); }
-  | GTE { puts("comp -> GTE"); }
+  : EQ 
+    { 
+      $$ = new comparison_t;
+      $$->op_code = "=="; 
+    }
+  | NEQ 
+    {
+      $$ = new comparison_t;
+      $$->op_code = "!="; 
+    }
+  | LT 
+    { 
+      $$ = new comparison_t;
+      $$->op_code = "<";
+    }
+  | GT 
+    { 
+      $$ = new comparison_t;
+      $$->op_code = ">"; 
+    }
+  | LTE 
+    {
+      $$ = new comparison_t;
+      $$->op_code = "<="; 
+    }
+  | GTE 
+    { 
+      $$ = new comparison_t;
+      $$->op_code = ">=";
+    }
   ;
 
 expression 
@@ -342,6 +425,7 @@ variable
     { 
       $$ = new variable_t;
       $$->name = $1->name;
+      $$->type = variable_type_t::INTEGER;
       delete $1;
     }
   | identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET 
@@ -349,6 +433,7 @@ variable
       $$ = new variable_t;
       $$->name = $1->name;
       $$->expression = *$3;
+      $$->type = variable_type_t::ARRAY;
       // TODO : handle compile time out of range exception
       delete $1;
       delete $3; 

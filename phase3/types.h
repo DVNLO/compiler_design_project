@@ -13,15 +13,27 @@ struct expression_t
   std::string code;
 };
 
+enum class variable_type_t
+{
+  INTEGER,
+  ARRAY
+};
+
 struct variable_t
 {
   std::string name;
   expression_t expression;
+  variable_type_t type; 
 };
 
 struct variables_t
 {
   std::vector<variable_t> variables; 
+};
+
+struct comparison_t
+{
+  std::string op_code;
 };
 
 struct identifier_t
