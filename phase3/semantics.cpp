@@ -1,6 +1,9 @@
 #include "semantics.h"
 #include "instructions.h"
 
+std::stack<std::string> function_stack;
+std::unordered_map<std::string, function_t> function_map;
+
 std::string
 generate_name()
 // returns a generated temporary name of the form "__temp__#"

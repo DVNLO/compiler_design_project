@@ -2,6 +2,10 @@
 #define MINI_L_SEMANTICS_H
 
 #include "types.h"
+#include <stack>
+
+extern std::stack<std::string> function_stack;
+extern std::unordered_map<std::string, function_t> function_map;
 
 std::string generate_name();
 bool is_array(variable_t const * const var);
