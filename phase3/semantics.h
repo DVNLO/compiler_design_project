@@ -4,9 +4,11 @@
 #include "types.h"
 
 std::string generate_name();
-std::string generate_code(expression_t const * const exp);
-expression_t * synthesize_expression(char const op_code,
-                                     expression_t const * const lhs,
-                                     expression_t const * const rhs);
+bool is_array(variable_t const * const var);
+expression_t * copy_expression(expression_t const * const exp);
+expression_t * synthesize_arithmetic_expression(std::string const & op_code,
+                                                expression_t const * const lhs,
+                                                expression_t const * const rhs);
+
 
 #endif // MINI_L_SEMANTICS_h

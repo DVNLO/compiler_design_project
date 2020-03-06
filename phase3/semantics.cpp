@@ -1,4 +1,5 @@
 #include "semantics.h"
+#include "instructions.h"
 
 std::string
 generate_name()
@@ -10,28 +11,28 @@ generate_name()
   return NAME_PREFIX + std::to_string(id++);
 }
 
-std::string
-generate_code(expression_t const * const exp)
-// returns a string of generated code from expression exp argument
+bool 
+is_empty_expression(expression_t const * const exp)
+// returns true if an expression is empty. Note that
+// an expression without a destination dst is considered
+// empty.
 {
-  std::string ret = exp->code;
-  ret += '\n';
-  ret += exp->op_code;
-  ret += ' ';
-  ret += exp->dst;
-  ret += ',';
-  ret += ' ';
-  ret += exp->src1;
-  ret += ',';
-  ret += ' ';
-  ret += exp->src2;
-  return ret;
+  return exp && exp->dst.empty();
+}
+
+bool 
+is_array(variable_t const * const var)
+// returns true if the argument variable_t val is an array.
+// Note that a variable with an empty expression is not 
+// an array variable.
+{
+  return var && !is_empty_expression(&var->expression);
 }
 
 expression_t *
-synthesize_expression(char const op_code,
-                      expression_t const * const lhs,
-                      expression_t const * const rhs)
+synthesize_arithmetic_expression(std::string const & op_code,
+                                 expression_t const * const lhs,
+                                 expression_t const * const rhs)
 // returns a synthesized expression from op_code, expression
 // lhs and rhs arguments.
 {
@@ -40,8 +41,26 @@ synthesize_expression(char const op_code,
   ret->dst = generate_name();
   ret->src1 = lhs->dst;
   ret->src2 = rhs->dst;
-  ret->code += generate_code(lhs);
-  ret->code += generate_code(rhs);
+  ret->code += lhs->code;
+  ret->code += rhs->code;
+  ret->code += gen_ins_declare_variable(ret->dst);
+  ret->code += gen_ins_arithmetic(ret->op_code, 
+                                  ret->dst, 
+                                  ret->src1, 
+                                  ret->src2);
+  return ret;
+}
+
+expression_t *
+copy_expression(expression_t const * const exp)
+// returns a copy of the provided expression val.
+{
+  expression_t * ret = new expression_t;
+  ret->op_code = exp->op_code;
+  ret->dst = exp->dst;
+  ret->src1 = exp->src1;
+  ret->src2 = exp->src2;
+  ret->code = exp->code;
   return ret;
 }
 

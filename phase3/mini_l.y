@@ -5,14 +5,14 @@ extern char * yytext;
 
 %code requires 
 {
-#include "types.h"
-#include "semantics.h"
 #include "errors.h"
+#include "instructions.h"
+#include "semantics.h"
+#include "types.h"
 }
 
 %union
 {
-  int int_val;
   std::string * op_val;
   identifier_t * id_nt_val;
   identifiers_t * ids_nt_val;
@@ -26,7 +26,7 @@ extern char * yytext;
 %start program
 
 %token <op_val> IDENT
-%token <int_val> NUMBER 
+%token <op_val> NUMBER 
 
 %nterm<id_nt_val> identifier
 %nterm<ids_nt_val> identifiers
@@ -34,6 +34,8 @@ extern char * yytext;
 %nterm<var_nt_val> variable
 %nterm<exp_nt_val> expression
 %nterm<exp_nt_val> multiplicative_exp
+%nterm<exp_nt_val> term2
+%nterm<exp_nt_val> term1
 %nterm<exp_nt_val> term
 
 %right ASSIGN
@@ -266,21 +268,23 @@ expression
   : expression ADD multiplicative_exp  
     { 
       // + dst, src1, src2
-      $$ = synthesize_expression('+', $1, $3);
+      $$ = synthesize_arithmetic_expression("+", $1, $3);
+      // TODO : add generated and declared name to symbol table 
       delete $1;
       delete $3;
     }
   | expression SUB multiplicative_exp  
     { 
       // - dst, src1, src2
-      $$ = synthesize_expression('-', $1, $3);
+      $$ = synthesize_arithmetic_expression("-", $1, $3);
+      // TODO : add generated and declared name to symbol table 
       delete $1;
       delete $3;
     }
   | multiplicative_exp 
     { 
-      // $$ = $1, assign the 
-      puts("expression -> multiplicative_exp"); 
+      $$ = copy_expression($1);
+      delete $1;
     }
   ;
 
@@ -288,27 +292,31 @@ multiplicative_exp
   : multiplicative_exp MULT term  
     { 
       // * dst, src1, src2
-      $$ = synthesize_expression('*', $1, $3);
+      $$ = synthesize_arithmetic_expression("*", $1, $3);
+      // TODO : add generated and declared name to symbol table 
       delete $1;
       delete $3;
     }
   | multiplicative_exp DIV term  
     { 
       // / dst, src1, src2
-      $$ = synthesize_expression('/', $1, $3);
+      $$ = synthesize_arithmetic_expression("/", $1, $3);
+      // TODO : add generated and declared name to symbol table 
       delete $1;
       delete $3;
     }
   | multiplicative_exp MOD term  
     {
       // % dst, src1, src2
-      $$ = synthesize_expression('%', $1, $3);
+      $$ = synthesize_arithmetic_expression("%", $1, $3);
+      // TODO : add generated and declared name to symbol table 
       delete $1;
       delete $3;
     }
   | term
     {
-      
+      $$ = copy_expression($1);
+      delete $1; 
     }
   ;
 
@@ -329,26 +337,92 @@ variable
       $$ = new variable_t;
       $$->name = $1->name;
       $$->expression = *$3;
+      // TODO : handle compile time out of range exception
       delete $1;
       delete $3; 
     }
   ;
 
 term
-  : SUB term1 { puts("term -> SUB term1"); }
-  | term1 { puts("term -> term1"); }
-  | identifier L_PAREN term2 R_PAREN  { puts("term -> identifier L_PAREN term2 R_PAREN"); }
+  : SUB term1 
+    {
+      // convert the value of expression received from term1
+      // to a negative value by subtrating it from 0. 
+      $$ = new expression_t;
+      $$->op_code = "-";
+      $$->dst = generate_name();
+      $$->src1 = "0";
+      $$->src2 = $2->dst;
+      $$->code = $2->code;
+      $$->code += gen_ins_declare_variable($$->dst);
+      // TODO : add generated and declared name to symbol table
+      $$->code += gen_ins_arithmetic($$->op_code, $$->dst, $$->src1, $$->src2);
+    }
+  | term1 
+    { 
+      $$ = copy_expression($1);
+      delete $1;
+    }
+  | identifier L_PAREN term2 R_PAREN  
+    { 
+      // synthesizes a function call. 
+      puts("term -> identifier L_PAREN term2 R_PAREN"); 
+    }
   ;
 
 term1
-  : variable { puts("term1 -> variable"); }
-  | number  { puts("term1 -> number"); }
-  | L_PAREN expression R_PAREN { puts("term1 -> L_PAREN expression R_PAREN"); }
+  : variable 
+    { 
+      // convert a variable into an expression. If the variable
+      // is an array, use an array access instruction to load 
+      // the value into a temporary name. Else, the variable 
+      // is a scalar variable in which case the destination of 
+      // the expression is simply the name of the scalar variable. 
+      $$ = new expression_t;
+      if(is_array($1))
+      {
+        $$->dst = generate_name();
+        $$->src1 = $1->name;
+        $$->src2 = $1->expression.dst;
+        $$->code += gen_ins_declare_variable($$->dst);
+        // TODO : add generated and declared name to symbol table
+        $$->code += gen_ins_array_access_rval($$->dst, $$->src1, $$->src2);
+      }
+      else // scalar variable
+      {
+        $$->dst = $1->name; 
+      }
+    }
+  | number  
+    { 
+      // convert a number into an expression. Declare a temporary
+      // name to hold the value of the number. Copy the value into
+      // the temporary name.
+      $$ = new expression_t;
+      $$->dst = generate_name(); 
+      $$->src1 = $1->val; 
+      $$->code += gen_ins_declare_variable($$->dst);
+      // TODO : add generated and declared name to symbol table
+      $$->code += gen_ins_copy($$->dst, $$->src1);
+      delete $1;
+    }
+  | L_PAREN expression R_PAREN 
+    { 
+      $$ = copy_expression($2);
+      delete $2;
+    }
   ;
 
 term2
-  : expression COMMA term2 { puts("term2 -> term2 COMMA expression"); }
-  | expression { puts("term2 -> expression"); }
+  : expression COMMA term2 
+    { 
+      // generates a paramater list
+      puts("term2 -> term2 COMMA expression"); 
+    }
+  | expression 
+    { 
+      puts("term2 -> expression"); 
+    }
   | { puts("term2 -> epsilon"); }
   ;
 
@@ -385,7 +459,8 @@ number
   : NUMBER 
     { 
       $$ = new number_t;
-      $$->val = yylval.int_val;
+      $$->val = *yylval.op_val;
+      delete yylval.op_val;
     }
   ;
 

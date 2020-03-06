@@ -69,7 +69,7 @@ return            { pos += strlen(yytext); return RETURN; }
                   }
 {DIGITS}          { 
                     pos += strlen(yytext); 
-                    yylval.int_val = std::atoi(yytext); 
+                    yylval.op_val = new std::string(yytext); 
                     return NUMBER;
                   }
 {COMMENT}         { pos += strlen(yytext); }
