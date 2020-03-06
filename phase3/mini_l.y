@@ -14,11 +14,14 @@ extern char * yytext;
 {
   int int_val;
   std::string * op_val;
+  std::string * params_val;
+  std::string * functions_val;
   identifier_t * id_nt_val;
   identifiers_t * ids_nt_val;
   number_t * num_nt_val;
   variable_t * var_nt_val;
   expression_t * exp_nt_val; 
+  function_t * func_nt_val;
 }
 
 %define parse.error verbose
@@ -35,6 +38,9 @@ extern char * yytext;
 %nterm<exp_nt_val> expression
 %nterm<exp_nt_val> multiplicative_exp
 %nterm<exp_nt_val> term
+%nterm<func_nt_val> function
+%nterm<functions_val> functions
+%nterm<params_val> params
 
 %right ASSIGN
 %left OR
@@ -61,7 +67,7 @@ functions
 
 function
   : function1 identifier semicolon params locals body {
-      puts("function -> function1 identifier semicolon params locals body");
+      
     }
   | error { puts("function -> error"); }
   ;
@@ -78,10 +84,11 @@ semicolon
 
 params
   : begin_params declarations end_params {
-      puts("params -> begin_params declarations end_params");
+      $$ = new params_t;
+      $$->code = generate_declarations_code($2);
     }
   | begin_params end_params {
-      puts("params -> begin_params end_params");
+      $$ = new params_t;
     }
   ;
 
@@ -132,18 +139,23 @@ end_body
 
 declarations
   : declarations declaration SEMICOLON { 
-      puts("declarations -> declarations declaration SEMICOLON"); 
+      $$ = $1;
+      $$->declarations.push_back($2);
     }
-  | declaration SEMICOLON { puts("declarations -> declaration SEMICOLON"); }
+  | declaration SEMICOLON { 
+      $$ = new declarations_t;
+      $$->declarations.push_back($1);
+    }
   ;
 
 declaration
   : identifiers COLON INTEGER { 
-      puts("declaration -> identifiers COLON INTEGER"); 
+      $$ = new declaration_t;
+      $$->code = generate_declaration_code($1);
     }
   | identifiers COLON ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER { 
-      puts("declaration -> identifiers COLON ARRAY L_SQUARE_BRACKET "
-           "number R_SQUARE_BRACKET OF INTEGER"); 
+      $$ = new declaration_t;
+      $$->code = generate_array_declaration_code($1, $5);
     }
   | error { puts("declaration -> error"); }
   ;

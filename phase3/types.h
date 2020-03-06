@@ -4,6 +4,24 @@
 #include <string>
 #include <vector>
 
+struct identifier_t;
+struct number_t;
+
+struct function_t
+{
+  
+};
+
+struct declaration_t
+{
+  std::string code;
+};
+
+struct declarations_t
+{
+  std::vector<declaration_t> declarations;
+};
+
 struct expression_t
 {
   char op_code;
