@@ -6,7 +6,7 @@
 
 struct expression_t
 {
-  char op_code;
+  std::string op_code;
   std::string dst;
   std::string src1;
   std::string src2;
@@ -31,7 +31,7 @@ struct identifiers_t
 
 struct number_t
 {
-  int val;
+  std::string val;
 };
 
 #endif  // MINI_L_TYPES_H
