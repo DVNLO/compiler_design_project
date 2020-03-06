@@ -9,7 +9,6 @@ extern char * yytext;
 #include "instructions.h"
 #include "semantics.h"
 #include "types.h"
-#include <iostream>
 }
 
 %union
@@ -225,6 +224,8 @@ statement_read
       size_t const SIZE_VARIABLES = $2->variables.size();
       for(size_t i = 0; i < SIZE_VARIABLES; ++i)
       {
+        function_stack.push("lols");
+        function_stack.top();
         //if(is_array($2->variables[i]))
         {
           // TODO : generate a statement to read into an array
@@ -370,7 +371,6 @@ expression
     { 
       // + dst, src1, src2
       $$ = synthesize_arithmetic_expression("+", $1, $3);
-      std::cout << $$->code << std::endl;
       // TODO : add generated and declared name to symbol table 
       delete $1;
       delete $3;
