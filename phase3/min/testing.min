@@ -5,6 +5,7 @@ beginlocals
  a, b, c, d : integer;
 endlocals
 beginbody
- a := 5;
+  a := 5;
+  b := a + c * d;
 continue;
 endbody
