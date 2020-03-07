@@ -228,6 +228,9 @@ statement_for
 statement_read
   : READ variables 
     { 
+      // synthesizes statements to read to variables. If a variable
+      // is an array, use destination expression as the index. Otherwise,
+      // read into the variable's name directly. 
       $$ = new statement_t;
       variable_t cur_var;
       size_t const SIZE_VARIABLES = $2->variables.size();
@@ -254,6 +257,9 @@ statement_read
 statement_write
   : WRITE variables 
     {
+      // synthesizes statements to write to variables. If a variable
+      // is an array, use destination expression as the index. Otherwise,
+      // write into the variable's name directly. 
       $$ = new statement_t;
       variable_t cur_var;
       size_t const SIZE_VARIABLES = $2->variables.size();
@@ -263,7 +269,7 @@ statement_write
         if(is_array(&cur_var))
         {
           $$->dst = cur_var.name;
-          $$->src1 = cur_var.expression.dst;
+          $$->src1 = cur_var.expression.dst; // index
           $$->code += gen_ins_write_out($$->dst, $$->src1);
         }
         else
@@ -282,7 +288,10 @@ statement_continue
   ;
 
 statement_return
-  : RETURN expression { puts("statement_return -> RETURN expression"); }
+  : RETURN expression 
+    { 
+      puts("statement_return -> RETURN expression"); 
+    }
   ;
 
 bool_exp
