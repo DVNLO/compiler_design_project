@@ -92,6 +92,11 @@ function
   : function1 identifier 
     { 
       if (function_map.find($2->name) != std::end(function_map))
+      // TODO : We may want to create temp function name for the
+      // case where function name has already be declared. This
+      // will allow us to continue to create a function mapping
+      // so that we can continue to parse the program and find
+      // other possible errors.
         emit_error_message("function with name '" + $2->name + "' previously declared");
       else
         function_stack.push($2->name); 
@@ -100,6 +105,10 @@ function
     {
       // TODO : Do not generate code if there are errors
       function_stack.pop();
+      if (!has_semantic_errors())
+        std::cout << "\nGenerate code.\n\n";
+      else
+        std::cout << "\nDo not generate code.\n\n";
     }
   | error { puts("function -> error"); }
   ;
@@ -234,7 +243,7 @@ declaration
         else
           record_symbol(identifier_name,
                         variable_type_t::ARRAY,
-                        *symbol_table_ref);
+                        function_map[function_stack.top()].symbol_table);
       }
       $$ = new declaration_t;
       $$->identifiers = $1->identifiers;

@@ -1,7 +1,7 @@
 function f;
 beginparams
   a,b,c : integer;
-  a,y,z : integer;
+  x,y,z : integer;
   arr : array [7] of integer;
 endparams
 beginlocals
@@ -16,11 +16,9 @@ beginbody
   arr[x-5/y] := -z*5;
 endbody
 
-function main;
+function f;
 beginparams
   x, y : integer;
-  x : array [10] of integer;
-  y : integer;
 endparams
 beginlocals
   n, m : integer;

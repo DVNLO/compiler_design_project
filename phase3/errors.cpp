@@ -1,11 +1,22 @@
 #include "errors.h"
 
+static bool semantic_errors = false;
+
 void
 emit_error_message(std::string const msg)
-// emits a helpful error message
+// emits a helpful error message and sets
+// semantic_errors state to true
 {
    fprintf(stderr,
        "Error line %d: %s\n", yylineno, msg.c_str());
+   semantic_errors = true;
+}
+
+bool
+has_semantic_errors()
+// returns true if there are semantic errors 
+{
+  return semantic_errors;
 }
 
 void partition(char * error_msg,
