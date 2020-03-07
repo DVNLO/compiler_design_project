@@ -20,7 +20,8 @@ extern char * yytext;
   variable_t * var_nt_val;
   variables_t * vars_nt_val;
   expression_t * exp_nt_val;
-  comparison_t * comp_nt_val; 
+  comparison_t * comp_nt_val;
+  statement_t * statement_nt_val; 
 }
 
 %define parse.error verbose
@@ -45,6 +46,8 @@ extern char * yytext;
 %nterm<exp_nt_val> relation_and_exp
 %nterm<exp_nt_val> relation_exp
 %nterm<exp_nt_val> relation_exp1
+%nterm<statement_nt_val> statement_read
+%nterm<statement_nt_val> statement_write
 
 %right ASSIGN
 %left OR
@@ -225,27 +228,53 @@ statement_for
 statement_read
   : READ variables 
     { 
+      $$ = new statement_t;
+      variable_t cur_var;
       size_t const SIZE_VARIABLES = $2->variables.size();
       for(size_t i = 0; i < SIZE_VARIABLES; ++i)
       {
-        function_stack.push("lols");
-        function_stack.top();
-        //if(is_array($2->variables[i]))
+        cur_var = $2->variables[i];
+        if(is_array(&cur_var))
         {
-          // TODO : generate a statement to read into an array
-          // Define a statement type, what data does it need?
-          // code. 
+          $$->dst = cur_var.name;
+          $$->src1 = cur_var.expression.dst;
+          $$->code += gen_ins_read_in($$->dst, $$->src1);
         }
-        //else
+        else
         {
-          // generate statement to read into a INTEGER
+          $$->dst = cur_var.name;
+          $$->src1.clear();
+          $$->code += gen_ins_read_in($$->dst);
         }
-      } 
+      }
+      delete $2; 
     }
   ;
 
 statement_write
-  : WRITE variables { puts("statement_write -> WRITE variables"); }
+  : WRITE variables 
+    {
+      $$ = new statement_t;
+      variable_t cur_var;
+      size_t const SIZE_VARIABLES = $2->variables.size();
+      for(size_t i = 0; i < SIZE_VARIABLES; ++i)
+      {
+        cur_var = $2->variables[i];
+        if(is_array(&cur_var))
+        {
+          $$->dst = cur_var.name;
+          $$->src1 = cur_var.expression.dst;
+          $$->code += gen_ins_write_out($$->dst, $$->src1);
+        }
+        else
+        {
+          $$->dst = cur_var.name;
+          $$->src1.clear();
+          $$->code += gen_ins_write_out($$->dst);
+        }
+      }
+      delete $2;
+    }
   ;
 
 statement_continue
@@ -492,7 +521,7 @@ term1
       // is an array, use an array access instruction to load 
       // the value into a temporary name. Else, the variable 
       // is a scalar variable in which case the destination of 
-      // the expression is simply the name of the scalar variable. 
+      // the expression is simply the name of the integer variable. 
       $$ = new expression_t;
       if(is_array($1))
       {
@@ -505,7 +534,7 @@ term1
                       variable_type_t::INTEGER,
                       function_map[function_stack.top()].symbol_table);
       }
-      else // scalar variable
+      else
       {
         $$->dst = $1->name; 
       }
