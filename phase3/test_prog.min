@@ -22,8 +22,8 @@ beginparams
 endparams
 beginlocals
   n, m : integer;
-  q, l : integer;
-  arr : array [100] of integer;
+  y, q, l : integer;
+  x, arr : array [100] of integer;
 endlocals
 beginbody
   n := x;

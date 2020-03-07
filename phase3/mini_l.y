@@ -97,18 +97,30 @@ function
       // will allow us to continue to create a function mapping
       // so that we can continue to parse the program and find
       // other possible errors.
+      {
         emit_error_message("function with name '" + $2->name + "' previously declared");
+
+        // generates a temporary function name that we can 
+        // map to a function structure and continue parsing 
+        // the program
+        function_stack.push(generate_name()); 
+      }
       else
         function_stack.push($2->name); 
     } 
     semicolon params locals body 
     {
       // TODO : Do not generate code if there are errors
-      function_stack.pop();
-      if (!has_semantic_errors())
+      if (!has_semantic_errors()) {
         std::cout << "\nGenerate code.\n\n";
+        std::cout << "func " << $2->name << std::endl;
+        std::cout << $5->code;
+        std::cout << "endfun\n\n";
+      }
       else
         std::cout << "\nDo not generate code.\n\n";
+
+      function_stack.pop();
     }
   | error { puts("function -> error"); }
   ;
