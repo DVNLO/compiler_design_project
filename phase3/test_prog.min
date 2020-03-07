@@ -1,10 +1,10 @@
 function f;
 beginparams
-endparams
-beginlocals
   a,b,c : integer;
   x,y,z : integer;
   arr : array [7] of integer;
+endparams
+beginlocals
 endlocals
 beginbody
   x := 10;

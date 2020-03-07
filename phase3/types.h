@@ -11,22 +11,18 @@ enum class variable_type_t
   ARRAY
 };
 
-struct parameter_t
+struct parameters_t
 {
-  variable_type_t variable_type;
+  std::vector<variable_type_t> parameter_types;
+  std::string code;
 };
 
-struct paramaters_t
-{
-  std::vector<parameter_t> parameters;
-};
-
-// TODO : Function has name, paramaters, statements
+// TODO : Function has name, parameters, statements
 struct function_t
 {
   std::string name;
-  paramaters_t paramaters;
   std::unordered_map<std::string, variable_type_t> symbol_table;
+  std::vector<variable_type_t> parameter_types;
 };
 
 struct statement_t
@@ -72,6 +68,18 @@ struct identifier_t
 struct identifiers_t
 {
   std::vector<identifier_t> identifiers;
+};
+
+struct declaration_t
+{
+  std::vector<identifier_t> identifiers;
+  std::string size;
+  variable_type_t variable_type;
+};
+
+struct declarations_t
+{
+  std::vector<declaration_t> declarations;
 };
 
 struct number_t

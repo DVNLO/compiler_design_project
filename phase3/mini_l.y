@@ -9,6 +9,7 @@ extern char * yytext;
 #include "instructions.h"
 #include "semantics.h"
 #include "types.h"
+#include <iostream>
 }
 
 %union
@@ -22,6 +23,9 @@ extern char * yytext;
   expression_t * exp_nt_val;
   comparison_t * comp_nt_val;
   statement_t * statement_nt_val; 
+  parameters_t * params_nt_val;
+  declaration_t * decl_nt_val;
+  declarations_t * decls_nt_val;
 }
 
 %define parse.error verbose
@@ -48,6 +52,9 @@ extern char * yytext;
 %nterm<exp_nt_val> relation_exp1
 %nterm<statement_nt_val> statement_read
 %nterm<statement_nt_val> statement_write
+%nterm<decl_nt_val> declaration
+%nterm<decls_nt_val> declarations
+%nterm<params_nt_val> params
 
 %right ASSIGN
 %left OR
@@ -80,6 +87,8 @@ function
     semicolon params locals body 
     {
       function_stack.pop();
+      // TODO : Pop function identifer from the function stack
+      std::cout << $5->code << std::endl;
     }
   | error { puts("function -> error"); }
   ;
@@ -96,10 +105,31 @@ semicolon
 
 params
   : begin_params declarations end_params {
-      puts("params -> begin_params declarations end_params");
+      $$ = new parameters_t;
+
+      int param_number = 0;
+      for (size_t i = 0; i < $2->declarations.size(); i++)
+      {
+        $$->parameter_types.push_back($2->declarations[i].variable_type);
+
+        for (size_t j = 0; j < $2->declarations[i].identifiers.size(); j++) 
+        {
+          std::string identifier_name = $2->declarations[i].identifiers[j].name;
+          std::string size = $2->declarations[i].size;
+
+          if ($2->declarations[i].variable_type == variable_type_t::INTEGER) 
+            $$->code += gen_ins_declare_variable(identifier_name);
+          else
+            $$->code += gen_ins_declare_variable(identifier_name, size);
+
+          $$->code += gen_ins_copy(identifier_name, '$' + std::to_string(param_number++));
+        }
+      }
+      // TODO : Populate function_map[function_stack.top()].parameter_types
+      delete $2;
     }
   | begin_params end_params {
-      puts("params -> begin_params end_params");
+      $$ = new parameters_t;
     }
   ;
 
@@ -150,18 +180,32 @@ end_body
 
 declarations
   : declarations declaration SEMICOLON { 
-      puts("declarations -> declarations declaration SEMICOLON"); 
+      $$ = new declarations_t;
+      $$->declarations = $1->declarations;
+      $$->declarations.push_back(*$2);
+      delete $1;
+      delete $2;
     }
-  | declaration SEMICOLON { puts("declarations -> declaration SEMICOLON"); }
+  | declaration SEMICOLON {
+      $$ = new declarations_t;
+      $$->declarations.push_back(*$1);
+      delete $1;
+    }
   ;
 
 declaration
   : identifiers COLON INTEGER { 
-      puts("declaration -> identifiers COLON INTEGER"); 
+      $$ = new declaration_t;
+      $$->identifiers = $1->identifiers;
+      $$->variable_type = variable_type_t::INTEGER;
+      delete $1;
     }
   | identifiers COLON ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER { 
-      puts("declaration -> identifiers COLON ARRAY L_SQUARE_BRACKET "
-           "number R_SQUARE_BRACKET OF INTEGER"); 
+      $$ = new declaration_t;
+      $$->identifiers = $1->identifiers;
+      $$->size = $5->val;
+      $$->variable_type = variable_type_t::ARRAY;
+      delete $1;
     }
   | error { puts("declaration -> error"); }
   ;
@@ -588,6 +632,7 @@ term2
 identifiers
   : identifiers COMMA identifier 
     {
+      // TODO : Check that function_map[function_stack.top()].symbol_table[$3->name] doesn't exist
       $$ = new identifiers_t; 
       $1->identifiers.push_back(*$3);
       $$->identifiers = $1->identifiers; 
@@ -596,6 +641,7 @@ identifiers
     }
   | identifier 
     {
+      // TODO : Check that function_map[function_stack.top()].symbol_table[$1->name] doesn't exist
       $$ = new identifiers_t;
       $$->identifiers.push_back(*$1); 
       delete $1;
