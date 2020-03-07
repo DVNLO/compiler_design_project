@@ -26,9 +26,8 @@ struct function_t
 {
   std::string name;
   paramaters_t paramaters;
-  std::unordered_map<std::string, variable_type_t> symbols;
+  std::unordered_map<std::string, variable_type_t> symbol_table;
 };
-
 
 struct statement_t
 {
