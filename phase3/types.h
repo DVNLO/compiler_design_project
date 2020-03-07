@@ -13,7 +13,11 @@ enum class variable_type_t
 
 struct parameters_t
 {
-  std::vector<variable_type_t> parameter_types;
+  std::string code;
+};
+
+struct locals_t
+{
   std::string code;
 };
 

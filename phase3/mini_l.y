@@ -23,9 +23,10 @@ extern char * yytext;
   expression_t * exp_nt_val;
   comparison_t * comp_nt_val;
   statement_t * statement_nt_val; 
-  parameters_t * params_nt_val;
   declaration_t * decl_nt_val;
   declarations_t * decls_nt_val;
+  parameters_t * params_nt_val;
+  locals_t * locals_nt_val;
 }
 
 %define parse.error verbose
@@ -64,6 +65,7 @@ extern char * yytext;
 %nterm<decl_nt_val> declaration
 %nterm<decls_nt_val> declarations
 %nterm<params_nt_val> params
+%nterm<locals_nt_val> locals
 
 %right ASSIGN
 %left OR
@@ -115,12 +117,15 @@ function
         std::cout << "\nGenerate code.\n\n";
         std::cout << "func " << $2->name << std::endl;
         std::cout << $5->code;
+        std::cout << $6->code;
         std::cout << "endfun\n\n";
       }
       else
         std::cout << "\nDo not generate code.\n\n";
 
       function_stack.pop();
+      delete $6;
+      delete $5;
     }
   | error { puts("function -> error"); }
   ;
@@ -142,8 +147,6 @@ params
       int param_number = 0;
       for (size_t i = 0; i < $2->declarations.size(); i++)
       {
-        $$->parameter_types.push_back($2->declarations[i].variable_type);
-
         variable_type_t var_type = $2->declarations[i].variable_type;
         for (size_t j = 0; j < $2->declarations[i].identifiers.size(); j++) 
         {
@@ -178,10 +181,26 @@ end_params
 
 locals
   : begin_locals declarations end_locals {
-      puts("locals -> begin_locals declarations end_locals");
+      $$ = new locals_t;
+
+      for (size_t i = 0; i < $2->declarations.size(); i++)
+      {
+        variable_type_t var_type = $2->declarations[i].variable_type;
+        for (size_t j = 0; j < $2->declarations[i].identifiers.size(); j++) 
+        {
+          std::string identifier_name = $2->declarations[i].identifiers[j].name;
+          std::string size = $2->declarations[i].size;
+
+          if (is_integer(var_type)) 
+            $$->code += gen_ins_declare_variable(identifier_name);
+          else
+            $$->code += gen_ins_declare_variable(identifier_name, size);
+        }
+      }
+      delete $2;
     }
   | begin_locals end_locals {
-      puts("locals -> begin_locals end_locals");
+      $$ = new locals_t;
     }
   ;
 
@@ -216,8 +235,8 @@ declarations
       $$ = new declarations_t;
       $$->declarations = $1->declarations;
       $$->declarations.push_back(*$2);
-      delete $1;
       delete $2;
+      delete $1;
     }
   | declaration SEMICOLON {
       $$ = new declarations_t;
@@ -261,6 +280,8 @@ declaration
       $$->identifiers = $1->identifiers;
       $$->size = $5->val;
       $$->variable_type = variable_type_t::ARRAY;
+
+      delete $5;
       delete $1;
     }
   | error { puts("declaration -> error"); }
@@ -273,6 +294,7 @@ statements
       // statements on the rhs to the lhs statements 
       append_statement($2, $1);
       $$ = copy_statement($1);
+
       delete $2;
       delete $1;
     }
