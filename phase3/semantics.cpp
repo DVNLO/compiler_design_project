@@ -3,6 +3,7 @@
 
 std::stack<std::string> function_stack;
 std::unordered_map<std::string, function_t> function_map;
+bool is_in_loop;
 
 std::string
 generate_name()
@@ -96,3 +97,29 @@ copy_expression(expression_t const * const exp)
   return ret;
 }
 
+
+statement_t * 
+convert_expression_to_statement(expression_t const * const exp)
+// returns a statement converted from an argument exp expression_t
+{
+  statement_t * ret = new statement_t;
+  ret->op_code = exp->op_code;
+  ret->dst = exp->dst;
+  ret->src1 = exp->src1;
+  ret->src2 = exp->src2;
+  ret->code = exp->code;
+  return ret; 
+}
+
+statement_t *
+copy_statement(statement_t const * const statement)
+// returns a copy of an agrument statement statement_t
+{
+  statement_t * ret = new statement_t;
+  ret->op_code = statement->op_code;
+  ret->dst = statement->dst;
+  ret->src1 = statement->src1;
+  ret->src2 = statement->src2;
+  ret->code = statement->code;
+  return ret; 
+}

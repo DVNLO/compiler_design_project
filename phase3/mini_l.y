@@ -48,6 +48,8 @@ extern char * yytext;
 %nterm<exp_nt_val> relation_exp1
 %nterm<statement_nt_val> statement_read
 %nterm<statement_nt_val> statement_write
+%nterm<statement_nt_val> statement_assign
+%nterm<statement_nt_val> statement_return
 
 %right ASSIGN
 %left OR
@@ -189,8 +191,30 @@ statement
   ;
 
 statement_assign
-  : variable ASSIGN expression { 
-      puts("statement_assign -> variable ASSIGN expression"); 
+  : variable ASSIGN expression 
+    {
+      $$ = new statement_t;
+      if(is_array($1))
+      {
+        $$->dst = $1->name;
+        $$->src1 = $1->expression.dst;
+        $$->src2 = $3->dst;
+        $$->code += $3->code;
+        $$->code += $1->expression.code;
+        $$->code += gen_ins_array_access_lval($$->dst,
+                                              $$->src1,
+                                              $$->src2);
+      }
+      else
+      {
+        $$->dst = $1->name;
+        $$->src1 = $3->dst;
+        $$->code += $3->code;
+        $$->code += gen_ins_copy($$->dst, 
+                                 $$->src1);
+      }
+      delete $3;
+      delete $1;
     }
   ;
 
@@ -204,8 +228,12 @@ statement_if
   ;
 
 statement_while
-  : WHILE bool_exp BEGINLOOP statements ENDLOOP { 
-      puts("statement_while -> WHILE bool_exp BEGINLOOP statements ENDLOOP"); 
+  : WHILE bool_exp 
+    BEGINLOOP { is_in_loop = true; }
+    statements 
+    ENDLOOP 
+    { 
+      is_in_loop = false;
     }
   ;
 
@@ -219,9 +247,11 @@ statement_for
   : FOR variable ASSIGN number SEMICOLON 
         bool_exp SEMICOLON 
         statement_assign 
-        BEGINLOOP statements ENDLOOP {
-      puts("statement_for -> FOR variable ASSIGN number SEMICOLON bool_exp "
-           "SEMICOLON statement_assign BEGINLOOP statements ENDLOOP");
+        BEGINLOOP { is_in_loop = true; } 
+        statements 
+        ENDLOOP
+    {
+      is_in_loop = false;
     }
   ;
 
@@ -284,13 +314,27 @@ statement_write
   ;
 
 statement_continue
-  : CONTINUE { puts("statement_continue -> CONTINUE"); }
+  : CONTINUE 
+    {
+      if(!is_in_loop)
+      {
+        // TODO : raise exception, continue statement used outside loop
+      }
+      else
+      {
+        // TODO : branch
+      }
+    }
   ;
 
 statement_return
   : RETURN expression 
-    { 
-      puts("statement_return -> RETURN expression"); 
+    {
+      $$ = new statement_t;
+      $$->dst = $2->dst;
+      $$->code += $2->code;
+      $$->code += gen_ins_ret($$->dst);
+      delete $2;
     }
   ;
 
