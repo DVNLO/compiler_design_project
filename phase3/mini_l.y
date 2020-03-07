@@ -70,9 +70,13 @@ functions
   ;
 
 function
-  : function1 identifier { /* TODO: Push function identifier onto stack */ } semicolon params locals { /* TODO : setup the function data structure */} body {
-      // TODO : Pop function identifer from the function stack
-      puts("function -> function1 identifier semicolon params locals body");
+  : function1 identifier 
+    { 
+      function_stack.push($2->name); 
+    } 
+    semicolon params locals body 
+    {
+      function_stack.pop();
     }
   | error { puts("function -> error"); }
   ;
@@ -256,7 +260,6 @@ bool_exp
   : bool_exp OR relation_and_exp 
     { 
       $$ = synthesize_comparison_expression("||", $1, $3);
-      // TODO : add generated and declared name to symbol table  
       delete $3;
       delete $1;
     }
@@ -271,7 +274,6 @@ relation_and_exp
   : relation_and_exp AND relation_exp 
     { 
       $$ = synthesize_comparison_expression("&&", $1, $3);
-      // TODO : add generated and declared name to symbol table  
       delete $3;
       delete $1;
     }
@@ -290,8 +292,10 @@ relation_exp
       $$->dst = generate_name();
       $$->src1 = $2->dst;
       $$->code += gen_ins_declare_variable($$->dst);
-      // TODO : add generated and declared name to symbol table
       $$->code += gen_ins_logical_not($$->dst, $$->src1);
+      record_symbol($$->dst, 
+                    variable_type_t::INTEGER, 
+                    function_map[function_stack.top()].symbol_table);
       delete $2;
     }
   | relation_exp1 
@@ -314,7 +318,6 @@ relation_exp1
       $$->dst = generate_name();
       $$->src1 = "1";
       $$->code += gen_ins_declare_variable($$->dst);
-      // TODO : add generated and declared name to symbol table 
       $$->code += gen_ins_copy($$->dst, $$->src1);
     }
   | FALSE 
@@ -323,7 +326,6 @@ relation_exp1
       $$->dst = generate_name();
       $$->src1 = "0";
       $$->code += gen_ins_declare_variable($$->dst);
-      // TODO : add generated and declared name to symbol table 
       $$->code += gen_ins_copy($$->dst, $$->src1);
     }
   | L_PAREN bool_exp R_PAREN 
@@ -371,7 +373,6 @@ expression
     { 
       // + dst, src1, src2
       $$ = synthesize_arithmetic_expression("+", $1, $3);
-      // TODO : add generated and declared name to symbol table 
       delete $1;
       delete $3;
     }
@@ -379,7 +380,6 @@ expression
     { 
       // - dst, src1, src2
       $$ = synthesize_arithmetic_expression("-", $1, $3);
-      // TODO : add generated and declared name to symbol table 
       delete $1;
       delete $3;
     }
@@ -395,7 +395,6 @@ multiplicative_exp
     { 
       // * dst, src1, src2
       $$ = synthesize_arithmetic_expression("*", $1, $3);
-      // TODO : add generated and declared name to symbol table 
       delete $1;
       delete $3;
     }
@@ -403,7 +402,6 @@ multiplicative_exp
     { 
       // / dst, src1, src2
       $$ = synthesize_arithmetic_expression("/", $1, $3);
-      // TODO : add generated and declared name to symbol table 
       delete $1;
       delete $3;
     }
@@ -411,7 +409,6 @@ multiplicative_exp
     {
       // % dst, src1, src2
       $$ = synthesize_arithmetic_expression("%", $1, $3);
-      // TODO : add generated and declared name to symbol table 
       delete $1;
       delete $3;
     }
@@ -471,8 +468,10 @@ term
       $$->src2 = $2->dst;
       $$->code = $2->code;
       $$->code += gen_ins_declare_variable($$->dst);
-      // TODO : add generated and declared name to symbol table
       $$->code += gen_ins_arithmetic($$->op_code, $$->dst, $$->src1, $$->src2);
+      record_symbol($$->dst, 
+                    variable_type_t::INTEGER,
+                    function_map[function_stack.top()].symbol_table);
     }
   | term1 
     { 
@@ -501,8 +500,10 @@ term1
         $$->src1 = $1->name;
         $$->src2 = $1->expression.dst;
         $$->code += gen_ins_declare_variable($$->dst);
-        // TODO : add generated and declared name to symbol table
         $$->code += gen_ins_array_access_rval($$->dst, $$->src1, $$->src2);
+        record_symbol($$->dst, 
+                      variable_type_t::INTEGER,
+                      function_map[function_stack.top()].symbol_table);
       }
       else // scalar variable
       {
@@ -518,8 +519,10 @@ term1
       $$->dst = generate_name(); 
       $$->src1 = $1->val; 
       $$->code += gen_ins_declare_variable($$->dst);
-      // TODO : add generated and declared name to symbol table
       $$->code += gen_ins_copy($$->dst, $$->src1);
+      record_symbol($$->dst, 
+                    variable_type_t::INTEGER,
+                    function_map[function_stack.top()].symbol_table);
       delete $1;
     }
   | L_PAREN expression R_PAREN 
