@@ -126,7 +126,7 @@ params
           std::string identifier_name = $2->declarations[i].identifiers[j].name;
           std::string size = $2->declarations[i].size;
 
-          if ($2->declarations[i].variable_type == variable_type_t::INTEGER) 
+          if (is_integer($2->declarations[i].variable_type)) 
             $$->code += gen_ins_declare_variable(identifier_name);
           else
             $$->code += gen_ins_declare_variable(identifier_name, size);

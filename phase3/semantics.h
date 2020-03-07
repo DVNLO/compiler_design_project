@@ -13,7 +13,10 @@ std::string generate_label();
 void record_symbol(std::string symbol, 
                    variable_type_t variable,
                    std::unordered_map<std::string, variable_type_t> symbol_table);
+bool is_array(variable_type_t const var_type);
 bool is_array(variable_t const * const var);
+bool is_integer(variable_t const * const var);
+bool is_integer(variable_type_t const var_type);
 expression_t * copy_expression(expression_t const * const exp);
 expression_t * synthesize_arithmetic_expression(std::string const & op_code,
                                                 expression_t const * const lhs,

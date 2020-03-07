@@ -34,13 +34,32 @@ is_empty_expression(expression_t const * const exp)
   return exp && exp->dst.empty();
 }
 
+bool
+is_array(variable_type_t const var_type)
+// returns true if var_type is array.
+{
+  return var_type == variable_type_t::ARRAY;
+}
+
 bool 
 is_array(variable_t const * const var)
 // returns true if the argument variable_t val is an array.
-// Note that an array variable has a non-empty 
-// expression associated with it.
 {
-  return var && var->type == variable_type_t::ARRAY;
+  return var && is_array(var->type);
+}
+
+bool
+is_integer(variable_type_t const var_type)
+// returns true if var_type is integer
+{
+  return var_type == variable_type_t::INTEGER;
+}
+
+bool
+is_integer(variable_t const * const var)
+// returns true if var_type is integer
+{
+  return var && is_integer(var->type);
 }
 
 void record_symbol(std::string symbol, 
