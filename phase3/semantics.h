@@ -10,6 +10,7 @@ extern bool is_in_loop;
 
 std::string generate_name();
 std::string generate_label();
+bool add_parameter_type(variable_type_t var_type);
 void record_symbol(std::string symbol, 
                    variable_type_t variable,
                    std::unordered_map<std::string, variable_type_t> & symbol_table);

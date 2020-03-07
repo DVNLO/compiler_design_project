@@ -63,6 +63,15 @@ is_integer(variable_t const * const var)
 }
 
 void
+add_parameter_type(variable_type_t var_type)
+// appends var_type to current function's
+// vector of parameter_types
+{
+  if (function_stack.top())
+    function_map[function_stack.top()].parameter_types.push_back(var_type);
+}
+
+void
 record_symbol(std::string symbol, 
                    variable_type_t variable_type,
                    std::unordered_map<std::string, variable_type_t> & symbol_table)
@@ -72,6 +81,8 @@ record_symbol(std::string symbol,
 
 bool
 in_symbol_table(std::string const & symbol)
+// returns true if symbol already exists within
+// the local symbol table
 {
   static std::unordered_map<std::string, variable_type_t> * symbol_table;
   symbol_table = &function_map[function_stack.top()].symbol_table;

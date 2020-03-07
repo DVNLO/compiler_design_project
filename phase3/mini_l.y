@@ -98,8 +98,8 @@ function
     } 
     semicolon params locals body 
     {
+      // TODO : Do not generate code if there are errors
       function_stack.pop();
-      std::cout << $5->code << std::endl;
     }
   | error { puts("function -> error"); }
   ;
@@ -123,20 +123,21 @@ params
       {
         $$->parameter_types.push_back($2->declarations[i].variable_type);
 
+        variable_type_t var_type = $2->declarations[i].variable_type;
         for (size_t j = 0; j < $2->declarations[i].identifiers.size(); j++) 
         {
           std::string identifier_name = $2->declarations[i].identifiers[j].name;
           std::string size = $2->declarations[i].size;
 
-          if (is_integer($2->declarations[i].variable_type)) 
+          if (is_integer(var_type)) 
             $$->code += gen_ins_declare_variable(identifier_name);
           else
             $$->code += gen_ins_declare_variable(identifier_name, size);
-
           $$->code += gen_ins_copy(identifier_name, '$' + std::to_string(param_number++));
+
+          add_parameter_type(var_type); // populates parameter type vector
         }
       }
-      // TODO : Populate function_map[function_stack.top()].parameter_types
       delete $2;
     }
   | begin_params end_params {
@@ -206,20 +207,16 @@ declarations
 
 declaration
   : identifiers COLON INTEGER { 
-      //std::unordered_map<std::string, variable_type_t> * symbol_table_ref = &function_map[function_stack.top()].symbol_table;
-
       std::string identifier_name;
       for (size_t i = 0; i < $1->identifiers.size(); i++)
       {
         identifier_name = $1->identifiers[i].name;
-        //if (symbol_table_ref->find(identifier_name) != std::end(*symbol_table_ref))
         if (in_symbol_table(identifier_name))
           emit_error_message("symbol '" + identifier_name + "' previously declared");
         else
           record_symbol(identifier_name,
                         variable_type_t::INTEGER,
                         function_map[function_stack.top()].symbol_table);
-                        //*symbol_table_ref);
       }
 
       $$ = new declaration_t;
@@ -228,13 +225,11 @@ declaration
       delete $1;
     }
   | identifiers COLON ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER { 
-      std::unordered_map<std::string, variable_type_t> * symbol_table_ref = &function_map[function_stack.top()].symbol_table;
-
       std::string identifier_name;
       for (size_t i = 0; i < $1->identifiers.size(); i++)
       {
         identifier_name = $1->identifiers[i].name;
-        if (symbol_table_ref->find(identifier_name) != std::end(*symbol_table_ref))
+        if (in_symbol_table(identifier_name))
           emit_error_message("symbol '" + identifier_name + "' previously declared");
         else
           record_symbol(identifier_name,
