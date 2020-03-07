@@ -348,14 +348,19 @@ statement_while
     ENDLOOP 
     { 
       is_in_loop = false;
-      // build a while loop...
+      // TODO : build a while loop...
     }
   ;
 
 statement_do_while
-  : DO BEGINLOOP statements ENDLOOP WHILE bool_exp 
+  : DO BEGINLOOP
     {
-      puts("statement_do_while -> DO BEGINLOOP statements ENDLOOP WHILE bool_exp");
+      is_in_loop = true;
+    } 
+    statements ENDLOOP WHILE bool_exp 
+    {
+      is_in_loop = false;
+      // TODO : build a do while loop...
     }
   ;
 
@@ -371,6 +376,7 @@ statement_for
     ENDLOOP
     {
       is_in_loop = false;
+      // TODO : build the for loop. 
     }
   ;
 
