@@ -9,6 +9,7 @@ extern std::unordered_map<std::string, function_t> function_map;
 extern bool is_in_loop;
 
 std::string generate_name();
+std::string generate_label();
 void record_symbol(std::string symbol, 
                    variable_type_t variable,
                    std::unordered_map<std::string, variable_type_t> symbol_table);

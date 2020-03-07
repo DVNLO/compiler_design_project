@@ -8,11 +8,21 @@ bool is_in_loop;
 std::string
 generate_name()
 // returns a generated temporary name of the form "__temp__#"
-// where # is an counter.
+// where # is a numerical counter.
 {
   static unsigned id = 0;
   static std::string const NAME_PREFIX = "__temp__";
   return NAME_PREFIX + std::to_string(id++);
+}
+
+std::string
+generate_label()
+// returns a generated label of the form "L#"
+// where # is a numerical count.
+{
+  static unsigned id = 0;
+  static std::string const LABEL_PREFIX = "L";
+  return LABEL_PREFIX + std::to_string(id++);
 }
 
 bool 
