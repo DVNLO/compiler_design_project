@@ -25,5 +25,8 @@ expression_t * synthesize_comparison_expression(std::string const & op_code,
                                                 expression_t const * const lhs,
                                                 expression_t const * const rhs);
 statement_t * convert_expression_to_statement(expression_t const * const);
+statement_t * copy_statement(statement_t const * const statement);
+void append_statement(statement_t const * const src,
+                      statement_t * const trgt);
 
 #endif // MINI_L_SEMANTICS_h

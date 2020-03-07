@@ -152,3 +152,16 @@ copy_statement(statement_t const * const statement)
   ret->code = statement->code;
   return ret; 
 }
+
+void
+append_statement(statement_t const * const statement,
+                 statement_t * const trgt)
+// appends a source statement to a target statement.
+{
+  trgt->op_code = statement->op_code;
+  trgt->dst = statement->dst;
+  trgt->src1 = statement->src1;
+  trgt->src2 = statement->src2;
+  trgt->code += statement->code;  
+}
+

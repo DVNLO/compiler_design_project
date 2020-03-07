@@ -220,11 +220,19 @@ declaration
   ;
 
 statements
-  : statements statement SEMICOLON { 
-      puts("statements -> statements statement SEMICOLON"); 
+  : statements statement SEMICOLON 
+    {
+      // appends statement to statements and copies
+      // statements on the rhs to the lhs statements 
+      append_statement($2, $1);
+      $$ = copy_statement($1);
+      delete $2;
+      delete $1;
     }
-  | statement SEMICOLON {
-      puts("statements -> statement SEMICOLON");
+  | statement SEMICOLON 
+    {
+      $$ = copy_statement($1);
+      delete $1;
     }
   ;
 
