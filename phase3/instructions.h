@@ -46,6 +46,7 @@ std::string gen_ins_logical_not(std::string const & dst,
                                 std::string const & src);
 std::string gen_ins_declare_label(std::string const & lbl);
 std::string gen_ins_branch_goto(std::string const & lbl);
-std::string gen_ins_branch_conditional(std::string const & lbl);
+std::string gen_ins_branch_conditional(std::string const & lbl, 
+                                       std::string const & pred);
 
 #endif  // MINI_L_INSTRUCTIONS

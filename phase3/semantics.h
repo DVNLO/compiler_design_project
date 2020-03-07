@@ -6,8 +6,10 @@
 
 extern std::stack<std::string> function_stack;
 extern std::unordered_map<std::string, function_t> function_map;
+extern bool is_in_loop;
 
 std::string generate_name();
+std::string generate_label();
 void record_symbol(std::string symbol, 
                    variable_type_t variable,
                    std::unordered_map<std::string, variable_type_t> symbol_table);
@@ -19,6 +21,6 @@ expression_t * synthesize_arithmetic_expression(std::string const & op_code,
 expression_t * synthesize_comparison_expression(std::string const & op_code,
                                                 expression_t const * const lhs,
                                                 expression_t const * const rhs);
-
+statement_t * convert_expression_to_statement(expression_t const * const);
 
 #endif // MINI_L_SEMANTICS_h
