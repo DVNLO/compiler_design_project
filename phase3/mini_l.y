@@ -579,7 +579,6 @@ identifier
     }
   ;
 
-// capture number information from NUMBER token
 number
   : NUMBER 
     { 
