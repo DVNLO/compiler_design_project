@@ -46,9 +46,16 @@ extern char * yytext;
 %nterm<exp_nt_val> relation_and_exp
 %nterm<exp_nt_val> relation_exp
 %nterm<exp_nt_val> relation_exp1
+%nterm<statement_nt_val> statements
+%nterm<statement_nt_val> statement
+%nterm<statement_nt_val> statement_assign
+%nterm<statement_nt_val> statement_if
+%nterm<statement_nt_val> statement_while
+%nterm<statement_nt_val> statement_do_while
+%nterm<statement_nt_val> statement_for
 %nterm<statement_nt_val> statement_read
 %nterm<statement_nt_val> statement_write
-%nterm<statement_nt_val> statement_assign
+%nterm<statement_nt_val> statement_continue
 %nterm<statement_nt_val> statement_return
 
 %right ASSIGN
@@ -178,26 +185,30 @@ statements
   ;
 
 statement
-  : statement_assign   { puts("statement -> statement_assign"); }
-  | statement_if       { puts("statement -> statement_if"); }
-  | statement_while    { puts("statement -> statement_while"); }
-  | statement_do_while { puts("statement -> statement_do_while"); }
-  | statement_for      { puts("statement -> statement_for"); }
-  | statement_read     { puts("statement -> statement_read"); }
-  | statement_write    { puts("statement -> statement_write"); }
-  | statement_continue { puts("statement -> statement_continue"); }
-  | statement_return   { puts("statement -> statement_return"); }
+  : statement_assign   { $$ = $1; }
+  | statement_if       { $$ = $1; }
+  | statement_while    { $$ = $1; }
+  | statement_do_while { $$ = $1; }
+  | statement_for      { $$ = $1; }
+  | statement_read     { $$ = $1; }
+  | statement_write    { $$ = $1; }
+  | statement_continue { $$ = $1; }
+  | statement_return   { $$ = $1; }
   | error              { puts("statement -> error"); }
   ;
 
 statement_assign
   : variable ASSIGN expression 
     {
+      // assign the value of an expression to a variable.
+      // If variable is an array store the value of the 
+      // array index position in src1. Append the expressions
+      // instructions and generate the instruction.
       $$ = new statement_t;
       if(is_array($1))
       {
         $$->dst = $1->name;
-        $$->src1 = $1->expression.dst;
+        $$->src1 = $1->expression.dst;  // TODO : may be out of bounds.
         $$->src2 = $3->dst;
         $$->code += $3->code;
         $$->code += $1->expression.code;
@@ -219,37 +230,93 @@ statement_assign
   ;
 
 statement_if
-  : IF bool_exp THEN statements ENDIF { 
-      puts("statement_if -> IF bool_exp THEN statements ENDIF"); 
+  : IF bool_exp THEN statements ENDIF 
+    { 
+      // generates a new if statement. Copies the code
+      // from bool_exp. Generates two labels, true and 
+      // false representing the label targets of the 
+      // conditional branch instruction. If the conditional
+      // branch is true the branch will be taken and 
+      // jump to the true label declaration. If the branch
+      // conditional is false control flow will fall
+      // through and a unconditional branch will jump 
+      // over the statements block to the false label.
+      $$ = new statement_t;
+      std::string const true_label = generate_label(); 
+      std::string const false_label = generate_label();
+      $$->src1 = $2->dst;  // contains the predicate of bool_exp
+      $$->code += $2->code;
+      $$->code += gen_ins_branch_conditional(true_label, $$->src1);
+      $$->code += gen_ins_branch_goto(false_label);
+      $$->code += gen_ins_declare_label(true_label);
+      $$->code += $4->code;  // statements
+      $$->code += gen_ins_declare_label(false_label);
+      $$->src1.clear();
+      $$->dst = false_label;
+      delete $4;
+      delete $2;
     }
-  | IF bool_exp THEN statements ELSE statements ENDIF {
-      puts("statement_if -> IF bool_exp THEN statements ELSE statements ENDIF");
-    }
+  | IF bool_exp THEN statements ELSE statements ENDIF 
+    {
+      // generates a new if-else statement. Copies code
+      // from bool_exp. Generates three labels, true, false
+      // and end. If the conditional branch is true control
+      // flow will jump to the true label, and at the end 
+      // the true statements block will unconditionally jump
+      // to the end lable. Otherwise, if the branch conditional 
+      // is false control flow will jump to the false lablel.
+      $$ = new statement_t;
+      std::string const true_label = generate_label(); 
+      std::string const false_label = generate_label();
+      std::string const end_label = generate_label();
+      $$->src1 = $2->dst;  // contains the predicate of bool_exp
+      $$->code += $2->code;
+      $$->code += gen_ins_branch_conditional(true_label, $$->src1);
+      $$->code += gen_ins_branch_goto(false_label);
+      $$->code += gen_ins_declare_label(true_label);
+      $$->code += $4->code;  // true statements
+      $$->code += gen_ins_branch_goto(end_label);
+      $$->code += gen_ins_declare_label(false_label);
+      $$->code += $6->code;  // false statements
+      $$->code += gen_ins_declare_label(end_label);
+      $$->src1.clear();
+      $$->dst = end_label;
+      delete $4;
+      delete $2;
+}
   ;
 
 statement_while
   : WHILE bool_exp 
-    BEGINLOOP { is_in_loop = true; }
+    BEGINLOOP 
+    { 
+      is_in_loop = true; 
+    }
     statements 
     ENDLOOP 
     { 
       is_in_loop = false;
+      // build a while loop...
     }
   ;
 
 statement_do_while
-  : DO BEGINLOOP statements ENDLOOP WHILE bool_exp {
+  : DO BEGINLOOP statements ENDLOOP WHILE bool_exp 
+    {
       puts("statement_do_while -> DO BEGINLOOP statements ENDLOOP WHILE bool_exp");
     }
   ;
 
 statement_for
   : FOR variable ASSIGN number SEMICOLON 
-        bool_exp SEMICOLON 
-        statement_assign 
-        BEGINLOOP { is_in_loop = true; } 
-        statements 
-        ENDLOOP
+    bool_exp SEMICOLON 
+    statement_assign 
+    BEGINLOOP 
+    { 
+      is_in_loop = true; 
+    } 
+    statements 
+    ENDLOOP
     {
       is_in_loop = false;
     }
@@ -271,6 +338,7 @@ statement_read
         {
           $$->dst = cur_var.name;
           $$->src1 = cur_var.expression.dst;
+          $$->code += cur_var.expression.code;
           $$->code += gen_ins_read_in($$->dst, $$->src1);
         }
         else
@@ -300,6 +368,7 @@ statement_write
         {
           $$->dst = cur_var.name;
           $$->src1 = cur_var.expression.dst; // index
+          $$->code += cur_var.expression.code;
           $$->code += gen_ins_write_out($$->dst, $$->src1);
         }
         else
@@ -373,6 +442,7 @@ relation_exp
       $$->op_code = "!";
       $$->dst = generate_name();
       $$->src1 = $2->dst;
+      $$->code += $2->code;
       $$->code += gen_ins_declare_variable($$->dst);
       $$->code += gen_ins_logical_not($$->dst, $$->src1);
       record_symbol($$->dst, 
@@ -581,6 +651,7 @@ term1
         $$->dst = generate_name();
         $$->src1 = $1->name;
         $$->src2 = $1->expression.dst;
+        $$->code += $1->expression.code;
         $$->code += gen_ins_declare_variable($$->dst);
         $$->code += gen_ins_array_access_rval($$->dst, $$->src1, $$->src2);
         record_symbol($$->dst, 
@@ -591,6 +662,7 @@ term1
       {
         $$->dst = $1->name; 
       }
+      delete $1;
     }
   | number  
     { 
