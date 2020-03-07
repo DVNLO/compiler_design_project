@@ -32,6 +32,13 @@ is_array(variable_t const * const var)
   return var && var->type == variable_type_t::ARRAY;
 }
 
+void record_symbol(std::string symbol, 
+                   variable_type_t variable_type,
+                   std::unordered_map<std::string, variable_type_t> symbol_table)
+{
+  symbol_table[symbol] = variable_type; 
+}
+
 expression_t *
 synthesize_tac_expression(std::string const & op_code,
                           expression_t const * const lhs,
@@ -47,10 +54,13 @@ synthesize_tac_expression(std::string const & op_code,
   ret->code += lhs->code;
   ret->code += rhs->code;
   ret->code += gen_ins_declare_variable(ret->dst);
-  ret->code += gen_ins_tac(ret->op_code, 
-                           ret->dst, 
-                           ret->src1, 
+  ret->code += gen_ins_tac(ret->op_code,
+                           ret->dst,
+                           ret->src1,
                            ret->src2);
+  record_symbol(ret->dst, 
+                variable_type_t::INTEGER, 
+                function_map[function_stack.top()].symbol_table);
   return ret;
 }
 
