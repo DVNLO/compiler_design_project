@@ -21,7 +21,7 @@ generate_label()
 // where # is a numerical count.
 {
   static unsigned id = 0;
-  static std::string const LABEL_PREFIX = "L";
+  static std::string const LABEL_PREFIX = "__label__";
   return LABEL_PREFIX + std::to_string(id++);
 }
 
