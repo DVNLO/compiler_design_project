@@ -1,5 +1,13 @@
 #include "errors.h"
 
+void
+emit_error_message(std::string const msg)
+// emits a helpful error message
+{
+   fprintf(stderr,
+       "Error line %d: %s\n", yylineno, msg.c_str());
+}
+
 void partition(char * error_msg,
                char const delimiter,
                char * * error_msgs)

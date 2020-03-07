@@ -1,7 +1,7 @@
 function f;
 beginparams
   a,b,c : integer;
-  x,y,z : integer;
+  a,y,z : integer;
   arr : array [7] of integer;
 endparams
 beginlocals
@@ -19,6 +19,8 @@ endbody
 function main;
 beginparams
   x, y : integer;
+  x : array [10] of integer;
+  y : integer;
 endparams
 beginlocals
   n, m : integer;

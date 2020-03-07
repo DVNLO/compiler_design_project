@@ -12,7 +12,8 @@ std::string generate_name();
 std::string generate_label();
 void record_symbol(std::string symbol, 
                    variable_type_t variable,
-                   std::unordered_map<std::string, variable_type_t> symbol_table);
+                   std::unordered_map<std::string, variable_type_t> & symbol_table);
+bool in_symbol_table(std::string const & symbol);
 bool is_array(variable_type_t const var_type);
 bool is_array(variable_t const * const var);
 bool is_integer(variable_t const * const var);

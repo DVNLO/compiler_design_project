@@ -62,11 +62,21 @@ is_integer(variable_t const * const var)
   return var && is_integer(var->type);
 }
 
-void record_symbol(std::string symbol, 
+void
+record_symbol(std::string symbol, 
                    variable_type_t variable_type,
-                   std::unordered_map<std::string, variable_type_t> symbol_table)
+                   std::unordered_map<std::string, variable_type_t> & symbol_table)
 {
   symbol_table[symbol] = variable_type; 
+}
+
+bool
+in_symbol_table(std::string const & symbol)
+{
+  static std::unordered_map<std::string, variable_type_t> * symbol_table;
+  symbol_table = &function_map[function_stack.top()].symbol_table;
+
+  return symbol_table->find(symbol) != std::end(*symbol_table);
 }
 
 expression_t *

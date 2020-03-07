@@ -91,12 +91,14 @@ functions
 function
   : function1 identifier 
     { 
-      function_stack.push($2->name); 
+      if (function_map.find($2->name) != std::end(function_map))
+        emit_error_message("function with name '" + $2->name + "' previously declared");
+      else
+        function_stack.push($2->name); 
     } 
     semicolon params locals body 
     {
       function_stack.pop();
-      // TODO : Pop function identifer from the function stack
       std::cout << $5->code << std::endl;
     }
   | error { puts("function -> error"); }
@@ -204,12 +206,41 @@ declarations
 
 declaration
   : identifiers COLON INTEGER { 
+      //std::unordered_map<std::string, variable_type_t> * symbol_table_ref = &function_map[function_stack.top()].symbol_table;
+
+      std::string identifier_name;
+      for (size_t i = 0; i < $1->identifiers.size(); i++)
+      {
+        identifier_name = $1->identifiers[i].name;
+        //if (symbol_table_ref->find(identifier_name) != std::end(*symbol_table_ref))
+        if (in_symbol_table(identifier_name))
+          emit_error_message("symbol '" + identifier_name + "' previously declared");
+        else
+          record_symbol(identifier_name,
+                        variable_type_t::INTEGER,
+                        function_map[function_stack.top()].symbol_table);
+                        //*symbol_table_ref);
+      }
+
       $$ = new declaration_t;
       $$->identifiers = $1->identifiers;
       $$->variable_type = variable_type_t::INTEGER;
       delete $1;
     }
   | identifiers COLON ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER { 
+      std::unordered_map<std::string, variable_type_t> * symbol_table_ref = &function_map[function_stack.top()].symbol_table;
+
+      std::string identifier_name;
+      for (size_t i = 0; i < $1->identifiers.size(); i++)
+      {
+        identifier_name = $1->identifiers[i].name;
+        if (symbol_table_ref->find(identifier_name) != std::end(*symbol_table_ref))
+          emit_error_message("symbol '" + identifier_name + "' previously declared");
+        else
+          record_symbol(identifier_name,
+                        variable_type_t::ARRAY,
+                        *symbol_table_ref);
+      }
       $$ = new declaration_t;
       $$->identifiers = $1->identifiers;
       $$->size = $5->val;
@@ -772,6 +803,7 @@ identifiers
   : identifiers COMMA identifier 
     {
       // TODO : Check that function_map[function_stack.top()].symbol_table[$3->name] doesn't exist
+      //std::cout << (int)function_map[function_stack.top()].symbol_table[$$->dst] << std::endl;
       $$ = new identifiers_t; 
       $1->identifiers.push_back(*$3);
       $$->identifiers = $1->identifiers; 
@@ -781,6 +813,7 @@ identifiers
   | identifier 
     {
       // TODO : Check that function_map[function_stack.top()].symbol_table[$1->name] doesn't exist
+
       $$ = new identifiers_t;
       $$->identifiers.push_back(*$1); 
       delete $1;
@@ -791,7 +824,7 @@ identifier
   : IDENT 
     {
       $$ = new identifier_t;
-      $$->name = *yylval.op_val; 
+      $$->name = *yylval.op_val;
       delete yylval.op_val;
     }
   ;
