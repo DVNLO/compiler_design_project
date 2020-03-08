@@ -1,0 +1,40 @@
+function digit_split;
+beginparams
+  n : integer;
+endparams
+
+beginlocals
+  dig : integer;
+  ret_val : integer;
+endlocals
+
+beginbody
+
+  if n > 0 then
+    dig := n % 10;
+    write dig;
+    ret_val := digit_split(n / 10);
+  endif;
+
+  return ret_val;
+
+endbody ## end digit_split
+
+function main;
+beginparams
+endparams
+
+beginlocals
+  n : integer;
+  ret_val : integer;
+endlocals
+
+beginbody
+
+    read n;
+
+    if n > 0 then
+      ret_val := digit_split(n);
+    endif;
+
+endbody ## end main

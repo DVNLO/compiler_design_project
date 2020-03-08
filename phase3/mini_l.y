@@ -157,7 +157,7 @@ function
       delete $5;
       function_stack.pop();
     }
-  | error { }
+  | error { $$ = new identifier_t; }
   ;
 
 function1
@@ -323,7 +323,7 @@ declaration
       delete $5;
       delete $1;
     }
-  | error { }
+  | error { $$ = new declaration_t; }
   ;
 
 statements
@@ -354,7 +354,7 @@ statement
   | statement_write    { $$ = $1; }
   | statement_continue { $$ = $1; }
   | statement_return   { $$ = $1; }
-  | error              { puts("statement -> error"); }
+  | error              { $$ = new statement_t; }
   ;
 
 statement_assign
