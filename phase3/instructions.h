@@ -48,5 +48,7 @@ std::string gen_ins_declare_label(std::string const & lbl);
 std::string gen_ins_branch_goto(std::string const & lbl);
 std::string gen_ins_branch_conditional(std::string const & lbl, 
                                        std::string const & pred);
+std::string gen_ins_declare_function(std::string const & src);
+std::string gen_ins_end_function();
 
 #endif  // MINI_L_INSTRUCTIONS
