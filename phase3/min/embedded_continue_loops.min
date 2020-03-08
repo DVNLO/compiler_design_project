@@ -1,0 +1,36 @@
+###############################################
+## Tests that each continue statement is
+## associated with the proper loop.
+###############################################
+function main;
+beginparams
+endparams
+
+beginlocals
+
+  i, j, k : integer;
+  newline : integer;
+
+endlocals
+
+beginbody
+
+  newline := 1111111111111;
+
+  write newline;
+  for i := 0; i < 10; i := i + 1 beginloop
+    for j := 0; j < 10; j := j + 1 beginloop
+      if j <> i then
+        continue;
+      endif;
+      for k := 0; k < 10; k := k + 1 beginloop
+        if k <> j then
+          continue;
+        endif;
+        write i, j, k;
+        write newline;
+      endloop;
+    endloop;
+  endloop;
+
+endbody ## end main
