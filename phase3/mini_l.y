@@ -69,7 +69,7 @@ extern char * yytext;
 %nterm<decls_nt_val> declarations
 %nterm<params_nt_val> params
 %nterm<locals_nt_val> locals
-%nterm<function_nt_val> function
+%nterm<id_nt_val> function
 %nterm<functions_nt_val> functions
 %nterm<functions_nt_val> program
 %nterm<statement_nt_val> body
@@ -143,11 +143,15 @@ function
       statement_t & body = *$7;
 
       function_t & this_function = function_map[id];
+      this_function.name = id;
       this_function.code += gen_ins_declare_function(id);
       this_function.code += params.code;
       this_function.code += locals.code;
       this_function.code += body.code;
       this_function.code += gen_ins_end_function();
+      
+      $$ = new identifier_t;
+      $$->name = id;
       
       delete $6;
       delete $5;
@@ -875,6 +879,7 @@ term
       }
       $$ = new expression_t;
       $$->dst = generate_name();
+      $$->code += gen_ins_declare_variable($$->dst);
       $$->code += $3->code;
       record_symbol($$->dst,
                     variable_type_t::INTEGER,
@@ -914,17 +919,9 @@ term1
     }
   | number  
     { 
-      // convert a number into an expression. Declare a temporary
-      // name to hold the value of the number. Copy the value into
-      // the temporary name.
+      // convert a number into an expression, immediate. 
       $$ = new expression_t;
-      $$->dst = generate_name(); 
-      $$->src1 = $1->val; 
-      $$->code += gen_ins_declare_variable($$->dst);
-      $$->code += gen_ins_copy($$->dst, $$->src1);
-      record_symbol($$->dst, 
-                    variable_type_t::INTEGER,
-                    function_map[function_stack.top()].symbol_table);
+      $$->dst = $1->val; 
       delete $1;
     }
   | L_PAREN expression R_PAREN 
