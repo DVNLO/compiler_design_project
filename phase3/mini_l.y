@@ -416,8 +416,19 @@ statement_while
     statements 
     ENDLOOP 
     { 
-      // TODO : build a while loop...
       $$ = new statement_t;
+      std::string const loop_body_start_label = generate_label();
+      std::string const loop_body_end_label = generate_label();
+      std::string const unique_loop_label = get_current_loop_label();
+
+      $$->code += gen_ins_declare_label(unique_loop_label);
+      $$->code += $2->code; // bool_exp
+      $$->code += gen_ins_branch_conditional(loop_body_start_label, $2->dst);
+      $$->code += gen_ins_branch_goto(loop_body_end_label);
+      $$->code += gen_ins_declare_label(loop_body_start_label);
+      $$->code += $5->code; // statements
+      $$->code += gen_ins_branch_goto(unique_loop_label);
+      $$->code += gen_ins_declare_label(loop_body_end_label);
       leaving_loop();
     }
   ;
@@ -429,8 +440,15 @@ statement_do_while
     } 
     statements ENDLOOP WHILE bool_exp 
     {
-      // TODO : build a do while loop...
       $$ = new statement_t;
+      std::string const loop_body_start_label = generate_label();
+      std::string const unique_loop_label = get_current_loop_label();
+
+      $$->code += gen_ins_declare_label(loop_body_start_label);
+      $$->code += $4->code; // statements
+      $$->code += gen_ins_declare_label(unique_loop_label);
+      $$->code += $7->code; // bool_exp
+      $$->code += gen_ins_branch_conditional(loop_body_start_label, $7->dst);
       leaving_loop();
     }
   ;
@@ -477,24 +495,6 @@ statement_for
       $$->src1.clear();
       $$->dst = loop_body_end_label;
       leaving_loop();
-
-      /*
-      $$->code += $6->code; // bool_exp
-      $$->code += gen_ins_branch_conditional(loop_body_start_label, $6->src1);
-      $$->code += gen_ins_branch_goto(loop_body_end_label); // leave loop
-      $$->code += gen_ins_declare_label(unique_loop_label); // unique loop label
-      $$->code += $8->code; // statement_assign
-      $$->code += gen_ins_tac($6->op_code, $6->dst, $6->src1, $6->src2);
-      $$->code += gen_ins_branch_conditional(loop_body_start_label, $6->src1);
-      $$->code += gen_ins_branch_goto(loop_body_end_label); // leave loop
-      $$->code += gen_ins_declare_label(loop_body_start_label); // declare beginning of loop body
-      $$->code += $11->code; // statements
-      $$->code += gen_ins_branch_goto(unique_loop_label); // loop back for another iteration
-      $$->code += gen_ins_declare_label(loop_body_end_label); // declare end of loop body
-      $$->src1.clear();
-      $$->dst = loop_body_end_label;
-      leaving_loop();
-      */
     }
   ;
 
