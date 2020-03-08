@@ -6,10 +6,13 @@
 
 extern std::stack<std::string> function_stack;
 extern std::unordered_map<std::string, function_t> function_map;
-extern bool is_in_loop;
 
 std::string generate_name();
 std::string generate_label();
+std::string get_current_loop_label();
+bool in_loop();
+void entering_loop();
+void leaving_loop();
 void add_parameter_type(variable_type_t var_type);
 void record_symbol(std::string symbol, 
                    variable_type_t variable,

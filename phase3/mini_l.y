@@ -100,7 +100,7 @@ function
       // so that we can continue to parse the program and find
       // other possible errors.
       {
-        emit_error_message("function with name '" + $2->name + "' previously declared");
+        emit_error_message("function with name '" + $2->name + "' previously declared.");
 
         // generates a temporary function name that we can 
         // map to a function structure and continue parsing 
@@ -252,7 +252,7 @@ declaration
       {
         identifier_name = $1->identifiers[i].name;
         if (in_symbol_table(identifier_name))
-          emit_error_message("symbol '" + identifier_name + "' previously declared");
+          emit_error_message("symbol '" + identifier_name + "' previously declared.");
         else
           record_symbol(identifier_name,
                         variable_type_t::INTEGER,
@@ -270,7 +270,7 @@ declaration
       {
         identifier_name = $1->identifiers[i].name;
         if (in_symbol_table(identifier_name))
-          emit_error_message("symbol '" + identifier_name + "' previously declared");
+          emit_error_message("symbol '" + identifier_name + "' previously declared.");
         else
           record_symbol(identifier_name,
                         variable_type_t::ARRAY,
@@ -411,25 +411,27 @@ statement_while
   : WHILE bool_exp 
     BEGINLOOP 
     { 
-      is_in_loop = true; 
+      entering_loop();
     }
     statements 
     ENDLOOP 
     { 
-      is_in_loop = false;
       // TODO : build a while loop...
+      $$ = new statement_t;
+      leaving_loop();
     }
   ;
 
 statement_do_while
   : DO BEGINLOOP
     {
-      is_in_loop = true;
+      entering_loop();
     } 
     statements ENDLOOP WHILE bool_exp 
     {
-      is_in_loop = false;
       // TODO : build a do while loop...
+      $$ = new statement_t;
+      leaving_loop();
     }
   ;
 
@@ -439,13 +441,14 @@ statement_for
     statement_assign 
     BEGINLOOP 
     { 
-      is_in_loop = true; 
+      entering_loop();
     } 
     statements 
     ENDLOOP
     {
-      is_in_loop = false;
-      // TODO : build the for loop. 
+      $$ = new statement_t;
+
+      leaving_loop();
     }
   ;
 
@@ -512,14 +515,15 @@ statement_write
 statement_continue
   : CONTINUE 
     {
-      if(!is_in_loop)
+      $$ = new statement_t;
+      if(in_loop())
       {
-        // TODO : raise exception, continue statement used outside loop
+        //std::cout << "\nLOOP LABEL: " << get_current_loop_label() << '\n';
+        std::string loop_label = get_current_loop_label();
+        $$->code = gen_ins_branch_goto(loop_label);
       }
       else
-      {
-        // TODO : branch
-      }
+        emit_error_message("continue statement not within a loop.");
     }
   ;
 
