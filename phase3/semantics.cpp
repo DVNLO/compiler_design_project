@@ -185,3 +185,21 @@ append_statement(statement_t const * const statement,
   trgt->code += statement->code;  
 }
 
+bool
+parameters_match_function_identifier(std::vector<std::string> const & parameters,
+                                     std::string const & function_identifier)
+// returns true if all corresponding parameter types match for an 
+// existing function identifier.
+{
+  if(!function_map.count(function_identifier))
+    return false;
+  function_t target = function_map[function_identifier];
+  if(parameters.size() != target.parameter_types.size())
+    return false;
+  for(size_t i = 0; i < target.parameter_types.size(); ++i)
+  {
+    if(target.symbol_table[parameters[i]] != target.parameter_types[i])
+      return false;
+  }
+  return true;
+}

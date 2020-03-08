@@ -760,7 +760,7 @@ term
     }
   | identifier L_PAREN term2 R_PAREN  
     { 
-      if(!paramaters_match_function_identifier($3->parameters, $1->name))
+      if(!parameters_match_function_identifier($3->parameters, $1->name))
       {
         // TODO : record the error.
       }
