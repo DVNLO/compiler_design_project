@@ -28,6 +28,8 @@ extern char * yytext;
   parameters_t * params_nt_val;
   locals_t * locals_nt_val;
   parameter_list_t * param_list_nt_val;
+  function_t * function_nt_val;
+  functions_t * functions_nt_val;
 }
 
 %define parse.error verbose
@@ -67,6 +69,9 @@ extern char * yytext;
 %nterm<decls_nt_val> declarations
 %nterm<params_nt_val> params
 %nterm<locals_nt_val> locals
+%nterm<function_nt_val> function
+%nterm<functions_nt_val> functions
+%nterm<functions_nt_val> program
 
 %right ASSIGN
 %left OR
@@ -82,13 +87,42 @@ extern char * yytext;
 %%
 
 program
-  : { puts("program -> epsilon"); }
-  | functions { puts("program -> functions"); }
+  : 
+    {
+      emit_error_message("no main function defined");
+    }
+  | functions
+    { 
+      if(!is_main_defined($1->functions, function_map))
+      {
+        emit_error_message("no main function defined");
+      }
+      if(!has_semantic_errors())
+      {
+        size_t const SIZE_FUNCTIONS = $1->functions.size();
+        for(size_t i = 0; i < SIZE_FUNCTIONS; ++i)
+        {
+          puts($1->functions[i].code.c_str());
+        }
+      }
+    }
   ;
 
 functions
-  : functions function { puts("functions -> functions function"); }
-  | function { puts("functions -> function"); }
+  : functions function 
+    {
+      $$ = new functions_t;
+      $$->functions = $1->functions;
+      $$->functions.push_back(*$2);
+      delete $2;
+      delete $1; 
+    }
+  | function 
+    {
+      $$ = new functions_t;
+      $$->functions.push_back(*$1);
+      delete $1; 
+    }
   ;
 
 function
@@ -252,6 +286,8 @@ declaration
       for (size_t i = 0; i < $1->identifiers.size(); i++)
       {
         identifier_name = $1->identifiers[i].name;
+        if (is_keyword(identifier_name))
+          emit_error_message("declaration of variable using language keyword");
         if (in_symbol_table(identifier_name))
           emit_error_message("symbol '" + identifier_name + "' previously declared");
         else
@@ -267,9 +303,15 @@ declaration
     }
   | identifiers COLON ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER { 
       std::string identifier_name;
+      if(std::stoi($5->val) <= 0)
+      {
+        emit_error_message("declaration of array with non-positive size");
+      }
       for (size_t i = 0; i < $1->identifiers.size(); i++)
       {
         identifier_name = $1->identifiers[i].name;
+        if (is_keyword(identifier_name))
+          emit_error_message("declaration of variable using language keyword");
         if (in_symbol_table(identifier_name))
           emit_error_message("symbol '" + identifier_name + "' previously declared");
         else
@@ -599,6 +641,9 @@ relation_exp1
       $$->src1 = "1";
       $$->code += gen_ins_declare_variable($$->dst);
       $$->code += gen_ins_copy($$->dst, $$->src1);
+      record_symbol($$->dst, 
+                    variable_type_t::INTEGER, 
+                    function_map[function_stack.top()].symbol_table); 
     }
   | FALSE 
     { 
@@ -607,6 +652,9 @@ relation_exp1
       $$->src1 = "0";
       $$->code += gen_ins_declare_variable($$->dst);
       $$->code += gen_ins_copy($$->dst, $$->src1);
+      record_symbol($$->dst, 
+                    variable_type_t::INTEGER, 
+                    function_map[function_stack.top()].symbol_table);
     }
   | L_PAREN bool_exp R_PAREN 
     {
@@ -703,8 +751,8 @@ variables
   : variables COMMA variable 
     { 
       $$ = new variables_t;
-      $1->variables.push_back(*$3);
       $$->variables = $1->variables;
+      $$->variables.push_back(*$3);
       delete $3;
       delete $1;
     }
@@ -762,7 +810,7 @@ term
     { 
       if(!parameters_match_function_identifier($3->parameters, $1->name))
       {
-        // TODO : record the error.
+        emit_error_message("paramaters do not match existing function signature");
       }
       $$ = new expression_t;
       $$->dst = generate_name();
@@ -852,8 +900,6 @@ term2
 identifiers
   : identifiers COMMA identifier 
     {
-      // TODO : Check that function_map[function_stack.top()].symbol_table[$3->name] doesn't exist
-      //std::cout << (int)function_map[function_stack.top()].symbol_table[$$->dst] << std::endl;
       $$ = new identifiers_t; 
       $1->identifiers.push_back(*$3);
       $$->identifiers = $1->identifiers; 
@@ -862,8 +908,6 @@ identifiers
     }
   | identifier 
     {
-      // TODO : Check that function_map[function_stack.top()].symbol_table[$1->name] doesn't exist
-
       $$ = new identifiers_t;
       $$->identifiers.push_back(*$1); 
       delete $1;

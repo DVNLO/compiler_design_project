@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 enum class variable_type_t
 {
@@ -27,12 +28,17 @@ struct locals_t
   std::string code;
 };
 
-// TODO : Function has name, parameters, statements
 struct function_t
 {
   std::string name;
   std::unordered_map<std::string, variable_type_t> symbol_table;
   std::vector<variable_type_t> parameter_types;
+  std::string code;
+};
+
+struct functions_t
+{
+  std::vector<function_t> functions; 
 };
 
 struct statement_t

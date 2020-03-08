@@ -17,7 +17,7 @@ generate_name()
 
 std::string
 generate_label()
-// returns a generated label of the form "L#"
+// returns a generated label of the form "__label__#"
 // where # is a numerical count.
 {
   static unsigned id = 0;
@@ -72,8 +72,8 @@ add_parameter_type(variable_type_t var_type)
 
 void
 record_symbol(std::string symbol, 
-                   variable_type_t variable_type,
-                   std::unordered_map<std::string, variable_type_t> & symbol_table)
+              variable_type_t variable_type,
+              std::unordered_map<std::string, variable_type_t> & symbol_table)
 {
   symbol_table[symbol] = variable_type; 
 }
@@ -202,4 +202,40 @@ parameters_match_function_identifier(std::vector<std::string> const & parameters
       return false;
   }
   return true;
+}
+
+bool
+is_variable_declared(std::string const name, 
+                     std::unordered_map<std::string, variable_type_t> symbol_table)
+// returns true if a variable is declared in the symbol table
+{
+  return static_cast<bool>(symbol_table.count(name));
+}
+
+bool
+is_main_defined(std::vector<function_t> const & functions, 
+                std::unordered_map<std::string, function_t> function_map)
+// returns true if a "main" function is defined
+{
+  size_t const SIZE_FUNCTIONS = functions.size();
+  for(size_t i = 0; i < SIZE_FUNCTIONS; ++i)
+  {
+    if(function_map.count(functions[i].name))
+      return true;
+  }
+  return false;
+}
+
+bool
+is_keyword(std::string const & word)
+// returns true if word is a language keyword
+{
+  static std::unordered_set<std::string> const language_keywords = { "function", "beginparams", "endparams", "beginlocals",
+                                                                     "endlocals", "beginbody", "endbody", "integer",
+                                                                     "array", "of", "if", "then",
+                                                                     "endif", "else", "while", "do",
+                                                                     "for", "beginloop", "endloop", "continue",
+                                                                     "read", "write", "and", "or",
+                                                                     "not", "true", "false", "return" };
+  return static_cast<bool>(language_keywords.count(word));
 }

@@ -32,7 +32,8 @@ void append_statement(statement_t const * const src,
                       statement_t * const trgt);
 bool parameters_match_function_identifier(std::vector<std::string> const & parameters,
                                           std::string const & function_identifier);
-
-
+bool is_main_defined(std::vector<function_t> const & functions,
+                     std::unordered_map<std::string, function_t> function_map);
+bool is_keyword(std::string const & word);
 
 #endif // MINI_L_SEMANTICS_h
