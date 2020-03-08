@@ -11,6 +11,12 @@ enum class variable_type_t
   ARRAY
 };
 
+struct parameter_list_t
+{
+  std::vector<std::string> parameters;
+  std::string code;
+};
+
 struct parameters_t
 {
   std::string code;

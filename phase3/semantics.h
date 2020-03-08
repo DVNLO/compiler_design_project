@@ -30,5 +30,9 @@ statement_t * convert_expression_to_statement(expression_t const * const);
 statement_t * copy_statement(statement_t const * const statement);
 void append_statement(statement_t const * const src,
                       statement_t * const trgt);
+bool parameters_match_function_identifier(std::vector<std::string> const & parameters,
+                                          std::string const & function_identifier);
+
+
 
 #endif // MINI_L_SEMANTICS_h

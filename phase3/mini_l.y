@@ -27,6 +27,7 @@ extern char * yytext;
   declarations_t * decls_nt_val;
   parameters_t * params_nt_val;
   locals_t * locals_nt_val;
+  parameter_list_t * param_list_nt_val;
 }
 
 %define parse.error verbose
@@ -43,7 +44,7 @@ extern char * yytext;
 %nterm<vars_nt_val> variables
 %nterm<exp_nt_val> expression
 %nterm<exp_nt_val> multiplicative_exp
-%nterm<exp_nt_val> term2
+%nterm<param_list_nt_val> term2
 %nterm<exp_nt_val> term1
 %nterm<exp_nt_val> term
 %nterm<comp_nt_val> comp
@@ -759,8 +760,19 @@ term
     }
   | identifier L_PAREN term2 R_PAREN  
     { 
-      // synthesizes a function call. 
-      puts("term -> identifier L_PAREN term2 R_PAREN"); 
+      if(!paramaters_match_function_identifier($3->parameters, $1->name))
+      {
+        // TODO : record the error.
+      }
+      $$ = new expression_t;
+      $$->dst = generate_name();
+      $$->code += $3->code;
+      record_symbol($$->dst,
+                    variable_type_t::INTEGER,
+                    function_map[function_stack.top()].symbol_table);
+      $$->code += gen_ins_call($1->name, $$->dst);
+      delete $3;
+      delete $1;
     }
   ;
 
@@ -815,26 +827,26 @@ term1
 
 term2
   : expression COMMA term2 
-    { 
-      // generates a paramater list
-      // TODO : This requires determining our data structure for a
-      // function, something we have not done yet. After reviewing some
-      // of the intermediate mil code, we will need to declare the 
-      // final result of the expression evaluations here as a parameter
-      // for the next function call. Additionally, we will need
-      // to populate these paramaters in the callee's data structure 
-      // (caller -> callee).
-      puts("term2 -> term2 COMMA expression"); 
+    {
+      $$ = new parameter_list_t;
+      $$->code += $1->code;
+      $$->parameters.push_back($1->dst);
+      for(size_t i = 0; i < $3->parameters.size(); ++i)
+        $$->parameters.push_back($3->parameters[i]);
+      $$->code += gen_ins_param($1->dst);
+      $$->code += $3->code;
+      delete $3;
+      delete $1;
     }
   | expression 
     {
-      // TODO : This or the epsilon terminal below are the final 
-      // terminals constructing the paramater list. So by this block,
-      // the code for the paramater list must be generated and the 
-      // function ready to be called in the parent terminal.
-      puts("term2 -> expression"); 
+      $$ = new parameter_list_t;
+      $$->code += $1->code;
+      $$->parameters.push_back($1->dst);
+      $$->code += gen_ins_param($1->dst);
+      delete $1;
     }
-  | { puts("term2 -> epsilon"); }
+  | { }
   ;
 
 identifiers
