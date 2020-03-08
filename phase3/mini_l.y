@@ -149,11 +149,12 @@ function
     {
       // TODO : Do not generate code if there are errors
       if (!has_semantic_errors()) {
-        std::cout << "\nGenerate code.\n\n";
         std::cout << "func " << $2->name << std::endl;
         std::cout << $5->code;
         std::cout << $6->code;
-        std::cout << "endfun\n\n";
+        // TODO : Should body just be a string?
+        //std::cout << $7->code;
+        std::cout << "endfunc\n\n";
       }
       else
         std::cout << "\nDo not generate code.\n\n";
