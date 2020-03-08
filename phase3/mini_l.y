@@ -952,7 +952,7 @@ term2
       $$->code += gen_ins_param($1->dst);
       delete $1;
     }
-  | { }
+  | { $$ = new parameter_list_t; }
   ;
 
 identifiers
