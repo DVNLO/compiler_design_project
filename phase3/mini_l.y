@@ -216,7 +216,7 @@ end_locals
 
 body
   : begin_body statements end_body {
-      puts("body -> begin_body statements end_body");
+      std::cout << $2->code << std::endl;
     }
   ;
 
@@ -447,8 +447,54 @@ statement_for
     ENDLOOP
     {
       $$ = new statement_t;
+      std::string const loop_body_start_label = generate_label();
+      std::string const loop_body_end_label = generate_label();
+      std::string const first_iteration_label = generate_label();
+      std::string const unique_loop_label = get_current_loop_label();
+      variable_t var = *$2;
 
+      if (is_array(var.type))
+      {
+        $$->code = var.expression.code;
+        $$->code += gen_ins_array_access_lval(var.name,
+                                             var.expression.dst,
+                                             $4->val);
+      }
+      else
+        $$->code = gen_ins_copy(var.name, $4->val);
+
+      $$->code += gen_ins_branch_goto(first_iteration_label);
+      $$->code += gen_ins_declare_label(unique_loop_label); // unique loop label
+      $$->code += $8->code; // statement_assign
+      $$->code += gen_ins_declare_label(first_iteration_label); // unique loop label
+      $$->code += $6->code; // bool_exp
+      $$->code += gen_ins_branch_conditional(loop_body_start_label, $6->src1);
+      $$->code += gen_ins_branch_goto(loop_body_end_label); // leave loop
+      $$->code += gen_ins_declare_label(loop_body_start_label); // declare beginning of loop body
+      $$->code += $11->code; // statements
+      $$->code += gen_ins_branch_goto(unique_loop_label); // loop back for another iteration
+      $$->code += gen_ins_declare_label(loop_body_end_label); // declare end of loop body
+      $$->src1.clear();
+      $$->dst = loop_body_end_label;
       leaving_loop();
+
+      /*
+      $$->code += $6->code; // bool_exp
+      $$->code += gen_ins_branch_conditional(loop_body_start_label, $6->src1);
+      $$->code += gen_ins_branch_goto(loop_body_end_label); // leave loop
+      $$->code += gen_ins_declare_label(unique_loop_label); // unique loop label
+      $$->code += $8->code; // statement_assign
+      $$->code += gen_ins_tac($6->op_code, $6->dst, $6->src1, $6->src2);
+      $$->code += gen_ins_branch_conditional(loop_body_start_label, $6->src1);
+      $$->code += gen_ins_branch_goto(loop_body_end_label); // leave loop
+      $$->code += gen_ins_declare_label(loop_body_start_label); // declare beginning of loop body
+      $$->code += $11->code; // statements
+      $$->code += gen_ins_branch_goto(unique_loop_label); // loop back for another iteration
+      $$->code += gen_ins_declare_label(loop_body_end_label); // declare end of loop body
+      $$->src1.clear();
+      $$->dst = loop_body_end_label;
+      leaving_loop();
+      */
     }
   ;
 
