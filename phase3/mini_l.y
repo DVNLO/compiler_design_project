@@ -481,8 +481,22 @@ statement_do_while
     } 
     statements ENDLOOP WHILE bool_exp 
     {
-      is_in_loop = false;
-      // TODO : build a do while loop...
+      // Generates a do-while loop. loop_body_start_label is used
+      // to label the beginning of the loop body and unique_loop_label
+      // is used to label the end of the loop body along with the 
+      // beginning of the boolean expression. unique_loop_label will
+      // be the label that any continue statement within this loop
+      // will branch to.
+      $$ = new statement_t;
+      std::string const loop_body_start_label = generate_label();
+      std::string const unique_loop_label = get_current_loop_label();
+
+      $$->code += gen_ins_declare_label(loop_body_start_label);
+      $$->code += $4->code; // statements
+      $$->code += gen_ins_declare_label(unique_loop_label);
+      $$->code += $7->code; // bool_exp
+      $$->code += gen_ins_branch_conditional(loop_body_start_label, $7->dst);
+      leaving_loop();
     }
   ;
 
