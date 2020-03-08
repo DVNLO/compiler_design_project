@@ -1,0 +1,61 @@
+function main;
+beginparams
+endparams
+
+beginlocals
+  x, dx : integer;
+  y : integer;
+endlocals
+
+beginbody
+  read dx; ## dx must be > 1
+  y := dx*20;
+
+  #####################################
+  ## prints even numbers excluding 0 ##
+  #####################################
+  x := 0;
+  while x < y
+  beginloop
+    x:= x + dx;
+    if (((y - x) % (x+1) == 0)) then
+      continue;
+    endif;
+    write x;
+  endloop;
+
+  #####################################
+  ## prints even numbers excluding 0 ##
+  #####################################
+  x := 0;
+  do
+    beginloop
+      x:= x + dx;
+      if (((y - x) % (x+1) == 0)) then
+        continue;
+      endif;
+      write x;
+    endloop
+  while x < y;
+
+  #####################################
+  ## prints even numbers excluding 0 ##
+  #####################################
+  for x := 0; x < y; x := x + dx beginloop
+    if (((y - x) % (x+1) == 0)) then
+      continue;
+    endif;
+    write x;
+  endloop;
+
+  ########################
+  ## prints odd numbers ##
+  ########################
+  for x := 0; x < y; x := x + dx - 1 beginloop
+    if (x % 2 == 1) then
+      write x;
+    else
+      continue;
+    endif;
+  endloop;
+endbody

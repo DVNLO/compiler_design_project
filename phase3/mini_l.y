@@ -522,13 +522,13 @@ statement_for
       // be the label that all continue statements within this loop 
       // will branch to. first_iteration_label is used to skip over the
       // statement_assign portion of the loop during the first iteration.
-      $$ = new statement_t;
       std::string const loop_body_start_label = generate_label();
       std::string const loop_body_end_label = generate_label();
       std::string const first_iteration_label = generate_label();
       std::string const unique_loop_label = get_current_loop_label();
       variable_t var = *$2;
 
+      $$ = new statement_t;
       if (is_array(var.type))
       {
         $$->code = var.expression.code;
@@ -544,7 +544,7 @@ statement_for
       $$->code += $8->code; // statement_assign
       $$->code += gen_ins_declare_label(first_iteration_label);
       $$->code += $6->code; // bool_exp
-      $$->code += gen_ins_branch_conditional(loop_body_start_label, $6->src1);
+      $$->code += gen_ins_branch_conditional(loop_body_start_label, $6->dst);
       $$->code += gen_ins_branch_goto(loop_body_end_label);
       $$->code += gen_ins_declare_label(loop_body_start_label);
       $$->code += $11->code; // statements
