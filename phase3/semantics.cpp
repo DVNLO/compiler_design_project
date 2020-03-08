@@ -213,14 +213,14 @@ is_variable_declared(std::string const name,
 }
 
 bool
-is_main_defined(std::vector<function_t> const & functions, 
+is_main_defined(std::vector<std::string> const & functions, 
                 std::unordered_map<std::string, function_t> function_map)
 // returns true if a "main" function is defined
 {
   size_t const SIZE_FUNCTIONS = functions.size();
   for(size_t i = 0; i < SIZE_FUNCTIONS; ++i)
   {
-    if(function_map.count(functions[i].name))
+    if(function_map.count(functions[i]))
       return true;
   }
   return false;

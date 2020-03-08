@@ -9,7 +9,6 @@ extern char * yytext;
 #include "instructions.h"
 #include "semantics.h"
 #include "types.h"
-#include <iostream>
 }
 
 %union
@@ -72,6 +71,7 @@ extern char * yytext;
 %nterm<function_nt_val> function
 %nterm<functions_nt_val> functions
 %nterm<functions_nt_val> program
+%nterm<statement_nt_val> body
 
 %right ASSIGN
 %left OR
@@ -102,7 +102,7 @@ program
         size_t const SIZE_FUNCTIONS = $1->functions.size();
         for(size_t i = 0; i < SIZE_FUNCTIONS; ++i)
         {
-          puts($1->functions[i].code.c_str());
+          puts(function_map[$1->functions[i]].code.c_str());
         }
       }
     }
@@ -113,14 +113,14 @@ functions
     {
       $$ = new functions_t;
       $$->functions = $1->functions;
-      $$->functions.push_back(*$2);
+      $$->functions.push_back($2->name);
       delete $2;
       delete $1; 
     }
   | function 
     {
       $$ = new functions_t;
-      $$->functions.push_back(*$1);
+      $$->functions.push_back($1->name);
       delete $1; 
     }
   ;
@@ -129,50 +129,40 @@ function
   : function1 identifier 
     { 
       if (function_map.find($2->name) != std::end(function_map))
-      // TODO : We may want to create temp function name for the
-      // case where function name has already be declared. This
-      // will allow us to continue to create a function mapping
-      // so that we can continue to parse the program and find
-      // other possible errors.
       {
         emit_error_message("function with name '" + $2->name + "' previously declared");
-
-        // generates a temporary function name that we can 
-        // map to a function structure and continue parsing 
-        // the program
-        function_stack.push(generate_name()); 
       }
-      else
-        function_stack.push($2->name); 
+      function_stack.push($2->name); 
     } 
     semicolon params locals body 
     {
-      // TODO : Do not generate code if there are errors
-      if (!has_semantic_errors()) {
-        std::cout << "\nGenerate code.\n\n";
-        std::cout << "func " << $2->name << std::endl;
-        std::cout << $5->code;
-        std::cout << $6->code;
-        std::cout << "endfun\n\n";
-      }
-      else
-        std::cout << "\nDo not generate code.\n\n";
+      std::string & id = $2->name;
+      parameters_t & params = *$5;
+      locals_t & locals = *$6;
+      statement_t & body = *$7;
 
-      function_stack.pop();
+      function_t & this_function = function_map[id];
+      this_function.code += gen_ins_declare_function(id);
+      this_function.code += params.code;
+      this_function.code += locals.code;
+      this_function.code += body.code;
+      this_function.code += gen_ins_end_function();
+      
       delete $6;
       delete $5;
+      function_stack.pop();
     }
-  | error { puts("function -> error"); }
+  | error { }
   ;
 
 function1
-  : FUNCTION { puts("function1 -> FUNCTION"); }
-  | error { puts("function1 -> error"); }
+  : FUNCTION { }
+  | error { }
   ;
 
 semicolon
-  : SEMICOLON { puts("semicolon -> SEMICOLON"); }
-  | error { puts("semicolon -> error"); }
+  : SEMICOLON { }
+  | error { }
   ;
 
 params
@@ -205,13 +195,13 @@ params
   ;
 
 begin_params
-  : BEGIN_PARAMS { puts("begin_params -> BEGIN_PARAMS"); }
-  | error { puts("begin_params -> error"); }
+  : BEGIN_PARAMS { }
+  | error { }
   ;
 
 end_params
-  : END_PARAMS { puts("end_params -> END_PARAMS"); }
-  | error { puts("end_params -> error"); }
+  : END_PARAMS { }
+  | error { }
   ;
 
 locals
@@ -240,29 +230,30 @@ locals
   ;
 
 begin_locals
-  : BEGIN_LOCALS { puts("begin_locals -> BEGIN_LOCALS"); }
-  | error { puts("begin_locals -> error"); }
+  : BEGIN_LOCALS { }
+  | error { }
   ;
 
 end_locals
-  : END_LOCALS { puts("end_locals -> END_LOCALS"); }
-  | error { puts("end_locals -> error"); }
+  : END_LOCALS { }
+  | error { }
   ;
 
 body
-  : begin_body statements end_body {
-      puts("body -> begin_body statements end_body");
+  : begin_body statements end_body 
+    {
+      $$ = $2; 
     }
   ;
 
 begin_body
-  : BEGIN_BODY { puts("begin_body -> BEGIN_BODY"); }
-  | error { puts("begin_body -> error"); }
+  : BEGIN_BODY { }
+  | error { }
   ;
 
 end_body
-  : END_BODY { puts("end_body -> END_BODY"); }
-  | error { puts("end_body -> error"); }
+  : END_BODY { }
+  | error { }
   ;
 
 declarations
@@ -327,7 +318,7 @@ declaration
       delete $5;
       delete $1;
     }
-  | error { puts("declaration -> error"); }
+  | error { }
   ;
 
 statements

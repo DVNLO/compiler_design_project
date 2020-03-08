@@ -316,3 +316,26 @@ gen_ins_branch_conditional(std::string const & lbl,
   return ret;
 }
 
+std::string
+gen_ins_declare_function(std::string const & src)
+// returns a string of the form "func src\n"
+{
+  static std::string const INS_FUNCTION_PREFIX = "func";
+  std::string ret;
+  ret += INS_FUNCTION_PREFIX;
+  ret += ' ';
+  ret += src;
+  ret += '\n';
+  return ret;
+}
+
+std::string
+gen_ins_end_function()
+// returns a string of the form "endfunc\n"
+{
+  static std::string const INS_FUNCTION_SUFFIX = "endfunc";
+  std::string ret;
+  ret += INS_FUNCTION_SUFFIX;
+  ret += '\n';
+  return ret;
+}

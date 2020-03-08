@@ -38,7 +38,7 @@ struct function_t
 
 struct functions_t
 {
-  std::vector<function_t> functions; 
+  std::vector<std::string> functions; 
 };
 
 struct statement_t
