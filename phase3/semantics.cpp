@@ -3,7 +3,11 @@
 
 std::stack<std::string> function_stack;
 std::unordered_map<std::string, function_t> function_map;
-bool is_in_loop;
+
+static struct loop_t {
+  std::stack<std::string> label_stack;
+  bool in_loop = false;
+} loop;
 
 std::string
 generate_name()
@@ -23,6 +27,54 @@ generate_label()
   static unsigned id = 0;
   static std::string const LABEL_PREFIX = "__label__";
   return LABEL_PREFIX + std::to_string(id++);
+}
+  
+std::string
+generate_loop_label()
+// helper function that is only used by entering_loop().
+// creates and returns a unique loop label which will be used 
+// to branch to the loop variable increment/condition statement
+{
+  static std::string const LOOP_LABEL_PREFIX = "__loop__";
+  static unsigned id = 0;
+  return LOOP_LABEL_PREFIX + std::to_string(id++);
+}
+
+std::string
+get_current_loop_label()
+// returns the value value of the current loop label
+{
+  return loop.label_stack.top();
+}
+
+bool
+in_loop()
+// returns true if we are within a loop body
+{
+  return loop.in_loop;
+}
+  
+void
+entering_loop()
+// generates a unique loop label and pushes it
+// onto the loop label stack
+{
+  loop.in_loop = true;
+  loop.label_stack.push(generate_loop_label());
+}
+
+void
+leaving_loop()
+// pops the unique label that was created for the loop
+// that we are leaving
+{
+  loop.label_stack.pop();
+  if (loop.label_stack.empty())
+  // when all labels have been popped off
+  // we are no longer in a loop
+  { 
+    loop.in_loop = false;
+  }
 }
 
 bool 
