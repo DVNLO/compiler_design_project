@@ -127,8 +127,8 @@ gen_ins_array_access_lval(std::string const & dst,
   ret += INS_ARR_LVAL;
   ret += ' ';
   ret += dst;
-  ret += ' ';
   ret += ',';
+  ret += ' ';
   ret += idx;
   ret += ',';
   ret += ' ';
