@@ -94,7 +94,8 @@ program
     }
   | functions
     { 
-      if(!is_main_defined($1->functions, function_map))
+      std::vector<std::string> & functions = $1->functions;
+      if(!is_main_defined(functions))
       {
         emit_error_message("no main function defined");
       }
@@ -103,7 +104,9 @@ program
         size_t const SIZE_FUNCTIONS = $1->functions.size();
         for(size_t i = 0; i < SIZE_FUNCTIONS; ++i)
         {
-          puts(function_map[$1->functions[i]].code.c_str());
+          std::string const & function_identifier_alias = get_alias_function(functions[i]);
+          function_t & this_function = get_function(function_identifier_alias);
+          puts(this_function.code.c_str());
         }
       }
     }
@@ -129,33 +132,48 @@ functions
 function
   : function1 identifier 
     { 
-      if(!is_function_declared($2->name))
+      std::string & function_identifier = $2->name;
+      std::string function_identifier_alias;
+      if(is_function_declared(function_identifier))
       {
-        emit_error_message("function with name '" + $2->name + "' previously declared");
+        emit_error_message("function '" + function_identifier + "' previously declared");
+        function_identifier = generate_name();
       }
-      function_stack.push($2->name); 
+      function_identifier_alias = generate_alias_function();
+      if(function_identifier == "main")
+      {
+        record_alias_function(function_identifier, 
+                              function_identifier); // treat main as it's own alias
+      }
+      else
+      {
+        record_alias_function(function_identifier, 
+                              function_identifier_alias);
+      }
+      push_function_stack(function_identifier_alias);
     } 
     semicolon params locals body 
     {
-      std::string & id = $2->name;
+      std::string & function_identifier = $2->name;
+      std::string function_identifier_alias = get_alias_function(function_identifier);
       parameters_t & params = *$5;
       locals_t & locals = *$6;
       statement_t & body = *$7;
 
-      function_t & this_function = function_map[id];
-      this_function.name = id;
-      this_function.code += gen_ins_declare_function(id);
+      function_t & this_function = get_function(function_identifier_alias);
+      this_function.name = function_identifier_alias;
+      this_function.code += gen_ins_declare_function(function_identifier_alias);
       this_function.code += params.code;
       this_function.code += locals.code;
       this_function.code += body.code;
       this_function.code += gen_ins_end_function();
       
       $$ = new identifier_t;
-      $$->name = id;
+      $$->name = function_identifier;
       
       delete $6;
       delete $5;
-      function_stack.pop();
+      pop_function_stack();
     }
   | error { $$ = new identifier_t; }
   ;
@@ -171,30 +189,37 @@ semicolon
   ;
 
 params
-  : begin_params declarations end_params {
+  : begin_params declarations end_params 
+    {
       $$ = new parameters_t;
-
       int param_number = 0;
-      for (size_t i = 0; i < $2->declarations.size(); i++)
+      std::vector<declaration_t> & declarations = $2->declarations;
+      size_t const SIZE_DECLARATIONS = declarations.size();
+      for(size_t i = 0; i < SIZE_DECLARATIONS; ++i)
       {
-        variable_type_t var_type = $2->declarations[i].variable_type;
-        for (size_t j = 0; j < $2->declarations[i].identifiers.size(); j++) 
+        variable_type_t const & var_type = declarations[i].variable_type;
+        size_t const SIZE_IDENTIFIERS = declarations[i].identifiers.size(); 
+        for (size_t j = 0; j < SIZE_IDENTIFIERS; ++j) 
         {
-          std::string identifier_name = $2->declarations[i].identifiers[j].name;
-          std::string size = $2->declarations[i].size;
-
-          if (is_integer(var_type)) 
-            $$->code += gen_ins_declare_variable(identifier_name);
+          std::string const & identifier_name = declarations[i].identifiers[j].name;
+          std::string const & identifier_name_alias = get_alias_variable(identifier_name);
+          std::string const size = declarations[i].size;
+          if(is_integer(var_type))
+          {
+            $$->code += gen_ins_declare_variable(identifier_name_alias);
+          }
           else
-            $$->code += gen_ins_declare_variable(identifier_name, size);
-          $$->code += gen_ins_copy(identifier_name, '$' + std::to_string(param_number++));
-
+          {
+            $$->code += gen_ins_declare_variable(identifier_name_alias, size);
+          }
+          $$->code += gen_ins_copy(identifier_name_alias, '$' + std::to_string(param_number++));
           add_parameter_type(var_type); // populates parameter type vector
         }
       }
       delete $2;
     }
-  | begin_params end_params {
+  | begin_params end_params 
+    {
       $$ = new parameters_t;
     }
   ;
@@ -210,26 +235,34 @@ end_params
   ;
 
 locals
-  : begin_locals declarations end_locals {
+  : begin_locals declarations end_locals 
+    {
       $$ = new locals_t;
-
-      for (size_t i = 0; i < $2->declarations.size(); i++)
+      std::vector<declaration_t> & declarations = $2->declarations; 
+      size_t const SIZE_DECLARATIONS = declarations.size();
+      for(size_t i = 0; i < SIZE_DECLARATIONS; ++i)
       {
-        variable_type_t var_type = $2->declarations[i].variable_type;
-        for (size_t j = 0; j < $2->declarations[i].identifiers.size(); j++) 
+        variable_type_t const & var_type = declarations[i].variable_type;
+        size_t const SIZE_IDENTIFIERS = declarations[i].identifiers.size();
+        for(size_t j = 0; j < SIZE_IDENTIFIERS; ++j) 
         {
-          std::string identifier_name = $2->declarations[i].identifiers[j].name;
-          std::string size = $2->declarations[i].size;
-
-          if (is_integer(var_type)) 
-            $$->code += gen_ins_declare_variable(identifier_name);
+          std::string const & identifier_name = declarations[i].identifiers[j].name;
+          std::string const & identifier_name_alias = get_alias_variable(identifier_name);
+          std::string const size = declarations[i].size;
+          if(is_integer(var_type))
+          {
+            $$->code += gen_ins_declare_variable(identifier_name_alias);
+          }
           else
-            $$->code += gen_ins_declare_variable(identifier_name, size);
+          {
+            $$->code += gen_ins_declare_variable(identifier_name_alias, size);
+          }
         }
       }
       delete $2;
     }
-  | begin_locals end_locals {
+  | begin_locals end_locals 
+    {
       $$ = new locals_t;
     }
   ;
@@ -277,43 +310,60 @@ declarations
   ;
 
 declaration
-  : identifiers COLON INTEGER { 
-      std::string identifier_name;
-      for (size_t i = 0; i < $1->identifiers.size(); i++)
+  : identifiers COLON INTEGER 
+    { 
+      std::string identifier_name_alias;
+      size_t const SIZE_IDENTIFIERS = $1->identifiers.size();
+      for(size_t i = 0; i < SIZE_IDENTIFIERS; ++i)
       {
-        identifier_name = $1->identifiers[i].name;
-        if (is_keyword(identifier_name))
-          emit_error_message("declaration of variable using language keyword");
-        if (in_symbol_table(identifier_name))
+        std::string & identifier_name = $1->identifiers[i].name;
+        if(is_keyword(identifier_name))
+        {
+          emit_error_message("declaration of symbol using language keyword");
+          identifier_name = generate_name();
+        }
+        if(is_symbol_declared(identifier_name))
+        {
           emit_error_message("symbol '" + identifier_name + "' previously declared");
-        else
-          record_symbol(identifier_name,
-                        variable_type_t::INTEGER,
-                        function_map[function_stack.top()].symbol_table);
+          identifier_name = generate_name();
+        }
+        identifier_name_alias = generate_alias_variable();
+        record_alias_variable(identifier_name, 
+                              identifier_name_alias);
+        record_symbol(identifier_name_alias,
+                      variable_type_t::INTEGER);
       }
-
       $$ = new declaration_t;
       $$->identifiers = $1->identifiers;
       $$->variable_type = variable_type_t::INTEGER;
       delete $1;
     }
-  | identifiers COLON ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER { 
-      std::string identifier_name;
+  | identifiers COLON ARRAY L_SQUARE_BRACKET number R_SQUARE_BRACKET OF INTEGER 
+    { 
       if(std::stoi($5->val) <= 0)
       {
         emit_error_message("declaration of array with non-positive size");
       }
-      for (size_t i = 0; i < $1->identifiers.size(); i++)
+      std::string identifier_name_alias;
+      size_t const SIZE_IDENTIFIERS = $1->identifiers.size();
+      for (size_t i = 0; i < SIZE_IDENTIFIERS; ++i)
       {
-        identifier_name = $1->identifiers[i].name;
+        std::string & identifier_name = $1->identifiers[i].name;
         if (is_keyword(identifier_name))
-          emit_error_message("declaration of variable using language keyword");
-        if (in_symbol_table(identifier_name))
+        {
+          emit_error_message("declaration of symbol using language keyword");
+          identifier_name = generate_name();
+        }
+        if(is_symbol_declared(identifier_name))
+        {
           emit_error_message("symbol '" + identifier_name + "' previously declared");
-        else
-          record_symbol(identifier_name,
-                        variable_type_t::ARRAY,
-                        function_map[function_stack.top()].symbol_table);
+          identifier_name = generate_name();
+        }
+        identifier_name_alias = generate_alias_variable();
+        record_alias_variable(identifier_name, 
+                              identifier_name_alias);
+        record_symbol(identifier_name_alias,
+                      variable_type_t::INTEGER);
       }
       $$ = new declaration_t;
       $$->identifiers = $1->identifiers;
@@ -681,8 +731,7 @@ relation_exp
       $$->code += gen_ins_declare_variable($$->dst);
       $$->code += gen_ins_logical_not($$->dst, $$->src1);
       record_symbol($$->dst, 
-                    variable_type_t::INTEGER, 
-                    function_map[function_stack.top()].symbol_table);
+                    variable_type_t::INTEGER);
       delete $2;
     }
   | relation_exp1 
@@ -707,8 +756,7 @@ relation_exp1
       $$->code += gen_ins_declare_variable($$->dst);
       $$->code += gen_ins_copy($$->dst, $$->src1);
       record_symbol($$->dst, 
-                    variable_type_t::INTEGER, 
-                    function_map[function_stack.top()].symbol_table); 
+                    variable_type_t::INTEGER);
     }
   | FALSE 
     { 
@@ -718,8 +766,7 @@ relation_exp1
       $$->code += gen_ins_declare_variable($$->dst);
       $$->code += gen_ins_copy($$->dst, $$->src1);
       record_symbol($$->dst, 
-                    variable_type_t::INTEGER, 
-                    function_map[function_stack.top()].symbol_table);
+                    variable_type_t::INTEGER); 
     }
   | L_PAREN bool_exp R_PAREN 
     {
@@ -832,18 +879,37 @@ variables
 variable
   : identifier  
     { 
+      std::string variable_name = $1->name;
+      std::string variable_name_alias;
+      if(!is_symbol_declared(variable_name))
+      {
+        emit_error_message("use of undeclared variable ");
+      }
+      else
+      {
+        variable_name_alias = get_alias_variable(variable_name);
+      }
       $$ = new variable_t;
-      $$->name = $1->name;
+      $$->name = variable_name_alias;
       $$->type = variable_type_t::INTEGER;
       delete $1;
     }
   | identifier L_SQUARE_BRACKET expression R_SQUARE_BRACKET 
     { 
+      std::string variable_name = $1->name;
+      std::string variable_name_alias;
+      if(!is_symbol_declared(variable_name))
+      {
+        emit_error_message("use of undeclared variable");
+      }
+      else
+      {
+        variable_name_alias = get_alias_variable(variable_name);
+      }
       $$ = new variable_t;
-      $$->name = $1->name;
-      $$->expression = *$3;
+      $$->name = variable_name_alias;
       $$->type = variable_type_t::ARRAY;
-      // TODO : handle compile time out of range exception
+      $$->expression = *$3;
       delete $1;
       delete $3; 
     }
@@ -863,8 +929,7 @@ term
       $$->code += gen_ins_declare_variable($$->dst);
       $$->code += gen_ins_arithmetic($$->op_code, $$->dst, $$->src1, $$->src2);
       record_symbol($$->dst, 
-                    variable_type_t::INTEGER,
-                    function_map[function_stack.top()].symbol_table);
+                    variable_type_t::INTEGER);
     }
   | term1 
     { 
@@ -873,18 +938,31 @@ term
     }
   | identifier L_PAREN term2 R_PAREN  
     { 
-      if(!parameters_match_function_identifier($3->parameters, $1->name))
+      std::string function_identifier = $1->name;
+      std::string function_identifier_alias;
+      if(!is_function_declared(function_identifier))
       {
-        emit_error_message("paramaters do not match existing function signature");
+        emit_error_message("use of undeclared function");
+        function_identifier_alias = generate_alias_function();
+        record_alias_function(function_identifier,
+                              function_identifier_alias);
+      }
+      else if(!do_parameters_match_function_identifier($3->parameters, function_identifier))
+      {
+        emit_error_message("paramaters do not match function signature");
+        function_identifier_alias = get_alias_function(function_identifier);
+      }
+      else
+      {
+        function_identifier_alias = get_alias_function(function_identifier);
       }
       $$ = new expression_t;
       $$->dst = generate_name();
       $$->code += gen_ins_declare_variable($$->dst);
       $$->code += $3->code;
-      record_symbol($$->dst,
-                    variable_type_t::INTEGER,
-                    function_map[function_stack.top()].symbol_table);
-      $$->code += gen_ins_call($1->name, $$->dst);
+      $$->code += gen_ins_call(function_identifier_alias, $$->dst);
+      record_symbol($$->dst, 
+                    variable_type_t::INTEGER);
       delete $3;
       delete $1;
     }
@@ -907,9 +985,8 @@ term1
         $$->code += $1->expression.code;
         $$->code += gen_ins_declare_variable($$->dst);
         $$->code += gen_ins_array_access_rval($$->dst, $$->src1, $$->src2);
-        record_symbol($$->dst, 
-                      variable_type_t::INTEGER,
-                      function_map[function_stack.top()].symbol_table);
+        record_symbol($$->dst,
+                      variable_type_t::INTEGER);
       }
       else
       {

@@ -1,6 +1,7 @@
 #include "semantics.h"
 #include "instructions.h"
 
+std::unordered_map<std::string, std::string> function_alias_map;
 std::stack<std::string> function_stack;
 std::unordered_map<std::string, function_t> function_map;
 
@@ -27,6 +28,24 @@ generate_label()
   static unsigned id = 0;
   static std::string const LABEL_PREFIX = "__label__";
   return LABEL_PREFIX + std::to_string(id++);
+}
+
+std::string
+generate_alias_variable()
+// returns a generated variable alias of the for "__var__#"
+{
+  static unsigned id = 0;
+  static std::string const VARIABLE_ALIAS_PREFIX = "__var__";
+  return VARIABLE_ALIAS_PREFIX + std::to_string(id++);
+}
+
+std::string
+generate_alias_function()
+// returns a generated function alias of the form "__fx__#"
+{
+  static unsigned id = 0;
+  static std::string const FUNCTION_ALIAS_PREFIX = "__fx__";
+  return FUNCTION_ALIAS_PREFIX + std::to_string(id++);
 }
   
 std::string
@@ -122,23 +141,40 @@ add_parameter_type(variable_type_t var_type)
   function_map[function_stack.top()].parameter_types.push_back(var_type);
 }
 
+function_t & 
+get_function(std::string const & function_identifier_alias)
+{
+  return function_map[function_identifier_alias];
+}
+
+void
+record_alias_function(std::string const & function_identifier,
+                      std::string const & function_identifier_alias)
+{
+  function_alias_map[function_identifier] = function_identifier_alias;
+}
+
+void
+record_alias_variable(std::string const & name,
+                      std::string const & name_alias)
+{
+  function_t & function = get_function(function_stack.top());
+  function.alias_map[name] = name_alias;
+}
+
 void
 record_symbol(std::string symbol, 
-              variable_type_t variable_type,
-              std::unordered_map<std::string, variable_type_t> & symbol_table)
+              variable_type_t variable_type)
 {
-  symbol_table[symbol] = variable_type; 
+  function_map[function_stack.top()].symbol_table[symbol] = variable_type;
 }
 
 bool
-in_symbol_table(std::string const & symbol)
+is_symbol_declared(std::string const & symbol)
 // returns true if symbol already exists within
 // the local symbol table
 {
-  static std::unordered_map<std::string, variable_type_t> * symbol_table;
-  symbol_table = &function_map[function_stack.top()].symbol_table;
-
-  return symbol_table->find(symbol) != std::end(*symbol_table);
+  return static_cast<bool>(function_map[function_stack.top()].alias_map.count(symbol));
 }
 
 expression_t *
@@ -161,8 +197,7 @@ synthesize_tac_expression(std::string const & op_code,
                            ret->src1,
                            ret->src2);
   record_symbol(ret->dst, 
-                variable_type_t::INTEGER, 
-                function_map[function_stack.top()].symbol_table);
+                variable_type_t::INTEGER); 
   return ret;
 }
 
@@ -237,15 +272,25 @@ append_statement(statement_t const * const statement,
   trgt->code += statement->code;  
 }
 
+std::string 
+get_alias_function(std::string const & function_identifier)
+{
+  return function_alias_map[function_identifier];
+}
+
+std::string
+get_alias_variable(std::string const & variable_identifier)
+{
+  return function_map[function_stack.top()].alias_map[variable_identifier];
+}
+
 bool
-parameters_match_function_identifier(std::vector<std::string> const & parameters,
-                                     std::string const & function_identifier)
+do_parameters_match_function_identifier(std::vector<std::string> const & parameters,
+                                        std::string const & function_identifier)
 // returns true if all corresponding parameter types match for an 
 // existing function identifier.
 {
-  if(!function_map.count(function_identifier))
-    return false;
-  function_t target = function_map[function_identifier];
+  function_t & target = get_function(get_alias_function(function_identifier));
   if(parameters.size() != target.parameter_types.size())
     return false;
   for(size_t i = 0; i < target.parameter_types.size(); ++i)
@@ -257,22 +302,13 @@ parameters_match_function_identifier(std::vector<std::string> const & parameters
 }
 
 bool
-is_variable_declared(std::string const name, 
-                     std::unordered_map<std::string, variable_type_t> symbol_table)
-// returns true if a variable is declared in the symbol table
-{
-  return static_cast<bool>(symbol_table.count(name));
-}
-
-bool
-is_main_defined(std::vector<std::string> const & functions, 
-                std::unordered_map<std::string, function_t> function_map)
+is_main_defined(std::vector<std::string> const & functions)
 // returns true if a "main" function is defined
 {
   size_t const SIZE_FUNCTIONS = functions.size();
   for(size_t i = 0; i < SIZE_FUNCTIONS; ++i)
   {
-    if(function_map.count(functions[i]))
+    if(function_alias_map.count(functions[i]))
       return true;
   }
   return false;
@@ -296,6 +332,17 @@ bool
 is_function_declared(std::string const & identifier)
 // returns true if function is declared
 {
-  return static_cast<bool>(function_map.count(identifier));
+  return static_cast<bool>(function_alias_map.count(identifier));
 }
 
+void
+push_function_stack(std::string const & function_identifier_alias)
+{
+  function_stack.push(function_identifier_alias);
+}
+
+void
+pop_function_stack()
+{
+ function_stack.pop();
+}

@@ -31,6 +31,7 @@ struct locals_t
 struct function_t
 {
   std::string name;
+  std::unordered_map<std::string, std::string> alias_map;
   std::unordered_map<std::string, variable_type_t> symbol_table;
   std::vector<variable_type_t> parameter_types;
   std::string code;
