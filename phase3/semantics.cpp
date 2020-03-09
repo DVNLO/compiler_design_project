@@ -1,5 +1,6 @@
 #include "semantics.h"
 #include "instructions.h"
+#include <iostream>
 
 std::unordered_map<std::string, std::string> function_alias_map;
 std::stack<std::string> function_stack;
@@ -290,13 +291,29 @@ do_parameters_match_function_identifier(std::vector<std::string> const & paramet
 // returns true if all corresponding parameter types match for an 
 // existing function identifier.
 {
-  function_t & target = get_function(get_alias_function(function_identifier));
+  std::string const & function_identifier_alias = get_alias_function(function_identifier);
+  function_t & target = get_function(function_identifier_alias);
   if(parameters.size() != target.parameter_types.size())
-    return false;
-  for(size_t i = 0; i < target.parameter_types.size(); ++i)
   {
-    if(target.symbol_table[parameters[i]] != target.parameter_types[i])
+    return false;
+  }
+  size_t const SIZE_PARAMETER_TYPES = target.parameter_types.size();
+  for(size_t i = 0; i < SIZE_PARAMETER_TYPES; ++i)
+  {
+    std::string const & parameter = parameters[i];
+    variable_type_t parameter_type;
+    if(target.symbol_table.count(parameter))
+    {
+      parameter_type = target.symbol_table[parameter];
+    }
+    else
+    {
+      parameter_type = get_variable_type(parameter);
+    }
+    if(parameter_type != target.parameter_types[i])
+    {
       return false;
+    }
   }
   return true;
 }

@@ -908,7 +908,6 @@ variable
       }
       else
       {
-        std::cout << variable_name << '\n';
         variable_name_alias = get_alias_variable(variable_name);
         if(!is_array(get_variable_type(variable_name_alias)))
         {
