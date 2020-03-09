@@ -363,7 +363,7 @@ declaration
         record_alias_variable(identifier_name, 
                               identifier_name_alias);
         record_symbol(identifier_name_alias,
-                      variable_type_t::INTEGER);
+                      variable_type_t::ARRAY);
       }
       $$ = new declaration_t;
       $$->identifiers = $1->identifiers;
@@ -883,11 +883,15 @@ variable
       std::string variable_name_alias;
       if(!is_symbol_declared(variable_name))
       {
-        emit_error_message("use of undeclared variable ");
+        emit_error_message("use of undeclared variable '" + variable_name + "'");
       }
       else
       {
         variable_name_alias = get_alias_variable(variable_name);
+        if(!is_integer(get_variable_type(variable_name_alias)))
+        {
+          emit_error_message("invalid use of non-integer variable '" + variable_name + "'");
+        }
       }
       $$ = new variable_t;
       $$->name = variable_name_alias;
@@ -900,11 +904,16 @@ variable
       std::string variable_name_alias;
       if(!is_symbol_declared(variable_name))
       {
-        emit_error_message("use of undeclared variable");
+        emit_error_message("use of undeclared variable '" + variable_name + "'");
       }
       else
       {
+        std::cout << variable_name << '\n';
         variable_name_alias = get_alias_variable(variable_name);
+        if(!is_array(get_variable_type(variable_name_alias)))
+        {
+          emit_error_message("invalid use of non-array variable '" + variable_name + "'");
+        }
       }
       $$ = new variable_t;
       $$->name = variable_name_alias;

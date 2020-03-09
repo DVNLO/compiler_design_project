@@ -346,3 +346,9 @@ pop_function_stack()
 {
  function_stack.pop();
 }
+
+variable_type_t
+get_variable_type(std::string const & variable_identifier_alias)
+{
+  return function_map[function_stack.top()].symbol_table[variable_identifier_alias];
+}

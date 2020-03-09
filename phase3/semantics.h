@@ -51,5 +51,6 @@ function_t & get_function(std::string const & function_identifier_alias);
 
 void push_function_stack(std::string const & function_identifier_alias);
 void pop_function_stack();
+variable_type_t get_variable_type(std::string const & variable_identifier_alias);
 
 #endif // MINI_L_SEMANTICS_h
