@@ -1,6 +1,6 @@
 #include "errors.h"
 
-static bool semantic_errors = false;
+static bool is_error__ = false;
 
 void
 emit_error_message(std::string const msg)
@@ -9,14 +9,14 @@ emit_error_message(std::string const msg)
 {
    fprintf(stderr,
        "Error line %d: %s\n", yylineno, msg.c_str());
-   semantic_errors = true;
+   is_error__ = true;
 }
 
 bool
-has_semantic_errors()
-// returns true if there are semantic errors 
+is_error()
+// returns true if there are errors 
 {
-  return semantic_errors;
+  return is_error__;
 }
 
 void partition(char * error_msg,
@@ -75,6 +75,8 @@ yyerror(char const * s)
           yylineno,
           error_msgs[1] ? error_msgs[1] : "",
           error_msgs[2] ? error_msgs[2] : "");
+
+  is_error__ = true;
 
   free(error_msg);
   free(error_msgs);

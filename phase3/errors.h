@@ -12,7 +12,7 @@ extern int yylineno;
 
 void emit_error_message(std::string const msg);
 
-bool has_semantic_errors();
+bool is_error();
 
 void partition(char * error_msg,
                char const delimiter,

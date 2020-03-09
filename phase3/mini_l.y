@@ -99,7 +99,7 @@ program
       {
         emit_error_message("no main function defined");
       }
-      if(!has_semantic_errors())
+      if(!is_error())
       {
         size_t const SIZE_FUNCTIONS = $1->functions.size();
         for(size_t i = 0; i < SIZE_FUNCTIONS; ++i)
