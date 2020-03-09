@@ -39,4 +39,6 @@ bool is_main_defined(std::vector<std::string> const & functions,
                      std::unordered_map<std::string, function_t> function_map);
 bool is_keyword(std::string const & word);
 
+bool is_function_declared(std::string const & identifier);
+
 #endif // MINI_L_SEMANTICS_h

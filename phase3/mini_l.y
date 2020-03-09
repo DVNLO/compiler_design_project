@@ -129,7 +129,7 @@ functions
 function
   : function1 identifier 
     { 
-      if (function_map.find($2->name) != std::end(function_map))
+      if(!is_function_declared($2->name))
       {
         emit_error_message("function with name '" + $2->name + "' previously declared");
       }

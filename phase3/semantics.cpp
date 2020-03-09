@@ -291,3 +291,11 @@ is_keyword(std::string const & word)
                                                                      "not", "true", "false", "return" };
   return static_cast<bool>(language_keywords.count(word));
 }
+
+bool
+is_function_declared(std::string const & identifier)
+// returns true if function is declared
+{
+  return static_cast<bool>(function_map.count(identifier));
+}
+
