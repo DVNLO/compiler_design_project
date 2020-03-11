@@ -2,6 +2,7 @@ function f;
 beginparams
   a,b,c : integer;
   x,y,z : integer;
+  k,n : integer;
   arr : array [7] of integer;
 endparams
 beginlocals

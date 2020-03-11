@@ -1,0 +1,10 @@
+function main;
+beginparams
+endparams
+beginlocals
+  x : integer;
+  arr : array [100] of integer;
+endlocals
+beginbody
+  x := 1;
+endbody

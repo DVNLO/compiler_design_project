@@ -583,8 +583,8 @@ statement_for
       {
         $$->code = var.expression.code;
         $$->code += gen_ins_array_access_lval(var.name,
-                                             var.expression.dst,
-                                             $4->val);
+                                              var.expression.dst,
+                                              $4->val);
       }
       else
         $$->code = gen_ins_copy(var.name, $4->val);

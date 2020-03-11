@@ -1,0 +1,59 @@
+#############################
+## Test covers:
+## - functions
+## - declarations
+## - lhs arrays
+## - arrays passed as params
+#############################
+
+function f0;
+beginparams
+  n : integer;
+endparams
+beginlocals
+endlocals
+beginbody
+  write n;
+  return 0;
+endbody
+
+function f1;
+beginparams
+  n : integer;
+endparams
+beginlocals
+endlocals
+beginbody
+  write n;
+  return 0;
+endbody
+
+function f2;
+beginparams
+  n : integer;
+endparams
+beginlocals
+endlocals
+beginbody
+  write n;
+  return 0;
+endbody
+
+function main;
+beginparams
+endparams
+beginlocals
+  ret_val : integer;
+  arr : array [3] of integer;
+endlocals
+beginbody
+
+  arr[0] := 0;
+  arr[1] := 1;
+  arr[2] := 2;
+
+  ret_val := f0(arr[0]);
+  ret_val := f1(arr[1]);
+  ret_val := f2(arr[2]);
+
+endbody

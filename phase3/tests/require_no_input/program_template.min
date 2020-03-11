@@ -1,0 +1,14 @@
+########################
+## Test covers:
+########################
+
+function main;
+beginparams
+endparams
+beginlocals
+  true_val, false_val : integer;
+endlocals
+beginbody
+  true_val := 1;
+  false_val := 0;
+endbody

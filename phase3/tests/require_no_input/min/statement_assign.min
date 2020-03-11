@@ -1,0 +1,57 @@
+################################
+## Test covers:
+## - declarations
+## - comp
+## - lhs & rhs array access
+################################
+
+function main;
+beginparams
+endparams
+beginlocals
+  x, y, z : integer;
+  x_idx, y_idx, z_idx : integer;
+  x_val, y_val, z_val : integer;
+  true_val, false_val : integer;
+  arr : array [10] of integer;
+endlocals
+beginbody
+
+  true_val := 1;
+  false_val := 0;
+
+  x_idx := 0;
+  y_idx := 5;
+  z_idx := 7;
+
+  x_val := -1;
+  y_val := 10463;
+  z_val := 462;
+
+  arr[x_idx] := x_val;
+  arr[y_idx] := y_val;
+  arr[z_idx] := z_val;
+
+  x := arr[x_idx];
+  y := arr[y_idx];
+  z := arr[z_idx];
+
+  if x == x_val then
+    write true_val;
+  else
+    write false_val;
+  endif;
+
+  if y == y_val then
+    write true_val;
+  else
+    write false_val;
+  endif;
+
+  if z == z_val then
+    write true_val;
+  else
+    write false_val;
+  endif;
+
+endbody

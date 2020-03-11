@@ -1,0 +1,43 @@
+########################
+## Test covers:
+## - for, while, do-while loops
+## - embedded loops
+## - if statements
+########################
+
+function main;
+beginparams
+endparams
+beginlocals
+  true_val, false_val : integer;
+  i, j, k : integer;
+  accessed_inner_loop_cond : integer;
+endlocals
+beginbody
+  true_val  := 1;
+  false_val := 0;
+
+  accessed_inner_loop_cond := false_val;
+
+  for i := 0; i < 5; i := i + 1 beginloop
+    j := i + 1;
+    do
+      beginloop
+        j := j - 1;
+        if j == 0 then
+          accessed_inner_loop_cond := true_val;
+        endif;
+      endloop
+    while j > 0;
+
+    ## j will always be 0 at this point
+    while j < 1 beginloop
+      j := j + 1;
+      if j <> 1 then
+        ## should never enter this conditional
+        accessed_inner_loop_cond := false_val; 
+      endif;
+    endloop;
+  endloop;
+  write accessed_inner_loop_cond; ## should be true_val
+endbody
