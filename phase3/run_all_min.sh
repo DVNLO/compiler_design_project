@@ -1,10 +1,10 @@
 #! /bin/bash
 
-no_input_min_files=(./tests/require_no_input/min/*)
-no_input_num_files="$(($(ls -1q ./tests/require_no_input/min/* | wc -l)-1))"
+no_input_min_files=(./tests/no_input/min/*)
+no_input_num_files="$(($(ls -1q ./tests/no_input/min/* | wc -l)-1))"
 
-need_input_min_files=(./tests/require_input/min/*)
-need_input_num_files="$(($(ls -1q ./tests/require_input/min/* | wc -l)-1))"
+need_input_min_files=(./tests/need_input/min/*)
+need_input_num_files="$(($(ls -1q ./tests/need_input/min/* | wc -l)-1))"
 
 
 echo "#######################################################################"
