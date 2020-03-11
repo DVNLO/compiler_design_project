@@ -8,7 +8,6 @@
 
 enum class variable_type_t
 {
-  VOID,
   INTEGER,
   ARRAY
 };

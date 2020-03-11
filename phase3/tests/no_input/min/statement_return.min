@@ -1,0 +1,81 @@
+################################
+## Test covers:
+## - return statement
+## - multiple params
+## - multi-function programs
+################################
+
+function mult;
+beginparams
+  x, y : integer;
+endparams
+beginlocals
+endlocals
+beginbody
+  return x * y;
+endbody
+
+function neg;
+beginparams
+  x : integer;
+endparams
+beginlocals
+endlocals
+beginbody
+  return -x;
+endbody
+
+function abs;
+beginparams
+  x : integer;
+endparams
+beginlocals
+endlocals
+beginbody
+  if x < 0 then
+    x := -x;
+  endif;
+    
+  return x;
+endbody
+
+function main;
+beginparams
+endparams
+beginlocals
+  true_val, false_val : integer;
+  mult_ret, neg_ret, abs_ret : integer;
+  local_mult_ret, local_neg_ret, local_abs_ret : integer;
+  x, y : integer;
+endlocals
+beginbody
+  true_val := 1;
+  false_val := 0;
+
+  local_mult_ret := 5 * 20;
+  local_neg_ret := -14;
+  local_abs_ret := 14;
+
+  mult_ret := mult(5, 20);
+  neg_ret  := neg(14);
+  abs_ret  := abs(-14);
+
+  if local_mult_ret == mult_ret then 
+    write true_val;
+  else
+    write false_val;
+  endif;
+
+  if local_neg_ret == neg_ret then 
+    write true_val;
+  else
+    write false_val;
+  endif;
+
+  if local_abs_ret == abs_ret then 
+    write true_val;
+  else
+    write false_val;
+  endif;
+
+endbody

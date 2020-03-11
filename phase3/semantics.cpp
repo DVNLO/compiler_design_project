@@ -139,7 +139,8 @@ add_parameter_type(variable_type_t var_type)
 // appends var_type to current function's
 // vector of parameter_types
 {
-  function_map[function_stack.top()].parameter_types.push_back(var_type);
+  function_t & function = get_function(function_stack.top());
+  function.parameter_types.push_back(var_type);
 }
 
 function_t & 

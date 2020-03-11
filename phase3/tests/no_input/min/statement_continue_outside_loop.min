@@ -1,0 +1,29 @@
+###############################################
+## Test covers:
+## - for loops
+## - embedded loops
+## - continue statements outside of loops
+###############################################
+
+function main;
+beginparams
+endparams
+
+beginlocals
+  i, j, k : integer;
+endlocals
+
+beginbody
+
+  for i := 0; i < 10; i := i + 1 beginloop
+    for j := 0; j < 10; j := j + 1 beginloop
+      for k := 0; k < 10; k := k + 1 beginloop
+      endloop;
+    endloop;
+  endloop;
+  if i == j && i == k then
+    continue;
+  else
+    continue;
+  endif;
+endbody
