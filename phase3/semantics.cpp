@@ -301,15 +301,17 @@ do_parameters_match_function_identifier(std::vector<std::string> const & paramet
   size_t const SIZE_PARAMETER_TYPES = target.parameter_types.size();
   for(size_t i = 0; i < SIZE_PARAMETER_TYPES; ++i)
   {
-    std::string const & parameter = parameters[i];
+    std::string parameter = parameters[i];
     variable_type_t parameter_type;
-    if(target.symbol_table.count(parameter))
+    if(function_map[function_stack.top()].alias_map.count(parameter))  
+    // paramaters will be unaliased so we check the alias map of the current function
     {
-      parameter_type = target.symbol_table[parameter];
+      parameter = target.alias_map[parameter];
+      parameter_type = target.symbol_table[parameter];	// use the aliased param to get the param type
     }
-    else
+    else  // param is not aliased in this scope therefore it must be an expression which is integer type
     {
-      parameter_type = get_variable_type(parameter);
+      parameter_type = variable_type_t::INTEGER;
     }
     if(parameter_type != target.parameter_types[i])
     {
