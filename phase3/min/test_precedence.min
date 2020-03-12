@@ -1,0 +1,12 @@
+function main;
+beginparams
+endparams
+beginlocals
+  i : integer;
+endlocals
+beginbody
+  i := 3 + 2 * 6 - 21 / 3 + 10 % 3;
+  write i;
+  i := ((3 + 2 * 6) * 21 / 3) % 3;
+  write i;
+endbody

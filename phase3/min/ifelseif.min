@@ -1,0 +1,39 @@
+function main;
+beginparams
+endparams
+beginlocals
+  i : integer;
+endlocals
+beginbody 
+  i := 0;
+  while i <= 100
+  beginloop
+    if i >= 100 then
+      write i;
+    else if i % 2 == 0 then
+      write i;
+    else if i % 3 == 0 then
+      write i;
+    else
+      i := i + 7;
+    endif;
+    endif;
+    endif;
+    i := i + 1;
+  endloop;
+endbody
+
+##CORRECT OUTPUT:
+##0
+##9
+##10
+##27
+##28
+##45
+##46
+##63
+##64
+##81
+##82
+##99
+##100
