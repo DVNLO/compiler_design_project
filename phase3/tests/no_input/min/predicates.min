@@ -1,0 +1,43 @@
+########################
+## Test covers:
+## - bool_exp
+## - relational expr
+## - negation of clauses
+########################
+
+function main;
+beginparams
+endparams
+beginlocals
+  true_val, false_val : integer;
+endlocals
+beginbody
+  true_val := 1;
+  false_val := 0;
+
+  if true and not false then 
+    write true_val; ## always executes
+  endif;
+
+  if false or not true then 
+    write false_val; ## never executes
+  endif;
+
+  if true or not true then
+    if false or not false then
+      write true_val; ## always executes
+    endif;
+  endif;
+
+  if ((true_val == 1) and (false_val <> 1 and false) or true) and not false then
+    write true_val; ## always executes
+  endif;
+
+  if (((1+5-1)*10)/10%5) == ((501-11)/7)%10 then
+    write true_val; ## always executes
+  endif;
+
+  if (-(-1)) == 1 then
+    write true_val; ## always executes
+  endif;
+endbody

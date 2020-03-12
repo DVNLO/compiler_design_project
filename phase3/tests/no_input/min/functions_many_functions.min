@@ -3,7 +3,7 @@
 ## - functions
 ## - declarations
 ## - lhs arrays
-## - arrays passed as params
+## - array elements passed as params
 #############################
 
 function f0;
