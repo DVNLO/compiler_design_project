@@ -1,0 +1,103 @@
+func __fx__0
+. __var__0
+= __var__0, $0
+. __var__1
+= __var__1, $1
+. __temp__0
+* __temp__0, __var__0, __var__1
+ret __temp__0
+.> __var__0
+endfunc
+
+func __fx__1
+. __var__2
+= __var__2, $0
+. __temp__1
+- __temp__1, 0, __var__2
+ret __temp__1
+.> __var__2
+endfunc
+
+func __fx__2
+. __var__3
+= __var__3, $0
+. __temp__2
+< __temp__2, __var__3, 0
+?:= __label__0, __temp__2
+:= __label__1
+: __label__0
+. __temp__3
+- __temp__3, 0, __var__3
+= __var__3, __temp__3
+: __label__1
+ret __var__3
+.> __var__3
+endfunc
+
+func main
+. __var__4
+. __var__5
+. __var__6
+. __var__7
+. __var__8
+. __var__9
+. __var__10
+. __var__11
+. __var__12
+. __var__13
+= __var__4, 1
+= __var__5, 0
+. __temp__4
+* __temp__4, 5, 20
+= __var__9, __temp__4
+. __temp__5
+- __temp__5, 0, 14
+= __var__10, __temp__5
+= __var__11, 14
+. __temp__6
+param 5
+param 20
+call __fx__0, __temp__6
+= __var__6, __temp__6
+. __temp__7
+param 14
+call __fx__1, __temp__7
+= __var__7, __temp__7
+. __temp__9
+. __temp__8
+- __temp__8, 0, 14
+param __temp__8
+call __fx__2, __temp__9
+= __var__8, __temp__9
+. __temp__10
+== __temp__10, __var__9, __var__6
+?:= __label__2, __temp__10
+:= __label__3
+: __label__2
+.> __var__4
+:= __label__4
+: __label__3
+.> __var__5
+: __label__4
+. __temp__11
+== __temp__11, __var__10, __var__7
+?:= __label__5, __temp__11
+:= __label__6
+: __label__5
+.> __var__4
+:= __label__7
+: __label__6
+.> __var__5
+: __label__7
+. __temp__12
+== __temp__12, __var__11, __var__8
+?:= __label__8, __temp__12
+:= __label__9
+: __label__8
+.> __var__4
+:= __label__10
+: __label__9
+.> __var__5
+: __label__10
+endfunc
+

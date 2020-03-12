@@ -1,0 +1,117 @@
+func main
+. __var__0
+. __var__1
+= __var__0, 1
+= __var__1, 0
+. __temp__0
+= __temp__0, 1
+. __temp__1
+= __temp__1, 0
+. __temp__2
+! __temp__2, __temp__1
+. __temp__3
+&& __temp__3, __temp__0, __temp__2
+?:= __label__0, __temp__3
+:= __label__1
+: __label__0
+.> __var__0
+: __label__1
+. __temp__4
+= __temp__4, 0
+. __temp__5
+= __temp__5, 1
+. __temp__6
+! __temp__6, __temp__5
+. __temp__7
+|| __temp__7, __temp__4, __temp__6
+?:= __label__2, __temp__7
+:= __label__3
+: __label__2
+.> __var__1
+: __label__3
+. __temp__8
+= __temp__8, 1
+. __temp__9
+= __temp__9, 1
+. __temp__10
+! __temp__10, __temp__9
+. __temp__11
+|| __temp__11, __temp__8, __temp__10
+?:= __label__6, __temp__11
+:= __label__7
+: __label__6
+. __temp__12
+= __temp__12, 0
+. __temp__13
+= __temp__13, 0
+. __temp__14
+! __temp__14, __temp__13
+. __temp__15
+|| __temp__15, __temp__12, __temp__14
+?:= __label__4, __temp__15
+:= __label__5
+: __label__4
+.> __var__0
+: __label__5
+: __label__7
+. __temp__16
+== __temp__16, __var__0, 1
+. __temp__17
+!= __temp__17, __var__1, 1
+. __temp__18
+= __temp__18, 0
+. __temp__19
+&& __temp__19, __temp__17, __temp__18
+. __temp__20
+&& __temp__20, __temp__16, __temp__19
+. __temp__21
+= __temp__21, 1
+. __temp__22
+|| __temp__22, __temp__20, __temp__21
+. __temp__23
+= __temp__23, 0
+. __temp__24
+! __temp__24, __temp__23
+. __temp__25
+&& __temp__25, __temp__22, __temp__24
+?:= __label__8, __temp__25
+:= __label__9
+: __label__8
+.> __var__0
+: __label__9
+. __temp__26
++ __temp__26, 1, 5
+. __temp__27
+- __temp__27, __temp__26, 1
+. __temp__28
+* __temp__28, __temp__27, 10
+. __temp__29
+/ __temp__29, __temp__28, 10
+. __temp__30
+% __temp__30, __temp__29, 5
+. __temp__31
+- __temp__31, 501, 11
+. __temp__32
+/ __temp__32, __temp__31, 7
+. __temp__33
+% __temp__33, __temp__32, 10
+. __temp__34
+== __temp__34, __temp__30, __temp__33
+?:= __label__10, __temp__34
+:= __label__11
+: __label__10
+.> __var__0
+: __label__11
+. __temp__35
+- __temp__35, 0, 1
+. __temp__36
+- __temp__36, 0, __temp__35
+. __temp__37
+== __temp__37, __temp__36, 1
+?:= __label__12, __temp__37
+:= __label__13
+: __label__12
+.> __var__0
+: __label__13
+endfunc
+

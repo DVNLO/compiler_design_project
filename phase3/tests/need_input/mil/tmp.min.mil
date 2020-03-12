@@ -1,0 +1,6 @@
+func main
+. __var__0
+.[] __var__1, 100
+= __var__0, 1
+endfunc
+

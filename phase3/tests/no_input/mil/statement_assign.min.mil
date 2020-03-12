@@ -1,0 +1,67 @@
+func main
+. __var__0
+. __var__1
+. __var__2
+. __var__3
+. __var__4
+. __var__5
+. __var__6
+. __var__7
+. __var__8
+. __var__9
+. __var__10
+.[] __var__11, 10
+= __var__9, 1
+= __var__10, 0
+= __var__3, 0
+= __var__4, 5
+= __var__5, 7
+. __temp__0
+- __temp__0, 0, 1
+= __var__6, __temp__0
+= __var__7, 10463
+= __var__8, 462
+[]= __var__11, __var__3, __var__6
+[]= __var__11, __var__4, __var__7
+[]= __var__11, __var__5, __var__8
+. __temp__1
+=[] __temp__1, __var__11, __var__3
+= __var__0, __temp__1
+. __temp__2
+=[] __temp__2, __var__11, __var__4
+= __var__1, __temp__2
+. __temp__3
+=[] __temp__3, __var__11, __var__5
+= __var__2, __temp__3
+. __temp__4
+== __temp__4, __var__0, __var__6
+?:= __label__0, __temp__4
+:= __label__1
+: __label__0
+.> __var__9
+:= __label__2
+: __label__1
+.> __var__10
+: __label__2
+. __temp__5
+== __temp__5, __var__1, __var__7
+?:= __label__3, __temp__5
+:= __label__4
+: __label__3
+.> __var__9
+:= __label__5
+: __label__4
+.> __var__10
+: __label__5
+. __temp__6
+== __temp__6, __var__2, __var__8
+?:= __label__6, __temp__6
+:= __label__7
+: __label__6
+.> __var__9
+:= __label__8
+: __label__7
+.> __var__10
+: __label__8
+endfunc
+

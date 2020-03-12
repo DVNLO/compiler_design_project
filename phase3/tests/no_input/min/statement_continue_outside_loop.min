@@ -21,7 +21,7 @@ beginbody
       endloop;
     endloop;
   endloop;
-  if i == j && i == k then
+  if i == j and i == k then
     continue;
   else
     continue;

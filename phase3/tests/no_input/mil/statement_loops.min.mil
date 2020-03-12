@@ -1,0 +1,63 @@
+func main
+. __var__0
+. __var__1
+. __var__2
+. __var__3
+. __var__4
+. __var__5
+= __var__0, 1
+= __var__1, 0
+= __var__5, __var__1
+= __var__2, 0
+:= __label__9
+: __loop__0
+. __temp__1
++ __temp__1, __var__2, 1
+= __var__2, __temp__1
+: __label__9
+. __temp__0
+< __temp__0, __var__2, 5
+?:= __label__7, __temp__0
+:= __label__8
+: __label__7
+. __temp__2
++ __temp__2, __var__2, 1
+= __var__3, __temp__2
+: __label__2
+. __temp__3
+- __temp__3, __var__3, 1
+= __var__3, __temp__3
+. __temp__4
+== __temp__4, __var__3, 0
+?:= __label__0, __temp__4
+:= __label__1
+: __label__0
+= __var__5, __var__0
+: __label__1
+: __loop__1
+. __temp__5
+> __temp__5, __var__3, 0
+?:= __label__2, __temp__5
+: __loop__2
+. __temp__6
+< __temp__6, __var__3, 1
+?:= __label__5, __temp__6
+:= __label__6
+: __label__5
+. __temp__7
++ __temp__7, __var__3, 1
+= __var__3, __temp__7
+. __temp__8
+!= __temp__8, __var__3, 1
+?:= __label__3, __temp__8
+:= __label__4
+: __label__3
+= __var__5, __var__1
+: __label__4
+:= __loop__2
+: __label__6
+:= __loop__0
+: __label__8
+.> __var__5
+endfunc
+
