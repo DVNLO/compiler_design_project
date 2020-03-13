@@ -1,0 +1,11 @@
+function main;
+beginparams
+  thisshouldntbehere : integer;  ## the main function cannot have parameters
+endparams
+beginlocals
+  true_val, false_val : integer;
+endlocals
+beginbody
+  true_val := 1;
+  false_val := 0;
+endbody
