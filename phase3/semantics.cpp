@@ -18,7 +18,15 @@ generate_name()
 {
   static unsigned id = 0;
   static std::string const NAME_PREFIX = "__temp__";
-  return NAME_PREFIX + std::to_string(id++);
+  function_t & top = get_function(function_stack.top());
+  std::string ret;
+  do
+  {
+    ret = NAME_PREFIX + std::to_string(id++);
+  }
+  while(top.alias_map.count(ret) 
+        || function_alias_map.count(ret));
+  return ret;
 }
 
 std::string
@@ -28,7 +36,15 @@ generate_label()
 {
   static unsigned id = 0;
   static std::string const LABEL_PREFIX = "__label__";
-  return LABEL_PREFIX + std::to_string(id++);
+  function_t & top = get_function(function_stack.top());
+  std::string ret;
+  do
+  {
+    ret = LABEL_PREFIX + std::to_string(id++);
+  }
+  while(top.alias_map.count(ret) 
+        || function_alias_map.count(ret));
+  return ret;
 }
 
 std::string
@@ -37,7 +53,15 @@ generate_alias_variable()
 {
   static unsigned id = 0;
   static std::string const VARIABLE_ALIAS_PREFIX = "__var__";
-  return VARIABLE_ALIAS_PREFIX + std::to_string(id++);
+  function_t & top = get_function(function_stack.top());
+  std::string ret;
+  do
+  {
+    ret = VARIABLE_ALIAS_PREFIX + std::to_string(id++);
+  }
+  while(top.alias_map.count(ret) 
+        || function_alias_map.count(ret));
+  return ret;
 }
 
 std::string
@@ -57,7 +81,15 @@ generate_loop_label()
 {
   static std::string const LOOP_LABEL_PREFIX = "__loop__";
   static unsigned id = 0;
-  return LOOP_LABEL_PREFIX + std::to_string(id++);
+  function_t & top = get_function(function_stack.top());
+  std::string ret;
+  do
+  {
+    ret = LOOP_LABEL_PREFIX + std::to_string(id++);
+  }
+  while(top.alias_map.count(ret) 
+        || function_alias_map.count(ret));
+  return ret;
 }
 
 std::string
