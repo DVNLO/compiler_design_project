@@ -325,13 +325,7 @@ bool
 is_main_defined(std::vector<std::string> const & functions)
 // returns true if a "main" function is defined
 {
-  size_t const SIZE_FUNCTIONS = functions.size();
-  for(size_t i = 0; i < SIZE_FUNCTIONS; ++i)
-  {
-    if(function_alias_map.count(functions[i]))
-      return true;
-  }
-  return false;
+  return static_cast<bool>(function_alias_map.count("main"));
 }
 
 bool
