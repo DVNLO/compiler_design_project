@@ -326,6 +326,18 @@ do_parameters_match_function_identifier(std::vector<std::string> const & paramet
 {
   std::string const & function_identifier_alias = get_alias_function(function_identifier);
   function_t & target = get_function(function_identifier_alias);
+/*
+  for (int i = 0; i < parameters.size(); i++)
+  {
+    printf("%s, ", parameters[i].c_str());
+  }
+  puts("");
+  for (int i = 0; i < parameters.size(); i++)
+  {
+    printf("%d, ", target.parameter_types[i]);
+  }
+  puts("");
+*/
   if(parameters.size() != target.parameter_types.size())
   {
     return false;
