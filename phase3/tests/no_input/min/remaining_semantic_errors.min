@@ -1,0 +1,17 @@
+########################
+## Semantic errors 
+## 
+########################
+
+function f; ## SE3 not defining a main function
+beginparams
+endparams
+beginlocals
+  val : integer;
+  return : integer; ## SE5 trying to name variable with keyword
+  notgonnawork : array [-2] of integer;  ## SE8 trying to initialize with size <= 0
+endlocals
+beginbody
+  val := doesntexist(); ## SE2 Calling an undefined function
+  val[5] := 0;  ## SE7 specifying an array index using an integer
+endbody
