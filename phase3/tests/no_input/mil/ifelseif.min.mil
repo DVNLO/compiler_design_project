@@ -1,0 +1,50 @@
+func main
+. __var__0
+= __var__0, 0
+: __loop__0
+. __temp__0
+<= __temp__0, __var__0, 100
+?:= __label__9, __temp__0
+:= __label__10
+: __label__9
+. __temp__1
+>= __temp__1, __var__0, 100
+?:= __label__6, __temp__1
+:= __label__7
+: __label__6
+.> __var__0
+:= __label__8
+: __label__7
+. __temp__2
+% __temp__2, __var__0, 2
+. __temp__3
+== __temp__3, __temp__2, 0
+?:= __label__3, __temp__3
+:= __label__4
+: __label__3
+.> __var__0
+:= __label__5
+: __label__4
+. __temp__4
+% __temp__4, __var__0, 3
+. __temp__5
+== __temp__5, __temp__4, 0
+?:= __label__0, __temp__5
+:= __label__1
+: __label__0
+.> __var__0
+:= __label__2
+: __label__1
+. __temp__6
++ __temp__6, __var__0, 7
+= __var__0, __temp__6
+: __label__2
+: __label__5
+: __label__8
+. __temp__7
++ __temp__7, __var__0, 1
+= __var__0, __temp__7
+:= __loop__0
+: __label__10
+endfunc
+

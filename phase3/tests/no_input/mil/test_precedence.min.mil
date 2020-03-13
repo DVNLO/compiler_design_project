@@ -1,0 +1,30 @@
+func main
+. __var__0
+. __temp__0
+* __temp__0, 2, 6
+. __temp__1
++ __temp__1, 3, __temp__0
+. __temp__2
+/ __temp__2, 21, 3
+. __temp__3
+- __temp__3, __temp__1, __temp__2
+. __temp__4
+% __temp__4, 10, 3
+. __temp__5
++ __temp__5, __temp__3, __temp__4
+= __var__0, __temp__5
+.> __var__0
+. __temp__6
+* __temp__6, 2, 6
+. __temp__7
++ __temp__7, 3, __temp__6
+. __temp__8
+* __temp__8, __temp__7, 21
+. __temp__9
+/ __temp__9, __temp__8, 3
+. __temp__10
+% __temp__10, __temp__9, 3
+= __var__0, __temp__10
+.> __var__0
+endfunc
+

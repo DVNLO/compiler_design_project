@@ -1,0 +1,4 @@
+Error line 7: symbol 'n' previously declared
+Error line 11: use of undeclared variable 'z'
+Error line 12: invalid use of non-integer variable 'r'
+Error line 14: continue statement not within a loop.

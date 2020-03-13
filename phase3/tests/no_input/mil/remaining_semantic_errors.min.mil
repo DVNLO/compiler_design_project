@@ -1,0 +1,5 @@
+Syntax error at line 11: unexpected RETURN expecting IDENT or END_LOCALS
+Syntax error at line 12: unexpected SUB expecting NUMBER
+Error line 15: use of undeclared function
+Error line 16: invalid use of non-array variable 'val'
+Error line 18: no main function defined

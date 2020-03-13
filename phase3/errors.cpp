@@ -7,7 +7,7 @@ emit_error_message(std::string const msg)
 // emits a helpful error message and sets
 // semantic_errors state to true
 {
-   fprintf(stderr,
+   fprintf(stdout,
        "Error line %d: %s\n", yylineno, msg.c_str());
    is_error__ = true;
 }

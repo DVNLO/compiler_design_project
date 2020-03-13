@@ -198,7 +198,6 @@ params
       for(size_t i = 0; i < SIZE_DECLARATIONS; ++i)
       {
         variable_type_t const & var_type = declarations[i].variable_type;
-
         size_t const SIZE_IDENTIFIERS = declarations[i].identifiers.size(); 
         for (size_t j = 0; j < SIZE_IDENTIFIERS; ++j) 
         {
@@ -215,8 +214,6 @@ params
           }
           $$->code += gen_ins_copy(identifier_name_alias, '$' + std::to_string(param_number++));
           add_parameter_type(var_type); // populates parameter type vector
-
-          printf("params -> var_type %d\n", var_type);
         }
       }
       delete $2;
@@ -893,7 +890,6 @@ variable
         variable_name_alias = get_alias_variable(variable_name);
         if(!is_integer(get_variable_type(variable_name_alias)))
         {
-          // ERROR : identifier could be an array being passed to a function
           emit_error_message("invalid use of non-integer variable '" + variable_name + "'");
         }
       }
@@ -1023,7 +1019,6 @@ term1
 term2
   : expression COMMA term2 
     {
-      printf("%s\n", $1->dst.c_str());
       $$ = new parameter_list_t;
       $$->code += $1->code;
       $$->parameters.push_back($1->dst);
