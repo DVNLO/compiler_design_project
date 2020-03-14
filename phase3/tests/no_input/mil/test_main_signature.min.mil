@@ -1,0 +1,9 @@
+func main
+. __var__0
+= __var__0, $0
+. __var__1
+. __var__2
+= __var__1, 1
+= __var__2, 0
+endfunc
+

@@ -398,3 +398,9 @@ get_variable_type(std::string const & variable_identifier_alias)
 {
   return function_map[function_stack.top()].symbol_table[variable_identifier_alias];
 }
+
+bool
+is_in_main()
+{
+  return function_alias_map[function_stack.top()] == "main";
+}

@@ -684,6 +684,10 @@ statement_continue
 statement_return
   : RETURN expression 
     {
+      if (is_in_main())
+      {
+        emit_error_message("Should not have 'return' statement in main.\n");
+      }
       $$ = new statement_t;
       $$->dst = $2->dst;
       $$->code += $2->code;
