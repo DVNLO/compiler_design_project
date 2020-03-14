@@ -144,6 +144,7 @@ function
       {
         record_alias_function(function_identifier, 
                               function_identifier); // treat main as it's own alias
+        function_identifier_alias = function_identifier;
       }
       else
       {
@@ -681,7 +682,7 @@ statement_continue
         $$->code = gen_ins_branch_goto(loop_label);
       }
       else
-        emit_error_message("continue statement not within a loop.");
+        emit_error_message("continue statement not within a loop");
     }
   ;
 
@@ -690,7 +691,7 @@ statement_return
     {
       if (is_in_main())
       {
-        emit_error_message("Should not have 'return' statement in main.\n");
+        emit_error_message("Should not have 'return' statement in main");
       }
       $$ = new statement_t;
       $$->dst = $2->dst;

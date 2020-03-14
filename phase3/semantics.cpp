@@ -402,5 +402,5 @@ get_variable_type(std::string const & variable_identifier_alias)
 bool
 is_in_main()
 {
-  return function_alias_map[function_stack.top()] == "main";
+  return function_stack.top() == "main";
 }
