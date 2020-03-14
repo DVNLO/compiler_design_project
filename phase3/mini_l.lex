@@ -76,7 +76,7 @@ return            { pos += strlen(yytext); return RETURN; }
 {WHITESPACE}*     { pos += strlen(yytext); }
 {NEWLINE}         { yylineno++; pos = 1; }
 ({DIGIT}|_)+({IDENT})?(_)* {
-                  fprintf(stderr, 
+                  fprintf(stdout, 
                           "Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", 
                           yylineno, 
                           pos, 
@@ -85,7 +85,7 @@ return            { pos += strlen(yytext); return RETURN; }
                 }
 
 {IDENT}(_)+     {
-                  fprintf(stderr, 
+                  fprintf(stdout, 
                           "Error at line %d , column %d: identifier \"%s\" cannot end with an underscore\n", 
                           yylineno,
                           pos,
@@ -93,7 +93,7 @@ return            { pos += strlen(yytext); return RETURN; }
                   exit(EXIT_FAILURE);
                 }
 .               {
-                  fprintf(stderr,
+                  fprintf(stdout,
                           "Error at line %d, column %d: unrecognized symbol \"%s\"\n",
 			  yylineno,
                           pos,
