@@ -191,6 +191,10 @@ semicolon
 params
   : begin_params declarations end_params 
     {
+      if(is_in_main())
+      {
+        emit_error_message("main cannot have arguments");
+      }
       $$ = new parameters_t;
       int param_number = 0;
       std::vector<declaration_t> & declarations = $2->declarations;
